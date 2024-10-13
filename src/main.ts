@@ -1,10 +1,13 @@
 import './style.css';
 import { GameManager } from './modules/GameManager';  // Import your GameManager class
 import { Tile } from './modules/Tile';
+import { HtmlGameView } from './views/HtmlGameView';
+import { HtmlGameController } from './controllers/HtmlGameController';
 
 // Initialize the game board
 const gameSize = 5;  // Size of the grid (e.g., 5x5)
 const gameManager = new GameManager(gameSize);
+const htmlGameView = new HtmlGameView(gameManager, document);
 
 // Available tile types to randomly assign
 const tileTypes: Array<'tree' | 'farm' | 'people' | 'power'> = ['tree', 'farm', 'people', 'power'];
@@ -31,43 +34,8 @@ function initializeRandomTiles(gameManager: GameManager, gameSize: number): void
 // Initialize the game board with random tiles
 initializeRandomTiles(gameManager, gameSize);
 
-// Function to create the grid HTML representation
-function renderGrid(gameManager: GameManager): string {
-    let gridHtml = '<div class="grid">';
-    for (let x = 0; x < gameSize; x++) {
-        gridHtml += '<div class="row">';
-        for (let y = 0; y < gameSize; y++) {
-          const space = gameManager.gameBoard.getSpace(x, y);
-          const tile = space ? space.tile : undefined;
-          const tileType = tile ? tile.type : 'empty';  // Fallback to 'empty' if there's no tile
-          const tileLevel = tile ? tile.level : 0;      // Show level if tile exists
-          const tileState = tile ? tile.state : 'neutral'; // Get the state (neutral, healthy, unhealthy)
+// Render the initial game grid
+htmlGameView.updateGrid();
 
-          // Add tileType and state class to the div
-          gridHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}" data-x="${x}" data-y="${y}"></div>`;
-      }
-        gridHtml += '</div>';
-    }
-    gridHtml += '</div>';
-    return gridHtml;
-}
-
-// Function to update the grid
-function updateGrid(): void {
-    const appDiv = document.querySelector<HTMLDivElement>('#app')!;
-    appDiv.innerHTML = `
-        <h1>Game Grid</h1>
-        ${renderGrid(gameManager)}
-        <button id="nextTurn" type="button">Next Turn</button>
-    `;
-
-    // Add event listener to advance the game
-    const nextTurnButton = document.querySelector<HTMLButtonElement>('#nextTurn');
-    nextTurnButton?.addEventListener('click', () => {
-        gameManager.updateBoard();  // Update the game board
-        updateGrid();  // Re-render the updated grid
-    });
-}
-
-// Initial render
-updateGrid();
+// Initialize the controller to handle input and interaction
+const htmlGameController = new HtmlGameController(gameManager, htmlGameView);

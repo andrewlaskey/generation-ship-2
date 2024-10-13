@@ -67,11 +67,11 @@ h1 {
 }
 
 .cell.l2 {
-  font-size: 1.6rem;
+  font-size: 2rem;
 }
 
 .cell.l3 {
-  font-size: 2.2rem;
+  font-size: 3rem;
 }
 
 /* Healthy and Unhealthy state styling */
@@ -105,6 +105,6 @@ h1 {
 
 /* Empty cell (no emoji) */
 .cell.empty::before {
-  content: "⬜"; /* Empty square emoji */
+  content: " "; /* Empty square emoji */
 }
 
