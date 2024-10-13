@@ -16,9 +16,12 @@ export class HtmlGameController {
     // Initialize event listeners for user input
     private initInputListeners(): void {
         const nextTurnButton = this.gameView.document.querySelector<HTMLButtonElement>('#nextTurn');
+        const drawItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#drawItem')
         
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
+
+        drawItemButton?.addEventListener('click', () => this.drawItem())
     }
 
     // Handle advancing the turn
@@ -31,4 +34,9 @@ export class HtmlGameController {
     }
 
     // You can add more methods to handle other user inputs, like selecting tiles or interacting with the board
+    public drawItem(): void {
+        console.log('draw item click')
+        this.gameManager.drawItemToHand()
+        this.gameView.updateGrid()
+    }
 }

@@ -15,10 +15,6 @@ export class BoardSpace {
 
     // Method to place a tile on the board space
     placeTile(tile: Tile): void {
-        if (this.tile) {
-            throw new Error('Space already occupied.');
-        }
-
         this.tile = tile;
         this.logHistory('placed', tile.type);
     }

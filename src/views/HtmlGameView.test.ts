@@ -19,7 +19,11 @@ const createMockGameManager = (gameSize: number) => {
                 };
             })
         },
-        updateBoard: vi.fn() // Mock updateBoard method
+        updateBoard: vi.fn(), // Mock updateBoard method,
+        getPlayerHand: vi.fn(() => {
+            return []
+        }),
+        getDeckItemCount: vi.fn(() => 52)
     };
 };
 

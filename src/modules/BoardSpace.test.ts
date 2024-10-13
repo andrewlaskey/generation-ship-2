@@ -26,11 +26,6 @@ describe('BoardSpace', () => {
         expect(boardSpace.tile).toBe(tile1);
     });
 
-    it('should not allow placing a tile in an already occupied space', () => {
-        boardSpace.placeTile(tile1);
-        expect(() => boardSpace.placeTile(tile2)).toThrowError('Space already occupied.');
-    });
-
     it('should remove a tile from the board space', () => {
         boardSpace.placeTile(tile1);
         boardSpace.removeTile();
