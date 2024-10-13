@@ -1,6 +1,6 @@
 import { GameManager } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
-
+import { TileBlock } from '../modules/TileBlock';
 export class HtmlGameView {
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
@@ -64,15 +64,34 @@ export class HtmlGameView {
         if (handItems.length === 0) {
             handHtml += '<p>No items in hand</p>';
         } else {
-            handHtml += '<ul>';
+            handHtml += '<div class="hand-grid">';  // Add a container for the hand items
             handItems.forEach((item, index) => {
-                handHtml += `<li>Item ${index + 1}: ${item.getName()}</li>`;
+                if (item instanceof TileBlock) {
+                    handHtml += `<div class="hand-item" data-index="${index}">`;  // Wrap each hand item
+                    const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
+                    
+                    // Render each tile in the TileBlock
+                    layout.forEach(row => {
+                        handHtml += '<div class="hand-row">';
+                        row.forEach(tile => {
+                            const tileType = tile ? tile.type : 'empty';
+                            const tileLevel = tile ? tile.level : 0;
+                            const tileState = tile ? tile.state : 'neutral';
+                            
+                            handHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}"></div>`;
+                        });
+                        handHtml += '</div>';  // End of row
+                    });
+
+                    handHtml += '</div>';  // End of hand-item
+                }
             });
-            handHtml += '</ul>';
+            handHtml += '</div>';  // End of hand-grid
         }
 
         return handHtml;
     }
+
 
     // Method to display the total number of items left in the deck
     private renderDeckCounter(): string {
