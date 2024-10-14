@@ -33,7 +33,7 @@ export class GameBoard {
     // Method to place a tile at a specific coordinate
     placeTileAt(x: number, y: number, tile: Tile): boolean {
         const space = this.getSpace(x, y);
-        if (space && !space.isOccupied()) {
+        if (space) {
             space.placeTile(tile);
             return true;
         }

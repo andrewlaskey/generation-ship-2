@@ -3,14 +3,116 @@ import { GameBoard } from './GameBoard';
 import { Tile } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { TileHandlerRegistry } from './TileHandlerRegistry';
+import { PlayerHand, HandItem } from './PlayerHand';
+import { Deck } from './Deck';
+import { TileBlock } from './TileBlock';
+
 
 export class GameManager {
     gameBoard: GameBoard;
     tileHandlerRegistry: TileHandlerRegistry;
+    playerHand: PlayerHand;  // Player's hand
+    deck: Deck;  // Deck for drawing HandItems
 
-    constructor(size: number) {
+    constructor(size: number, initialDeckSize: number, maxHandSize: number, seed: string | null = null, infiniteDeck: boolean = false) {
         this.gameBoard = new GameBoard(size);
         this.tileHandlerRegistry = new TileHandlerRegistry();
+        this.playerHand = new PlayerHand(maxHandSize);  // Initialize the player's hand
+        this.deck = new Deck(seed, infiniteDeck);  // Initialize the deck with seed and infinite options
+        this.deck.fillInitialDeck(initialDeckSize);  // Fill the deck with initial items
+    }
+
+    // Draw a new item from the deck into the player's hand
+    drawItemToHand(): boolean {
+        if (!this.playerHand.isFull()) {
+            const item = this.deck.drawItem();
+            if (item) {
+                return this.playerHand.addItem(item);  // Add the item to the hand if there's room
+            }
+        }
+        return false;
+    }
+
+    fillHand(): boolean {
+        let handWasFilled = true;
+    
+        while (!this.playerHand.isFull()) {
+            if (!this.tryToAddItemToHand()) {
+                handWasFilled = false;
+                break;
+            }
+        }
+    
+        return handWasFilled;
+    }
+    
+    private tryToAddItemToHand(): boolean {
+        const item = this.deck.drawItem();
+    
+        if (!item) {
+            console.warn("Deck is empty, cannot fill hand completely.");
+            return false;  // No more items in the deck
+        }
+    
+        const success = this.playerHand.addItem(item);
+        if (!success) {
+            console.error("Failed to add item to player hand.");
+            return false;
+        }
+    
+        return true;
+    }
+    
+
+    // Place a TileBlock from the player's hand onto the board
+    placeTileBlock(x: number, y: number, handIndex: number): boolean {
+        const handItem = this.playerHand.getItems()[handIndex];
+        if (handItem instanceof TileBlock) {
+            const tileBlock = handItem as TileBlock;
+            try {
+                tileBlock.placeOnGrid(x, y, this.gameBoard);  // Place the TileBlock on the game board
+                this.playerHand.removeItem(handIndex);  // Remove the placed item from the hand
+                return true;
+            } catch (e) {
+                console.error(e);  // Log the error and return false
+                return false;
+            }
+        }
+        return false;  // Return false if the hand item is not a TileBlock
+    }
+    
+
+    // Get the current state of the player's hand
+    getPlayerHand(): HandItem[] {
+        return this.playerHand.getItems();  // Return the items in the player's hand
+    }
+
+
+    // API for views to display the deck count (number of items remaining)
+    getDeckItemCount(): number {
+        return this.deck.getItemCount();
+    }
+
+    // Update the entire board (existing logic)
+    updateBoard(): void {
+        const size = this.gameBoard.size;
+        for (let x = 0; x < size; x++) {
+            for (let y = 0; y < size; y++) {
+                this.updateSpace(x, y);
+            }
+        }
+    }
+
+    // Helper method to count specific types of neighbors
+    countNeighbors(space: BoardSpace, types: string[]): number {
+        const { x, y } = space;
+        const neighbors = this.getNeighbors(x, y);
+        return neighbors.reduce((count, neighborSpace) => {
+            if (neighborSpace.tile && types.includes(neighborSpace.tile.type)) {
+                count++;
+            }
+            return count;
+        }, 0);
     }
 
     // Generic method to handle tile state transitions
@@ -43,18 +145,6 @@ export class GameManager {
         } else {
             tile.state = 'neutral';  // Stay neutral if no condition is met
         }
-    }
-
-    // Helper method to count specific types of neighbors
-    countNeighbors(space: BoardSpace, types: string[]): number {
-        const { x, y } = space;
-        const neighbors = this.getNeighbors(x, y);
-        return neighbors.reduce((count, neighborSpace) => {
-            if (neighborSpace.tile && types.includes(neighborSpace.tile.type)) {
-                count++;
-            }
-            return count;
-        }, 0);
     }
 
     // Method to update space based on the tile type
@@ -105,13 +195,15 @@ export class GameManager {
         return neighbors;
     }
 
-    // Method to update the entire board
-    updateBoard(): void {
-        const size = this.gameBoard.size;
-        for (let x = 0; x < size; x++) {
-            for (let y = 0; y < size; y++) {
-                this.updateSpace(x, y);
-            }
-        }
+    selectItemFromHand(index: number): void {
+        this.playerHand.selectItem(index)
+    }
+
+    getSelectedItemIndex(): number {
+        return this.playerHand.getSelectedItemIndex();
+    }
+
+    rotateSelectedItem(): void {
+        this.playerHand.rotateSelected();
     }
 }

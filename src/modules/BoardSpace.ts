@@ -15,22 +15,16 @@ export class BoardSpace {
 
     // Method to place a tile on the board space
     placeTile(tile: Tile): void {
-        if (this.tile) {
-            throw new Error('Space already occupied.');
-        }
-
         this.tile = tile;
         this.logHistory('placed', tile.type);
     }
 
     // Method to remove a tile from the board space
     removeTile(): void {
-        if (!this.tile) {
-            throw new Error('No tile to remove.');
+        if (this.tile) {
+            this.logHistory('removed', this.tile.type);
+            this.tile = null;   
         }
-
-        this.logHistory('removed', this.tile.type);
-        this.tile = null;
     }
 
     // Check if the board space is occupied

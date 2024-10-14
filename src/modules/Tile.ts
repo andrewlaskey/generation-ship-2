@@ -1,7 +1,17 @@
 // tile.ts
 
-export type TileType = 'tree' | 'farm' | 'people' | 'power';
-export type TileState = 'neutral' | 'healthy' | 'unhealthy';
+export enum TileType {
+    Tree = 'tree',
+    Farm = 'farm',
+    People = 'people',
+    Power = 'power',
+}
+
+export enum TileState {
+    Neutral = 'neutral',
+    Healthy = 'healthy',
+    Unhealthy = 'unhealthy',
+}
 
 
 export class Tile {

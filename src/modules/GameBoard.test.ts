@@ -29,10 +29,10 @@ describe('GameBoard', () => {
         expect(space?.tile).toBe(tile1); // BoardSpace should hold the tile
     });
 
-    it('should not place a tile on an occupied space', () => {
+    it('should be able to place a tile on an occupied space', () => {
         board.placeTileAt(2, 2, tile1);
         const result = board.placeTileAt(2, 2, tile2);
-        expect(result).toBe(false); // Second tile placement should fail
+        expect(result).toBe(true); // Second tile placement should fail
     });
 
     it('should return null for invalid coordinates', () => {
