@@ -103,24 +103,45 @@ h1 {
   content: " ";
 }
 
-/* Hand Grid Styling */
+/* Player Hand Styling */
 .hand-grid {
   display: flex;
   gap: 4px;
   margin-top: 10px;
+  align-items: flex-start; /* Ensure vertical tiles align to the top */
+  height: 48px; /* Fixed height for the hand grid */
 }
 
+/* Ensure hand-item dynamically adjusts based on tile block size */
 .hand-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
-}
-
-.hand-item.selected {
-  border: 2px solid yellow;
+  height: 52px;
+  width: 52px;
 }
 
 .hand-row {
   display: flex;
   gap: 2px;
 }
+
+/* Cell inside the hand-item */
+.hand-item .cell {
+  width: 24px;
+  height: 24px;
+  font-size: 1rem;
+}
+
+/* Ensure rotated tiles don't stretch the container */
+.hand-item .cell.vertical {
+  width: 24px;
+  height: 24px;
+}
+
+/* Only apply the yellow border to the selected cell, not the entire hand item */
+.hand-item.selected .cell {
+  border: 2px solid yellow;
+}
+
+
