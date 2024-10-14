@@ -22,27 +22,79 @@ export class HtmlGameController {
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
         drawItemButton?.addEventListener('click', () => this.drawItem());
-        rotateItemButton?.addEventListener('click', () => this.rotateItem())
+        rotateItemButton?.addEventListener('click', () => this.rotateItem());
+
+        // Initialize listeners on grid cells and hand items
+        this.initGridCellListeners();
+        this.initHandItemListeners();
+    }
+
+    // Initialize listeners for grid cell clicks
+    private initGridCellListeners(): void {
+        const gridCells = this.gameView.document.querySelectorAll<HTMLDivElement>('.grid .cell');
+        gridCells.forEach(cell => {
+            cell.addEventListener('click', (event) => {
+                const x = parseInt((event.currentTarget as HTMLElement).getAttribute('data-x')!);
+                const y = parseInt((event.currentTarget as HTMLElement).getAttribute('data-y')!);
+                this.handleCellClick(x, y);
+            });
+        });
+    }
+
+    // Initialize listeners for hand item clicks
+    private initHandItemListeners(): void {
+        const handItems = this.gameView.document.querySelectorAll<HTMLDivElement>('.hand-item');
+        handItems.forEach((item, index) => {
+            item.addEventListener('click', () => this.handleHandItemClick(index));
+        });
+    }
+
+    // Handle a click on a grid cell
+    private handleCellClick(x: number, y: number): void {
+        const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
+        const success = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
+        
+        if (!success) {
+            console.error(`Failed to place tile block at (${x}, ${y}). Invalid placement or non-tile item.`);
+        }
+
+        // Advance the players turn after making a placement
+        this.advanceTurn();
+    }
+
+    // Handle a click on a hand item
+    private handleHandItemClick(index: number): void {
+        this.gameManager.selectItemFromHand(index);  // Select the clicked item from hand
+        this.updateView();  // Update the view to show the selected item
+    }
+
+    // Update the view and re-initialize listeners
+    private updateView(): void {
+        this.gameView.updateGrid();
+        this.initGridCellListeners();  // Re-initialize the grid cell listeners after re-render
+        this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
     }
 
     // Handle advancing the turn
     public advanceTurn(): void {
         // Update the game state via GameManager
         this.gameManager.updateBoard();
+
+        // Update the player's hand
+        this.gameManager.fillHand();
         
         // Notify the view to re-render the updated game state
-        this.gameView.updateGrid();
+        this.updateView();
     }
 
-    // You can add more methods to handle other user inputs, like selecting tiles or interacting with the board
     public drawItem(): void {
-        console.log('draw item click')
-        this.gameManager.drawItemToHand()
-        this.gameView.updateGrid()
+        console.log('draw item click');
+        this.gameManager.fillHand();
+        this.updateView();
     }
 
     public rotateItem(): void {
         this.gameManager.rotateSelectedItem();
-        this.gameView.updateGrid();
+        this.updateView();
     }
 }

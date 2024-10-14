@@ -33,8 +33,10 @@ describe('BoardSpace', () => {
         expect(boardSpace.tile).toBeNull();
     });
 
-    it('should not allow removing a tile from an empty space', () => {
-        expect(() => boardSpace.removeTile()).toThrowError('No tile to remove.');
+    it('should allow removing a tile from an empty space', () => {
+        boardSpace.removeTile();
+        expect(boardSpace.isOccupied()).toBe(false);
+        expect(boardSpace.tile).toBeNull();
     });
 
     it('should log history when placing a tile', () => {

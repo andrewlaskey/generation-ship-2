@@ -27,7 +27,8 @@ const createMockGameManager = (gameSize: number) => {
         getDeckItemCount: vi.fn(() => 52),
         drawItemToHand: vi.fn(() => true), // Mock drawItemToHand method
         getSelectedItemIndex: vi.fn(() => 0),
-        rotateSelectedItem: vi.fn()
+        rotateSelectedItem: vi.fn(),
+        fillHand: vi.fn()
     };
 };
 
@@ -77,7 +78,7 @@ describe('HtmlGameController', () => {
 
     it('should attach event listener to the draw item button', () => {
         // Spy on the gameManager's drawItemToHand method
-        const drawItemToHandSpy = vi.spyOn(gameManager, 'drawItemToHand');
+        const drawItemToHandSpy = vi.spyOn(gameManager, 'fillHand');
 
         // Simulate a click on the draw item button
         const drawItemButton = document.querySelector('#drawItem') as HTMLButtonElement;

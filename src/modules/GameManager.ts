@@ -33,17 +33,54 @@ export class GameManager {
         return false;
     }
 
+    fillHand(): boolean {
+        let handWasFilled = true;
+    
+        while (!this.playerHand.isFull()) {
+            if (!this.tryToAddItemToHand()) {
+                handWasFilled = false;
+                break;
+            }
+        }
+    
+        return handWasFilled;
+    }
+    
+    private tryToAddItemToHand(): boolean {
+        const item = this.deck.drawItem();
+    
+        if (!item) {
+            console.warn("Deck is empty, cannot fill hand completely.");
+            return false;  // No more items in the deck
+        }
+    
+        const success = this.playerHand.addItem(item);
+        if (!success) {
+            console.error("Failed to add item to player hand.");
+            return false;
+        }
+    
+        return true;
+    }
+    
+
     // Place a TileBlock from the player's hand onto the board
     placeTileBlock(x: number, y: number, handIndex: number): boolean {
         const handItem = this.playerHand.getItems()[handIndex];
         if (handItem instanceof TileBlock) {
             const tileBlock = handItem as TileBlock;
-            tileBlock.placeOnGrid(x, y, this.gameBoard);  // Place the TileBlock on the game board
-            this.playerHand.removeItem(handIndex);  // Remove the placed item from the hand
-            return true;
+            try {
+                tileBlock.placeOnGrid(x, y, this.gameBoard);  // Place the TileBlock on the game board
+                this.playerHand.removeItem(handIndex);  // Remove the placed item from the hand
+                return true;
+            } catch (e) {
+                console.error(e);  // Log the error and return false
+                return false;
+            }
         }
         return false;  // Return false if the hand item is not a TileBlock
     }
+    
 
     // Get the current state of the player's hand
     getPlayerHand(): HandItem[] {

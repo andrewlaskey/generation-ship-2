@@ -21,12 +21,10 @@ export class BoardSpace {
 
     // Method to remove a tile from the board space
     removeTile(): void {
-        if (!this.tile) {
-            throw new Error('No tile to remove.');
+        if (this.tile) {
+            this.logHistory('removed', this.tile.type);
+            this.tile = null;   
         }
-
-        this.logHistory('removed', this.tile.type);
-        this.tile = null;
     }
 
     // Check if the board space is occupied

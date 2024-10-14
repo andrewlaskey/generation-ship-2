@@ -5,7 +5,7 @@ import { HtmlGameView } from './views/HtmlGameView';
 import { HtmlGameController } from './controllers/HtmlGameController';
 
 // Initialize the game board
-const gameSize = 5;  // Size of the grid (e.g., 5x5)
+const gameSize = 12;  // Size of the grid (e.g., 5x5)
 const gameManager = new GameManager(gameSize, 40, 3, null, false);
 const htmlGameView = new HtmlGameView(gameManager, document);
 
