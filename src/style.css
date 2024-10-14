@@ -120,6 +120,10 @@ h1 {
   gap: 5px;
 }
 
+.hand-item.selected {
+  border: 2px solid yellow;
+}
+
 .hand-row {
   display: flex;
   gap: 2px;

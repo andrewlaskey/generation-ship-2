@@ -27,6 +27,7 @@ export class HtmlGameView {
             <div id="deckCounterContainer" class="deck-counter"></div>
             <button id="nextTurn" type="button">Next Turn</button>
             <button id="drawItem" type="button">Draw Item</button>
+            <button id="rotateItem" type="button">Rotate</button>
         `;
 
         // Cache the containers for dynamic updates
@@ -59,6 +60,7 @@ export class HtmlGameView {
     // Method to create the HTML representation of the player's hand
     private renderHand(): string {
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
+        const selectedIndex = this.gameManager.getSelectedItemIndex();
         let handHtml = '<h2>Player Hand</h2>';
 
         if (handItems.length === 0) {
@@ -67,7 +69,8 @@ export class HtmlGameView {
             handHtml += '<div class="hand-grid">';  // Add a container for the hand items
             handItems.forEach((item, index) => {
                 if (item instanceof TileBlock) {
-                    handHtml += `<div class="hand-item" data-index="${index}">`;  // Wrap each hand item
+                    const selectedClass = index === selectedIndex ? 'selected' : '';
+                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
                     const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
                     
                     // Render each tile in the TileBlock

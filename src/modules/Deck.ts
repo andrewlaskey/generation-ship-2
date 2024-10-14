@@ -24,13 +24,27 @@ export class Deck {
         this.items = [...items];  // Clone the array to avoid mutation
     }
 
-    // Shuffle the items in the deck
+    // Shuffle the items in the deck and guarantee a different order
     shuffle(): void {
-        for (let i = this.items.length - 1; i > 0; i--) {
-            const j = Math.floor(this.random() * (i + 1));
-            [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
-        }
+        let originalOrder = [...this.items];  // Copy of the original order
+        
+        do {
+            for (let i = this.items.length - 1; i > 0; i--) {
+                const j = Math.floor(this.random() * (i + 1));
+                [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
+            }
+        } while (this.isSameOrder(originalOrder, this.items));  // Keep shuffling if the order is the same
     }
+
+    // Helper method to check if two arrays have the same order
+    private isSameOrder(arr1: any[], arr2: any[]): boolean {
+        if (arr1.length !== arr2.length) return false;
+        for (let i = 0; i < arr1.length; i++) {
+            if (arr1[i] !== arr2[i]) return false;
+        }
+        return true;
+    }
+
 
     // Draw an item from the deck
     drawItem(): HandItem | null {

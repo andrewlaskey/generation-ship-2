@@ -157,4 +157,16 @@ export class GameManager {
 
         return neighbors;
     }
+
+    selectItemFromHand(index: number): void {
+        this.playerHand.selectItem(index)
+    }
+
+    getSelectedItemIndex(): number {
+        return this.playerHand.getSelectedItemIndex();
+    }
+
+    rotateSelectedItem(): void {
+        this.playerHand.rotateSelected();
+    }
 }

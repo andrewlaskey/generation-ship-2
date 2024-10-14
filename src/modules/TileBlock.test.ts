@@ -113,4 +113,47 @@ describe('TileBlock', () => {
         expect(space1.placeTile).toHaveBeenCalledWith(tile1);
         expect(space2.placeTile).toHaveBeenCalledWith(tile2);
     });
+
+    it('should rotate TileBlock correctly in all four directions', () => {
+        const treeTile = new Tile(TileType.Tree, 1, TileState.Neutral);
+        const houseTile = new Tile(TileType.People, 1, TileState.Neutral);
+        const tileBlock = new TileBlock([treeTile, houseTile]);
+
+        // Initial rotation (0 degrees): "🌳🏠"
+        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
+        let space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
+        let space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+
+        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
+
+        // First rotation (90 degrees): "🌳🏠" becomes "🌳 🏠"
+        tileBlock.rotate();
+        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
+        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+
+        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
+
+        // // Second rotation (180 degrees): "🌳 🏠" becomes "🏠🌳"
+        tileBlock.rotate();
+        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
+        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+
+        expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
+        expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+
+        // Third rotation (270 degrees): "🏠🌳" becomes "🏠 🌳"
+        tileBlock.rotate();
+        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
+        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+
+        expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
+        expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+    });
 });
+
+

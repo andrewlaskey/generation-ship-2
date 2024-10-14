@@ -16,12 +16,13 @@ export class HtmlGameController {
     // Initialize event listeners for user input
     private initInputListeners(): void {
         const nextTurnButton = this.gameView.document.querySelector<HTMLButtonElement>('#nextTurn');
-        const drawItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#drawItem')
+        const drawItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#drawItem');
+        const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
         
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
-
-        drawItemButton?.addEventListener('click', () => this.drawItem())
+        drawItemButton?.addEventListener('click', () => this.drawItem());
+        rotateItemButton?.addEventListener('click', () => this.rotateItem())
     }
 
     // Handle advancing the turn
@@ -38,5 +39,10 @@ export class HtmlGameController {
         console.log('draw item click')
         this.gameManager.drawItemToHand()
         this.gameView.updateGrid()
+    }
+
+    public rotateItem(): void {
+        this.gameManager.rotateSelectedItem();
+        this.gameView.updateGrid();
     }
 }

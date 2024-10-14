@@ -25,7 +25,9 @@ const createMockGameManager = (gameSize: number) => {
             return []
         }),
         getDeckItemCount: vi.fn(() => 52),
-        drawItemToHand: vi.fn(() => true) // Mock drawItemToHand method
+        drawItemToHand: vi.fn(() => true), // Mock drawItemToHand method
+        getSelectedItemIndex: vi.fn(() => 0),
+        rotateSelectedItem: vi.fn()
     };
 };
 
@@ -94,6 +96,32 @@ describe('HtmlGameController', () => {
         // Simulate a click on the draw item button
         const drawItemButton = document.querySelector('#drawItem') as HTMLButtonElement;
         drawItemButton.click();  // Simulate the button click
+
+        // Ensure that updateGrid was called again after the button click
+        expect(updateGridSpy).toHaveBeenCalledTimes(1);  // Once for initial render, once for after the click
+    });
+
+    it('should attach event listener to the rotate item button', () => {
+        // Spy on the gameManager's drawItemToHand method
+        const rotateSelectedSpy = vi.spyOn(gameManager, 'rotateSelectedItem');
+
+        // Simulate a click on the draw item button
+        const rotateItemButton = document.querySelector('#rotateItem') as HTMLButtonElement;
+        expect(rotateItemButton).not.toBeNull();
+
+        rotateItemButton.click();  // Simulate the button click
+
+        // Ensure the gameManager's drawItemToHand method was called
+        expect(rotateSelectedSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should re-render the grid after clicking rotate item', () => {
+        // Spy on updateGrid to verify it gets called when draw item is clicked
+        const updateGridSpy = vi.spyOn(htmlGameView, 'updateGrid');
+
+        // Simulate a click on the draw item button
+        const rotateItemButton = document.querySelector('#rotateItem') as HTMLButtonElement;
+        rotateItemButton.click();  // Simulate the button click
 
         // Ensure that updateGrid was called again after the button click
         expect(updateGridSpy).toHaveBeenCalledTimes(1);  // Once for initial render, once for after the click

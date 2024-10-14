@@ -78,4 +78,34 @@ describe('PlayerHand', () => {
         playerHand.addItem(tileBlock);
         expect(playerHand.isFull()).toBe(false);  // Hand should not be full
     });
+
+    it('should return the current selectedItem index', () => {
+        expect(playerHand.getSelectedItemIndex()).toBe(0);
+    })
+
+    it('should update the selected item index', () => {
+        playerHand.addItem(tileBlock);
+        playerHand.addItem(new TileBlock([new Tile(TileType.Farm, 1, TileState.Healthy), null]));
+        playerHand.selectItem(1);
+        expect(playerHand.getSelectedItemIndex()).toBe(1);
+    })
+
+    it('should not update the selected item index if select input out of range', () => {
+        playerHand.addItem(tileBlock);
+        playerHand.addItem(new TileBlock([new Tile(TileType.Farm, 1, TileState.Healthy), null]));
+        const overSelectOperation = playerHand.selectItem(100);
+        expect(overSelectOperation).toBe(false);
+        expect(playerHand.getSelectedItemIndex()).toBe(0);
+        const underSelectOperation = playerHand.selectItem(-100);
+        expect(underSelectOperation).toBe(false);
+        expect(playerHand.getSelectedItemIndex()).toBe(0);
+    })
+
+    it('should rotate the selected item', () => {
+        playerHand.addItem(tileBlock);
+        playerHand.rotateSelected();
+        const items = playerHand.getItems()
+        const selected = items[playerHand.getSelectedItemIndex()]
+        expect(selected.getRotation()).not.toBe(0);
+    })
 });

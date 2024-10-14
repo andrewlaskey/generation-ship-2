@@ -32,17 +32,31 @@ export class TileBlock implements HandItem {
     // Rotate the block
     rotate(): void {
         this.rotation = (this.rotation + 90) % 360;
-        if (this.rotation === 90 || this.rotation === 270) {
+    
+        if (this.rotation === 90) {
+            // 90 degrees: Vertical layout with tree on top, house below
             this.layout = [
-                [this.layout[0][0]],
-                [this.layout[0][1]]
+                [this.layout[0][0]],  // Top (tree)
+                [this.layout[0][1]]   // Bottom (house)
+            ];
+        } else if (this.rotation === 180) {
+            // 180 degrees: Reverse horizontal layout with house on left, tree on right
+            this.layout = [
+                [this.layout[1][0], this.layout[0][0]]  // Reverse the tiles horizontally
+            ];
+        } else if (this.rotation === 270) {
+            // 270 degrees: Vertical layout with house on top, tree below
+            this.layout = [
+                [this.layout[0][0]],  // Top (house)
+                [this.layout[0][1]]   // Bottom (tree)
             ];
         } else {
+            // 0 degrees: Horizontal layout with tree on left, house on right
             this.layout = [
-                [this.layout[0][0], this.layout[1][0]]
+                [this.layout[1][0], this.layout[0][0]]  // Default layout
             ];
         }
-    }
+    }    
 
     // Place the TileBlock on the grid at a given (x, y) position
     placeOnGrid(x: number, y: number, gameBoard: GameBoard): void {
