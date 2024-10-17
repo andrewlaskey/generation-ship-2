@@ -10,6 +10,7 @@ export interface BoardSpaceHistoryEntry {
 export class BoardSpace {
     tile: Tile | null = null;
     history: BoardSpaceHistoryEntry[] = [];  // Array to keep track of the history of tile placements and removals
+    isHighlighted: boolean = false;
 
     constructor(public x: number, public y: number) {}
 

@@ -11,6 +11,10 @@ export class HtmlGameController {
 
         // Set up any input listeners
         this.initInputListeners();
+
+        // Start the game
+        this.gameManager.startGame();
+        this.updateView();
     }
 
     // Initialize event listeners for user input
@@ -34,11 +38,26 @@ export class HtmlGameController {
         const gridCells = this.gameView.document.querySelectorAll<HTMLDivElement>('.grid .cell');
         gridCells.forEach(cell => {
             cell.addEventListener('click', (event) => {
-                const x = parseInt((event.currentTarget as HTMLElement).getAttribute('data-x')!);
-                const y = parseInt((event.currentTarget as HTMLElement).getAttribute('data-y')!);
+                const { x, y } = this.getEventCellCoords(event);
                 this.handleCellClick(x, y);
             });
+            cell.addEventListener('mouseover', (event) => {
+                const { x, y } = this.getEventCellCoords(event);
+                this.handleCellHover(true, x, y);
+                console.log('enter', x, y);
+            })
+            cell.addEventListener('mouseout', (event) => {
+                const { x, y } = this.getEventCellCoords(event);
+                this.handleCellHover(false, x, y);
+                console.log('out', x, y);
+            })
         });
+    }
+
+    private getEventCellCoords(event: MouseEvent): { x: number, y: number } {
+        const x = parseInt((event.currentTarget as HTMLElement).getAttribute('data-x')!);
+        const y = parseInt((event.currentTarget as HTMLElement).getAttribute('data-y')!);
+        return { x, y};
     }
 
     // Initialize listeners for hand item clicks
@@ -71,8 +90,16 @@ export class HtmlGameController {
     // Update the view and re-initialize listeners
     private updateView(): void {
         this.gameView.updateGrid();
-        this.initGridCellListeners();  // Re-initialize the grid cell listeners after re-render
         this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
+    }
+
+    private handleCellHover(enter: boolean, x: number, y: number): void {
+        if (enter) {
+            this.gameManager.addBoardHighlight(x, y);
+        } else {
+            this.gameManager.removeBoardHighlight(x, y);
+        }
+        this.updateView();
     }
 
     // Handle advancing the turn

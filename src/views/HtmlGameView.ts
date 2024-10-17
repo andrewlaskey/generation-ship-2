@@ -34,10 +34,12 @@ export class HtmlGameView {
         this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
         this.handContainer = this.document.querySelector<HTMLDivElement>('#handContainer')!;
         this.deckCounterContainer = this.document.querySelector<HTMLDivElement>('#deckCounterContainer')!;
+
+        this.gridContainer.innerHTML = this.initializeGridView();
     }
 
     // Method to create the grid HTML representation
-    private renderGrid(): string {
+    private initializeGridView(): string {
         const gameSize = this.gameManager.gameBoard.size;
         let gridHtml = '';
 
@@ -49,13 +51,46 @@ export class HtmlGameView {
                 const tileType = tile ? tile.type : 'empty';
                 const tileLevel = tile ? tile.level : 0;
                 const tileState = tile ? tile.state : 'neutral';
+                const highlight = space && space.isHighlighted ? 'highlight' : '';
 
-                gridHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}" data-x="${x}" data-y="${y}"></div>`;
+                gridHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel} ${highlight}" data-x="${x}" data-y="${y}"></div>`;
             }
             gridHtml += '</div>';
         }
         return gridHtml;
     }
+
+    private renderGrid(): void {
+        const gameSize = this.gameManager.gameBoard.size;
+    
+        // Loop over each cell in the game board
+        for (let x = 0; x < gameSize; x++) {
+            for (let y = 0; y < gameSize; y++) {
+                const space = this.gameManager.gameBoard.getSpace(x, y);
+                const tile = space ? space.tile : undefined;
+                const tileType = tile ? tile.type : 'empty';
+                const tileLevel = tile ? `l${tile.level}` : 'l0';
+                const tileState = tile ? tile.state : 'neutral';
+                const isHighlighted = space && space.isHighlighted;
+    
+                // Find the cell element in the DOM
+                const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${x}"][data-y="${y}"]`);
+    
+                if (cell) {
+                    // Update the class names based on the current state
+                    cell.className = `cell ${tileType} ${tileState} ${tileLevel}`;
+    
+                    // Toggle the 'highlight' class based on the space's isHighlighted property
+                    if (isHighlighted) {
+                        cell.classList.add('highlight');
+                    } else {
+                        cell.classList.remove('highlight');
+                    }
+                }
+            }
+        }
+    }
+    
 
     // Method to create the HTML representation of the player's hand
     private renderHand(): string {
@@ -105,7 +140,7 @@ export class HtmlGameView {
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
-        this.gridContainer.innerHTML = this.renderGrid();
+        this.renderGrid();
         this.handContainer.innerHTML = this.renderHand();
         this.deckCounterContainer.innerHTML = this.renderDeckCounter();
     }

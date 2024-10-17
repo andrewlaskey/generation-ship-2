@@ -80,8 +80,14 @@ export class GameManager {
         }
         return false;  // Return false if the hand item is not a TileBlock
     }
-    
 
+    addBoardHighlight(x: number, y: number, ): void {
+        this.gameBoard.toggleSpaceHighlight(x, y, true);
+    }
+    
+    removeBoardHighlight(x: number, y: number): void {
+        this.gameBoard.toggleSpaceHighlight(x, y, false);
+    }
     // Get the current state of the player's hand
     getPlayerHand(): HandItem[] {
         return this.playerHand.getItems();  // Return the items in the player's hand
@@ -101,6 +107,12 @@ export class GameManager {
                 this.updateSpace(x, y);
             }
         }
+    }
+
+    // Start a new game
+    startGame(): void {
+        this.updateBoard();
+        this.fillHand();
     }
 
     // Helper method to count specific types of neighbors
@@ -150,11 +162,13 @@ export class GameManager {
     // Method to update space based on the tile type
     updateSpace(x: number, y: number): void {
         const space = this.gameBoard.getSpace(x, y);
-        if (!space || !space.tile) return;
+        if (!space) return;
 
-        const handler = this.tileHandlerRegistry.getHandler(space.tile.type);
-        if (handler) {
-            handler.updateState(space, this);  // Let the handler update the space based on the tile's type
+        if (space.tile) {
+            const handler = this.tileHandlerRegistry.getHandler(space.tile.type);
+            if (handler) {
+                handler.updateState(space, this);  // Let the handler update the space based on the tile's type
+            }
         } else {
             this.handleEmpty(space);  // Default behavior for empty spaces or unrecognized tile types
         }

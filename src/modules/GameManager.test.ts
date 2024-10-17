@@ -58,6 +58,18 @@ describe('GameManager', () => {
         gameManager.playerHand = playerHand as PlayerHand;
     });
 
+    it('should call both updateBoard and fillHand when starting the game', () => {
+        vi.spyOn(gameManager, 'updateBoard').mockImplementation(() => {});
+        vi.spyOn(gameManager, 'fillHand').mockImplementation(() => { return true; });
+
+        // Call startGame
+        gameManager.startGame();
+
+        // Verify both methods were called once
+        expect(gameManager.updateBoard).toHaveBeenCalledTimes(1);
+        expect(gameManager.fillHand).toHaveBeenCalledTimes(1);
+    });
+
     it('should fill the player hand from the deck', () => {
         // Mock `isFull` to return `false` initially, then `true` after one item is added
         (playerHand.isFull as Mock)
@@ -116,10 +128,15 @@ describe('GameManager', () => {
         expect(playerHand.removeItem).not.toHaveBeenCalled();
     });
 
-    it('should update the board', () => {
+    it('should update the board by calling updateSpace 25 times for a 5x5 grid', () => {
+        // Spy on updateSpace method
+        const updateSpaceSpy = vi.spyOn(gameManager, 'updateSpace');
+    
+        // Call updateBoard
         gameManager.updateBoard();
-
-        expect(gameBoard.getSpace).toHaveBeenCalledTimes(25);  // 5x5 grid
+    
+        // Ensure updateSpace was called exactly 25 times (for 5x5 grid)
+        expect(updateSpaceSpy).toHaveBeenCalledTimes(25);
     });
 
     it('should get the current player hand', () => {
@@ -141,5 +158,27 @@ describe('GameManager', () => {
     it('should rotate the selected item from the hand', () => {
         gameManager.rotateSelectedItem();
         expect(playerHand.rotateSelected).toHaveBeenCalled();
+    });
+
+    it('should handle an empty space correctly by calling handleEmpty', () => {
+        // Create a mock for handleEmpty
+        const handleEmptySpy = vi.spyOn(gameManager, 'handleEmpty');
+        
+        // Mock an empty space (no tile)
+        const emptySpace = createMockBoardSpace();
+        emptySpace.tile = null;
+        
+        // Mock gameBoard.getSpace to return this empty space
+        (gameBoard.getSpace as Mock).mockReturnValue(emptySpace as BoardSpace);
+    
+        // Call updateSpace on the coordinates (0, 0)
+        gameManager.updateSpace(0, 0);
+    
+        // Ensure handleEmpty was called for the empty space
+        expect(handleEmptySpy).toHaveBeenCalledWith(emptySpace);
+    
+        // Ensure that getHandler was never called since the space was empty
+        const getHandlerSpy = vi.spyOn(gameManager.tileHandlerRegistry, 'getHandler');
+        expect(getHandlerSpy).not.toHaveBeenCalled();
     });
 });

@@ -68,4 +68,37 @@ describe('GameBoard', () => {
         expect(consoleSpy).toHaveBeenCalled(); // Ensure display method logs something
         consoleSpy.mockRestore(); // Restore console.log after the test
     });
+
+    it('should highlight board space at coordinates', () => {
+        board.toggleSpaceHighlight(2, 2);
+        const space = board.getSpace(2, 2);
+        expect(space?.isHighlighted).toBe(true);
+    })
+
+    it('should remove highlight if board space already highlighted', () => {
+        // toggle once
+        board.toggleSpaceHighlight(2, 2);
+
+        // toggle again
+        board.toggleSpaceHighlight(2, 2);
+        
+        const space = board.getSpace(2, 2);
+        expect(space?.isHighlighted).toBe(false);
+    })
+
+    it('should set the board space to correct value', () => {
+        const space = board.getSpace(2, 2);
+
+        // set true
+        board.toggleSpaceHighlight(2, 2, true);
+        expect(space?.isHighlighted).toBe(true);
+
+        // manual set true
+        board.toggleSpaceHighlight(2, 2, true);
+        expect(space?.isHighlighted).toBe(true);
+        
+        // and set false
+        board.toggleSpaceHighlight(2, 2, false);
+        expect(space?.isHighlighted).toBe(false);
+    })
 });

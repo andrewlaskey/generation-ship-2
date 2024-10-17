@@ -63,6 +63,10 @@ h1 {
   font-size: 1.8rem;
 }
 
+.cell.highlight {
+  border: 1px solid yellow;
+}
+
 /* Healthy and Unhealthy state styling */
 .cell.healthy {
   filter: brightness(150%); /* Brighter color for healthy state */

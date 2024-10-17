@@ -30,6 +30,19 @@ export class GameBoard {
         return null;
     }
 
+    toggleSpaceHighlight(x: number, y: number, addHighlight?: boolean): void {
+        if (this.isValidCoordinate(x, y)) {
+            if (addHighlight !== undefined) {
+                // If addHighlight is provided, use its value to set the highlight state
+                this.grid[x][y].isHighlighted = addHighlight;
+            } else {
+                // If addHighlight is not provided, toggle the current state
+                this.grid[x][y].isHighlighted = !this.grid[x][y].isHighlighted;
+            }
+        }
+    }
+    
+
     // Method to place a tile at a specific coordinate
     placeTileAt(x: number, y: number, tile: Tile): boolean {
         const space = this.getSpace(x, y);
