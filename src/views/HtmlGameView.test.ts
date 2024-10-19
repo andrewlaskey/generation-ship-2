@@ -26,7 +26,8 @@ const createMockGameManager = (gameSize: number) => {
         getDeckItemCount: vi.fn(() => 52),
         getSelectedItemIndex: vi.fn(() => 0),
         rotateSelectedItem: vi.fn(),
-        startGame: vi.fn()
+        startGame: vi.fn(),
+        getPlayerScore: vi.fn()
     };
 };
 

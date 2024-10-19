@@ -29,7 +29,9 @@ const createMockGameManager = (gameSize: number) => {
         getSelectedItemIndex: vi.fn(() => 0),
         rotateSelectedItem: vi.fn(),
         fillHand: vi.fn(),
-        startGame: vi.fn()
+        startGame: vi.fn(),
+        updatePlayerScore: vi.fn(),
+        getPlayerScore: vi.fn()
     };
 };
 

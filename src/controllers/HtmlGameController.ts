@@ -107,6 +107,9 @@ export class HtmlGameController {
         // Update the game state via GameManager
         this.gameManager.updateBoard();
 
+        // Update the player's score
+        this.gameManager.updatePlayerScore();
+
         // Update the player's hand
         this.gameManager.fillHand();
         

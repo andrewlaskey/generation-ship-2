@@ -8,6 +8,7 @@ export class HtmlGameView {
     private gridContainer!: HTMLDivElement;
     private handContainer!: HTMLDivElement;
     private deckCounterContainer!: HTMLDivElement;
+    private scoreBoard!: HTMLDivElement;
 
     constructor(gameManager: GameManager, document: Document) {
         this.gameManager = gameManager;
@@ -25,15 +26,17 @@ export class HtmlGameView {
             <div id="gridContainer" class="grid"></div>
             <div id="handContainer" class="hand"></div>
             <div id="deckCounterContainer" class="deck-counter"></div>
-            <button id="nextTurn" type="button">Next Turn</button>
-            <button id="drawItem" type="button">Draw Item</button>
+            <!--<button id="nextTurn" type="button">Next Turn</button>
+            <button id="drawItem" type="button">Draw Item</button>-->
             <button id="rotateItem" type="button">Rotate</button>
+            <div id="scoreboard" class="scoreboard"></div>
         `;
 
         // Cache the containers for dynamic updates
         this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
         this.handContainer = this.document.querySelector<HTMLDivElement>('#handContainer')!;
         this.deckCounterContainer = this.document.querySelector<HTMLDivElement>('#deckCounterContainer')!;
+        this.scoreBoard = this.document.querySelector<HTMLDivElement>('#scoreboard')!;
 
         this.gridContainer.innerHTML = this.initializeGridView();
     }
@@ -137,11 +140,18 @@ export class HtmlGameView {
         return `<h2>Deck Size</h2><p>${deckCount} items left</p>`;
     }
 
+    private renderScoreBoard(): string {
+        const ecoScore = `<div class="score">🌲 ${this.gameManager.getPlayerScore('ecology')}</div>`;
+        const popScore = `<div class="score">👤 ${this.gameManager.getPlayerScore('population')}</div>`;
+        return ecoScore + popScore;
+    }
+
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
         this.renderGrid();
         this.handContainer.innerHTML = this.renderHand();
         this.deckCounterContainer.innerHTML = this.renderDeckCounter();
+        this.scoreBoard.innerHTML = this.renderScoreBoard();
     }
 }
