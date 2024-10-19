@@ -101,4 +101,13 @@ describe('GameBoard', () => {
         board.toggleSpaceHighlight(2, 2, false);
         expect(space?.isHighlighted).toBe(false);
     })
+
+    it('should return a count of the tile types', () => {
+        board.placeTileAt(2, 2, tile1);
+        board.placeTileAt(1, 1, tile2);
+        expect(board.countTileTypes()).toStrictEqual({
+            farm: 1,
+            power: 1
+        })
+    })
 });

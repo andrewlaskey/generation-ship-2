@@ -6,6 +6,7 @@ import { TileHandlerRegistry } from './TileHandlerRegistry';
 import { PlayerHand, HandItem } from './PlayerHand';
 import { Deck } from './Deck';
 import { TileBlock } from './TileBlock';
+import { ScoreObject } from './ScoreObject';
 
 
 export class GameManager {
@@ -13,6 +14,7 @@ export class GameManager {
     tileHandlerRegistry: TileHandlerRegistry;
     playerHand: PlayerHand;  // Player's hand
     deck: Deck;  // Deck for drawing HandItems
+    playerScore: Record<string, ScoreObject>;
 
     constructor(size: number, initialDeckSize: number, maxHandSize: number, seed: string | null = null, infiniteDeck: boolean = false) {
         this.gameBoard = new GameBoard(size);
@@ -20,6 +22,10 @@ export class GameManager {
         this.playerHand = new PlayerHand(maxHandSize);  // Initialize the player's hand
         this.deck = new Deck(seed, infiniteDeck);  // Initialize the deck with seed and infinite options
         this.deck.fillInitialDeck(initialDeckSize);  // Fill the deck with initial items
+        this.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 10)
+        }
     }
 
     // Draw a new item from the deck into the player's hand
@@ -113,6 +119,30 @@ export class GameManager {
     startGame(): void {
         this.updateBoard();
         this.fillHand();
+    }
+
+    getPlayerScore(name: string): number {
+        if (Object(this.playerScore).hasOwnProperty(name)) {
+            return this.playerScore[name].value;
+        }
+        console.error(`No player score of ${name} exists`)
+        return 0;
+    }
+
+    updatePlayerScore(): void {
+        const tileTypeCounts = this.gameBoard.countTileTypes();
+
+        if (tileTypeCounts.hasOwnProperty('tree')) {
+            this.playerScore.ecology.update(tileTypeCounts['tree'])
+        } else {
+            this.playerScore.ecology.update(0);
+        }
+
+        if (tileTypeCounts.hasOwnProperty('people')) {
+            this.playerScore.population.update(tileTypeCounts['people'])
+        } else {
+            this.playerScore.population.update(0);
+        }
     }
 
     // Helper method to count specific types of neighbors

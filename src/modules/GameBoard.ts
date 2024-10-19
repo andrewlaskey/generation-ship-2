@@ -1,4 +1,4 @@
-import { Tile } from "./Tile";
+import { Tile, TileType } from "./Tile";
 import { BoardSpace } from "./BoardSpace";
 
 // Class to represent the GameBoard
@@ -74,5 +74,36 @@ export class GameBoard {
             let rowDisplay = row.map(space => (space.isOccupied() ? "T" : "O")).join(" ");
             console.log(rowDisplay);
         }
+    }
+
+    countTileTypes(): Record<string, number> {
+        return this.grid.reduce((counts, row) => {
+            const rowCounts = row.reduce((rowCounts, value) => {
+                const tile = value.tile;
+
+                if (tile) {
+                    const type = tile.type as TileType;
+
+                    if (rowCounts.hasOwnProperty(type)) {
+                        rowCounts[type] += 1;
+                    } else {
+                        rowCounts[type] = 1
+                    }
+                }
+
+                return rowCounts;
+            }, {} as Record<'tree' | 'farm' | 'people' | 'power', number>);
+
+            Object.entries(rowCounts).forEach(([key, value]) => {
+                const typedKey = key as keyof typeof counts;
+                if (counts.hasOwnProperty(key)) {
+                    counts[typedKey] += value;
+                } else {
+                    counts[typedKey] = value
+                }
+            });
+            
+            return counts;
+        }, {} as Record<'tree' | 'farm' | 'people' | 'power', number>);
     }
 }

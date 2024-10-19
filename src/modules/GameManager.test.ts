@@ -22,6 +22,7 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
     return {
         size,
         getSpace: vi.fn((x: number, y: number) => spaces[x] && spaces[x][y] ? spaces[x][y] : null),
+        countTileTypes: vi.fn()
     };
 };
 
@@ -181,4 +182,29 @@ describe('GameManager', () => {
         const getHandlerSpy = vi.spyOn(gameManager.tileHandlerRegistry, 'getHandler');
         expect(getHandlerSpy).not.toHaveBeenCalled();
     });
+
+    it('should return the default player score', () => {
+        expect(gameManager.getPlayerScore('ecology')).toBe(0);
+        expect(gameManager.getPlayerScore('population')).toBe(10);
+    })
+
+    it('board changes should update the player score', () => {
+        // scenario 1
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 1,
+            farm: 2
+        })
+        gameManager.updatePlayerScore()
+        expect(gameManager.getPlayerScore('ecology')).toBe(1);
+        expect(gameManager.getPlayerScore('population')).toBe(0);
+
+        // scenario 2
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 4,
+            people: 3
+        })
+        gameManager.updatePlayerScore()
+        expect(gameManager.getPlayerScore('ecology')).toBe(4);
+        expect(gameManager.getPlayerScore('population')).toBe(3);
+    })
 });
