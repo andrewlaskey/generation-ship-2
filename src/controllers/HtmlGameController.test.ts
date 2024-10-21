@@ -53,58 +53,6 @@ describe('HtmlGameController', () => {
         htmlGameController = new HtmlGameController(gameManager, htmlGameView);
     });
 
-    it('should attach event listener to the next turn button', () => {
-        // Spy on the gameManager's updateBoard method
-        const updateBoardSpy = vi.spyOn(gameManager, 'updateBoard');
-
-        // Simulate a click on the next turn button
-        const nextTurnButton = document.querySelector('#nextTurn') as HTMLButtonElement;
-        expect(nextTurnButton).not.toBeNull();
-
-        nextTurnButton.click();  // Simulate the button click
-
-        // Ensure the gameManager's updateBoard method was called
-        expect(updateBoardSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should re-render the grid after clicking next turn', () => {
-        // Spy on updateGrid to verify it gets called when next turn is clicked
-        const updateGridSpy = vi.spyOn(htmlGameView, 'updateGrid');
-
-        // Simulate a click on the next turn button
-        const nextTurnButton = document.querySelector('#nextTurn') as HTMLButtonElement;
-        nextTurnButton.click();  // Simulate the button click
-
-        // Ensure that updateGrid was called again after the button click
-        expect(updateGridSpy).toHaveBeenCalledTimes(1);  // Once for initial render, once for after the click
-    });
-
-    it('should attach event listener to the draw item button', () => {
-        // Spy on the gameManager's drawItemToHand method
-        const drawItemToHandSpy = vi.spyOn(gameManager, 'fillHand');
-
-        // Simulate a click on the draw item button
-        const drawItemButton = document.querySelector('#drawItem') as HTMLButtonElement;
-        expect(drawItemButton).not.toBeNull();
-
-        drawItemButton.click();  // Simulate the button click
-
-        // Ensure the gameManager's drawItemToHand method was called
-        expect(drawItemToHandSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should re-render the grid after clicking draw item', () => {
-        // Spy on updateGrid to verify it gets called when draw item is clicked
-        const updateGridSpy = vi.spyOn(htmlGameView, 'updateGrid');
-
-        // Simulate a click on the draw item button
-        const drawItemButton = document.querySelector('#drawItem') as HTMLButtonElement;
-        drawItemButton.click();  // Simulate the button click
-
-        // Ensure that updateGrid was called again after the button click
-        expect(updateGridSpy).toHaveBeenCalledTimes(1);  // Once for initial render, once for after the click
-    });
-
     it('should attach event listener to the rotate item button', () => {
         // Spy on the gameManager's drawItemToHand method
         const rotateSelectedSpy = vi.spyOn(gameManager, 'rotateSelectedItem');

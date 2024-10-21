@@ -19,6 +19,22 @@ export class TileBlock implements HandItem {
         return 'TileBlock'
     }
 
+    // Return the two tiles in a 1D array regardless of the rotation
+    getTiles(): (Tile | null)[] {
+        switch (this.rotation) {
+            case 0:
+                return [this.layout[0][0], this.layout[0][1]]; // Horizontal layout
+            case 90:
+                return [this.layout[0][0], this.layout[1][0]]; // Vertical layout (rotated 90 degrees)
+            case 180:
+                return [this.layout[0][1], this.layout[0][0]]; // Horizontal layout (flipped)
+            case 270:
+                return [this.layout[1][0], this.layout[0][0]]; // Vertical layout (rotated 270 degrees)
+            default:
+                throw new Error("Invalid rotation value.");
+        }
+    }
+
     // Get the current layout (1x2 or 2x1)
     getLayout(): (Tile | null)[][] {
         return this.layout;

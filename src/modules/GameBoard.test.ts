@@ -110,4 +110,17 @@ describe('GameBoard', () => {
             power: 1
         })
     })
+
+    it('should set the default starting condition', () => {
+        board.setStartingCondition()
+        
+        const treeSpace = board.getSpace(2, 2);
+        expect(treeSpace?.tile?.type).toBe('tree')
+
+        const farmSpace = board.getSpace(2, 1);
+        expect(farmSpace?.tile?.type).toBe('farm')
+
+        const peopleSpace = board.getSpace(1, 2);
+        expect(peopleSpace?.tile?.type).toBe('people')
+    })
 });

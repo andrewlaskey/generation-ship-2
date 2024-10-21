@@ -3,14 +3,29 @@ import { TileBlock } from './TileBlock';
 import { Tile, TileType, TileState } from './Tile';
 import seedrandom from 'seedrandom';
 
+// Tile probability configuration type
+export type TileProbability = {
+    [key in TileType | 'null']: number; // Include 'null' for empty spaces
+};
+
 export class Deck {
     private items: HandItem[];
     private infinite: boolean;
     private random: () => number;  // Random function (either seeded or default)
+    private tileProbability: TileProbability;
     
-    constructor(seed: string | null = null, infinite: boolean = false) {
+    constructor(seed: string | null = null, infinite: boolean = false, probabilityConfig?: TileProbability) {
         this.items = [];
         this.infinite = infinite;
+        // Default probability configuration
+        this.tileProbability = probabilityConfig ?? {
+            tree: 0.3,
+            farm: 0.2,
+            people: 0.2,
+            power: 0.2,
+            null: 0.1 // Default probability for null (empty space)
+        };
+
         // Initialize the random function, with or without a seed
         this.random = seed ? seedrandom(seed) : Math.random;
     }
@@ -72,21 +87,46 @@ export class Deck {
         return this.generateRandomTileBlock();
     }
 
-    // Generate a random TileBlock with random tile combinations
+    // Generate a random TileBlock with configurable probabilities
     private generateRandomTileBlock(): TileBlock {
-        // Randomly choose tiles for the TileBlock (could be null)
-        const tile1 = this.random() < 0.5 ? this.createRandomTile() : null;
-        const tile2 = this.random() < 0.5 ? this.createRandomTile() : null;
+        // Randomly choose tiles for the TileBlock based on the probabilities
+        const tile1 = this.randomTileOrNull();
+        const tile2 = this.randomTileOrNull();
 
         return new TileBlock([tile1, tile2]);
     }
 
-    // Create a random tile (TileType, Level 1, Neutral State)
-    private createRandomTile(): Tile {
-        const tileTypes: TileType[] = [TileType.Tree, TileType.Farm, TileType.People, TileType.Power];
-        const randomType = tileTypes[Math.floor(this.random() * tileTypes.length)];
-        return new Tile(randomType, 1, TileState.Neutral);  // Default to Level 1 and Neutral state
+    // Generate a random tile or null based on the probabilities
+    private randomTileOrNull(): Tile | null {
+        let rand = this.random();
+        for (const key in this.tileProbability) {
+            const prob = this.tileProbability[key as keyof TileProbability];
+            if (rand < prob) {
+                return key === 'null' ? null : this.createRandomTile(key as TileType);
+            }
+            rand -= prob;
+        }
+        return null; // Fallback if none match (shouldn't happen with normalized probabilities)
     }
+
+    // Updated createRandomTile to accept a TileType argument
+    private createRandomTile(tileType: TileType): Tile {
+        return new Tile(tileType, 1, TileState.Neutral); // Default to Level 1 and Neutral state
+    }
+
+    // // Choose a tile type based on the configured probabilities
+    // private chooseTileType(): keyof TileProbability {
+    //     let rand = this.random();
+    //     for (const key in this.tileProbability) {
+    //         const prob = this.tileProbability[key as keyof TileProbability];
+    //         //console.log(key, rand, prob);
+    //         if (rand < prob) {
+    //             return key as keyof TileProbability;
+    //         }
+    //         rand -= prob;
+    //     }
+    //     return 'null'; // Fallback if none match (shouldn't happen with normalized probabilities)
+    // }
 
     // Get the current number of items in the deck
     getItemCount(): number {

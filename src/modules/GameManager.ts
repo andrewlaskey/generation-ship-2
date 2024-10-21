@@ -119,6 +119,7 @@ export class GameManager {
     startGame(): void {
         this.updateBoard();
         this.fillHand();
+        this.gameBoard.setStartingCondition();
     }
 
     getPlayerScore(name: string): number {
@@ -211,10 +212,10 @@ export class GameManager {
         const powerCount = this.countNeighbors(space, ['power']);
         const farmCount = this.countNeighbors(space, ['farm']);
 
-        if (treeCount >= 3) {
+        if (treeCount >= 4) {
             space.placeTile(new Tile('tree', 1, 'neutral'));  // A tree starts growing
         } else if (peopleCount >= 1 && powerCount >= 1 && farmCount >= 2) {
-            space.placeTile(new Tile('people', 1, 'healthy'));  // A settlement starts
+            space.placeTile(new Tile('people', 1, 'neutral'));  // A settlement starts
         } else {
             // Keep the space empty
             space.removeTile()

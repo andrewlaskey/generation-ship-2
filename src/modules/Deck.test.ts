@@ -1,7 +1,34 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Deck } from './Deck';
+import { Deck, TileProbability } from './Deck';
 import { TileBlock } from './TileBlock';
 import { Tile, TileType, TileState } from './Tile';
+
+function getActualTileCounts(deck: Deck): { [key in keyof TileProbability]: number } {
+    // Counters for each tile type
+    const counts = {
+        tree: 0,
+        farm: 0,
+        people: 0,
+        power: 0,
+        null: 0
+    };
+
+    const tileBlocks = deck.getItems() as TileBlock[];
+
+    for (const tileBlock of tileBlocks) {
+        const tiles = tileBlock.getTiles();
+        
+        tiles.forEach(tile => {
+            if (tile === null) {
+                counts.null++;
+            } else {
+                counts[tile.type]++;
+            }
+        });
+    }
+
+    return counts;
+}
 
 describe('Deck', () => {
     let deck: Deck;
@@ -115,5 +142,90 @@ describe('Deck', () => {
             });
         });
     });
+
+    it('should generate tiles at the correct default probabilities', () => {
+        // Define custom probabilities for testing
+        const testProbabilities: TileProbability = {
+            tree: 0.3,
+            farm: 0.2,
+            people: 0.2,
+            power: 0.2,
+            null: 0.1 // Default probability for null (empty space)
+        };
+    
+        // Pass the custom probabilities to the Deck
+        const deck = new Deck(null, false);
+    
+        // Number of samples to generate for testing
+        const sampleSize = 100000;
+        const tolerance = 0.02; // Tolerance for the test, allowing a 2% deviation
+    
+        // Fill the deck with TileBlocks
+        deck.fillInitialDeck(sampleSize);
+    
+        // Get actual tile counts from the generated TileBlocks
+        const counts = getActualTileCounts(deck);
+    
+        // Calculate the observed probabilities
+        const totalTiles = sampleSize * 2; // Each TileBlock contains 2 positions
+        const observedProbabilities: TileProbability = {
+            tree: counts.tree / totalTiles,
+            farm: counts.farm / totalTiles,
+            people: counts.people / totalTiles,
+            power: counts.power / totalTiles,
+            null: counts.null / totalTiles
+        };
+    
+        // Assert that each observed probability is within the specified tolerance of the expected probability
+        for (const key in testProbabilities) {
+            const expected = testProbabilities[key as keyof TileProbability];
+            const observed = observedProbabilities[key as keyof TileProbability];
+            expect(observed, `Probability for ${key}`).toBeGreaterThanOrEqual(expected - tolerance);
+            expect(observed, `Probability for ${key}`).toBeLessThanOrEqual(expected + tolerance);
+        }
+    });
+    
+    it('should generate tiles at the correct probabilities', () => {
+        // Define custom probabilities for testing
+        const testProbabilities: TileProbability = {
+            tree: 0.4,
+            farm: 0.3,
+            people: 0.2,
+            power: 0.05,
+            null: 0.05
+        };
+    
+        // Pass the custom probabilities to the Deck
+        const deck = new Deck(null, false, testProbabilities);
+    
+        // Number of samples to generate for testing
+        const sampleSize = 100000;
+        const tolerance = 0.02; // Tolerance for the test, allowing a 2% deviation
+    
+        // Fill the deck with TileBlocks
+        deck.fillInitialDeck(sampleSize);
+    
+        // Get actual tile counts from the generated TileBlocks
+        const counts = getActualTileCounts(deck);
+    
+        // Calculate the observed probabilities
+        const totalTiles = sampleSize * 2; // Each TileBlock contains 2 positions
+        const observedProbabilities: TileProbability = {
+            tree: counts.tree / totalTiles,
+            farm: counts.farm / totalTiles,
+            people: counts.people / totalTiles,
+            power: counts.power / totalTiles,
+            null: counts.null / totalTiles
+        };
+    
+        // Assert that each observed probability is within the specified tolerance of the expected probability
+        for (const key in testProbabilities) {
+            const expected = testProbabilities[key as keyof TileProbability];
+            const observed = observedProbabilities[key as keyof TileProbability];
+            expect(observed, `Probability for ${key}`).toBeGreaterThanOrEqual(expected - tolerance);
+            expect(observed, `Probability for ${key}`).toBeLessThanOrEqual(expected + tolerance);
+        }
+    });
+    
     
 });

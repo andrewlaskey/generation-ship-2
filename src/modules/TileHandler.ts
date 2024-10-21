@@ -9,9 +9,12 @@ export class TreeTileHandler implements TileHandler {
     updateState(space: BoardSpace, gameManager: GameManager): void {
         const treeCount = gameManager.countNeighbors(space, ['tree']);
         const peopleCount = gameManager.countNeighbors(space, ['people']);
+        const powerCount = gameManager.countNeighbors(space, ['power'])
 
-        const thrivingCondition = treeCount >= 3;
-        const strugglingCondition = treeCount === 0 || peopleCount >= 5;
+        const strugglingCondition = treeCount === 0 || peopleCount >= 5 || powerCount >= 2;
+
+        // Only check thriving condition if not struggling
+        const thrivingCondition = !strugglingCondition && treeCount >= 3;
 
         gameManager.handleTileState(space, thrivingCondition, strugglingCondition);
     }
@@ -22,7 +25,7 @@ export class FarmTileHandler implements TileHandler {
         const treeCount = gameManager.countNeighbors(space, ['tree']);
         const peopleCount = gameManager.countNeighbors(space, ['people']);
 
-        const thrivingCondition = peopleCount >= 1 && treeCount <= 2;  // Farms do well with some people and few trees
+        const thrivingCondition = peopleCount >= 1 && treeCount <= 3;  // Farms do well with some people and few trees
         const strugglingCondition = peopleCount === 0 || treeCount >= 5;  // Farms struggle without people or too many trees
 
         gameManager.handleTileState(space, thrivingCondition, strugglingCondition);

@@ -22,6 +22,24 @@ export class GameBoard {
         return board;
     }
 
+    setStartingCondition(): void {
+        const centerX = Math.floor(this.size / 2);
+        const centerY = Math.floor(this.size / 2);
+    
+        // Place a tree tile at the center
+        this.placeTileAt(centerX, centerY, new Tile('tree', 1, 'neutral'));
+    
+        // Place a farm tile one cell north, if within bounds
+        if (this.isValidCoordinate(centerX, centerY - 1)) {
+            this.placeTileAt(centerX, centerY - 1, new Tile('farm', 1, 'neutral'));
+        }
+    
+        // Place a people tile one cell west, if within bounds
+        if (this.isValidCoordinate(centerX - 1, centerY)) {
+            this.placeTileAt(centerX - 1, centerY, new Tile('people', 1, 'neutral'));
+        }
+    }
+
     // Method to get a specific space by coordinates
     getSpace(x: number, y: number): BoardSpace | null {
         if (this.isValidCoordinate(x, y)) {

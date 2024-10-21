@@ -22,7 +22,8 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
     return {
         size,
         getSpace: vi.fn((x: number, y: number) => spaces[x] && spaces[x][y] ? spaces[x][y] : null),
-        countTileTypes: vi.fn()
+        countTileTypes: vi.fn(),
+        setStartingCondition: vi.fn()
     };
 };
 

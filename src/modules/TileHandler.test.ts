@@ -20,7 +20,7 @@ describe('TileHandler Tests', () => {
         it('should set tile to healthy if thriving condition is met', () => {
             const treeTileHandler = new TreeTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('tree', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('tree')) return 3;
@@ -36,11 +36,12 @@ describe('TileHandler Tests', () => {
         it('should set tile to unhealthy if struggling condition is met', () => {
             const treeTileHandler = new TreeTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('tree', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('tree')) return 0;
                 if (types.includes('people')) return 5;
+                if (types.includes('power')) return 2;
                 return 0;
             });
 

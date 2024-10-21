@@ -154,6 +154,17 @@ describe('TileBlock', () => {
         expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
         expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
     });
+
+    it('should return the two tiles regardless of orientation', () => {
+        const treeTile = new Tile(TileType.Tree, 1, TileState.Neutral);
+        const houseTile = new Tile(TileType.People, 1, TileState.Neutral);
+        const tileBlock = new TileBlock([treeTile, houseTile]);
+
+
+        const tiles: (Tile | null)[] = tileBlock.getTiles()
+
+        expect(tiles).toStrictEqual([treeTile, houseTile])
+    })
 });
 
 
