@@ -30,6 +30,8 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 2px; /* Smaller gap for a compact look */
+  width: 800px;
+  height: 600px;
   background-color: black;
 }
 

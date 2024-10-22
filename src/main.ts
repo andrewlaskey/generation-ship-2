@@ -2,11 +2,15 @@ import './style.css';
 import { GameManager } from './modules/GameManager'; 
 import { HtmlGameView } from './views/HtmlGameView';
 import { HtmlGameController } from './controllers/HtmlGameController';
+import { ThreeJSGameView } from './views/ThreeJSGameView';
+import { ThreeJSGameController } from './controllers/ThreeJSGameController';
 
 // Initialize the game board
 const gameSize = 12;  // Size of the grid (e.g., 5x5)
 const gameManager = new GameManager(gameSize, 40, 3, null, false);
-const htmlGameView = new HtmlGameView(gameManager, document);
+// const htmlGameView = new HtmlGameView(gameManager, document);
+
+const threeJsGameView = new ThreeJSGameView(gameManager, document);
 
 // // Available tile types to randomly assign
 // const tileTypes: Array<'tree' | 'farm' | 'people' | 'power'> = ['tree', 'farm', 'people', 'power'];
@@ -34,7 +38,10 @@ const htmlGameView = new HtmlGameView(gameManager, document);
 // initializeRandomTiles(gameManager, gameSize);
 
 // Render the initial game grid
-htmlGameView.updateGrid();
+// htmlGameView.updateGrid();
+
+threeJsGameView.updateGrid();
 
 // Initialize the controller to handle input and interaction
-const htmlGameController = new HtmlGameController(gameManager, htmlGameView);
+// const htmlGameController = new HtmlGameController(gameManager, htmlGameView);
+const threeJsGameController = new ThreeJSGameController(gameManager, threeJsGameView);
