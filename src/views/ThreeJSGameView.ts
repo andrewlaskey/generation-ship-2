@@ -239,7 +239,7 @@ export class ThreeJSGameView {
         this.render(); // Update the rendering
     }
 
-    public getCanvas(): HTMLDivElement {
+    public getCanvas(): HTMLCanvasElement {
         return this.renderer.domElement;
     }
 
