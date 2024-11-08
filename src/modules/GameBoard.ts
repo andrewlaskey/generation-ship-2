@@ -4,9 +4,11 @@ import { BoardSpace } from "./BoardSpace";
 // Class to represent the GameBoard
 export class GameBoard {
     private grid: BoardSpace[][];
+    private gridSize: number
 
     constructor(public size: number) {
-        this.grid = this.createBoard(size);
+        this.gridSize = size;
+        this.grid = this.createBoard(this.gridSize);
     }
 
     // Method to create the grid of spaces
@@ -22,9 +24,19 @@ export class GameBoard {
         return board;
     }
 
+    clearBoard(): void {
+        for (let x = 0; x < this.gridSize; x++) {
+            for (let y = 0; y < this.gridSize; y++) {
+                this.removeTileAt(x, y);
+            }
+        }
+    }
+
     setStartingCondition(): void {
         const centerX = Math.floor(this.size / 2);
         const centerY = Math.floor(this.size / 2);
+
+        this.clearBoard();
     
         // Place a tree tile at the center
         this.placeTileAt(centerX, centerY, new Tile('tree', 1, 'neutral'));

@@ -123,4 +123,19 @@ describe('GameBoard', () => {
         const peopleSpace = board.getSpace(1, 2);
         expect(peopleSpace?.tile?.type).toBe('people')
     })
+
+    it('should clear the board', () => {
+        board.placeTileAt(2, 2, tile1);
+        board.placeTileAt(1, 1, tile2);
+
+        board.clearBoard();
+
+        const powerSpace = board.getSpace(2, 2);
+        expect(powerSpace?.isOccupied()).toBe(false); // should be empty
+
+        const farmSpace = board.getSpace(1, 1);
+        expect(farmSpace?.isOccupied()).toBe(false); // should be empty
+
+        expect(board.countTileTypes()).toStrictEqual({})
+    })
 });

@@ -8,20 +8,31 @@ import { Deck } from './Deck';
 import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
 
-
+export type GameManagerOptions = {
+ size: number;
+ initialDeckSize: number;
+ maxHandSize: number;
+ seed?: string;
+ infiniteDeck?: boolean;
+}
 export class GameManager {
     gameBoard: GameBoard;
     tileHandlerRegistry: TileHandlerRegistry;
     playerHand: PlayerHand;  // Player's hand
     deck: Deck;  // Deck for drawing HandItems
     playerScore: Record<string, ScoreObject>;
+    options: GameManagerOptions;
 
-    constructor(size: number, initialDeckSize: number, maxHandSize: number, seed: string | null = null, infiniteDeck: boolean = false) {
-        this.gameBoard = new GameBoard(size);
+    constructor(options: GameManagerOptions) {
+        this.options = {
+            infiniteDeck: false,
+            ...options
+        }
+        this.gameBoard = new GameBoard(this.options.size);
         this.tileHandlerRegistry = new TileHandlerRegistry();
-        this.playerHand = new PlayerHand(maxHandSize);  // Initialize the player's hand
-        this.deck = new Deck(seed, infiniteDeck);  // Initialize the deck with seed and infinite options
-        this.deck.fillInitialDeck(initialDeckSize);  // Fill the deck with initial items
+        this.playerHand = new PlayerHand(this.options.maxHandSize);  // Initialize the player's hand
+        this.deck = new Deck(this.options.seed, this.options.infiniteDeck);  // Initialize the deck with seed and infinite options
+        this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
         this.playerScore = {
             ecology: new ScoreObject('ecology', 0),
             population: new ScoreObject('population', 10)
@@ -120,6 +131,17 @@ export class GameManager {
         this.updateBoard();
         this.fillHand();
         this.gameBoard.setStartingCondition();
+    }
+
+    resetGame(): void {
+        this.gameBoard.clearBoard();
+        this.playerHand.clearHand();
+        this.deck.setItems([]);
+        this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
+        this.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 10)
+        }
     }
 
     getPlayerScore(name: string): number {

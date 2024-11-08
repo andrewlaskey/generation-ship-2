@@ -92,4 +92,9 @@ export class PlayerHand {
     rotateSelected(): void {
         this.items[this.selectedIndex].rotate();
     }
+
+    clearHand(): void {
+        this.items = [];
+        this.selectedIndex = 0;
+    }
 }

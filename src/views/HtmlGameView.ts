@@ -1,7 +1,8 @@
 import { GameManager } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
 import { TileBlock } from '../modules/TileBlock';
-export class HtmlGameView {
+import { GameView } from '../types/GameViewInterface';
+export class HtmlGameView implements GameView {
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;

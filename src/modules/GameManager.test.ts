@@ -23,7 +23,8 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
         size,
         getSpace: vi.fn((x: number, y: number) => spaces[x] && spaces[x][y] ? spaces[x][y] : null),
         countTileTypes: vi.fn(),
-        setStartingCondition: vi.fn()
+        setStartingCondition: vi.fn(),
+        clearBoard: vi.fn()
     };
 };
 
@@ -31,6 +32,7 @@ const createMockDeck = (): Partial<Deck> => ({
     drawItem: vi.fn(),
     getItemCount: vi.fn(() => 10),
     fillInitialDeck: vi.fn(),
+    setItems: vi.fn()
 });
 
 const createMockPlayerHand = (): Partial<PlayerHand> => ({
@@ -41,6 +43,7 @@ const createMockPlayerHand = (): Partial<PlayerHand> => ({
     selectItem: vi.fn(),
     getSelectedItemIndex: vi.fn(() => 0),
     rotateSelected: vi.fn(),
+    clearHand: vi.fn()
 });
 
 describe('GameManager', () => {
@@ -49,11 +52,17 @@ describe('GameManager', () => {
     let deck: Partial<Deck>;
     let playerHand: Partial<PlayerHand>;
 
+    const deckSize = 10
+
     beforeEach(() => {
         gameBoard = createMockGameBoard(5);
         deck = createMockDeck();
         playerHand = createMockPlayerHand();
-        gameManager = new GameManager(5, 10, 5);
+        gameManager = new GameManager({
+            size:5, 
+            initialDeckSize: deckSize,
+            maxHandSize: 5
+        });
 
         gameManager.gameBoard = gameBoard as GameBoard;
         gameManager.deck = deck as Deck;
@@ -148,7 +157,7 @@ describe('GameManager', () => {
 
     it('should get the remaining deck size', () => {
         const deckSize = gameManager.getDeckItemCount();
-        expect(deckSize).toBe(10);
+        expect(deckSize).toBe(deckSize);
         expect(deck.getItemCount).toHaveBeenCalled();
     });
 
@@ -207,5 +216,16 @@ describe('GameManager', () => {
         gameManager.updatePlayerScore()
         expect(gameManager.getPlayerScore('ecology')).toBe(4);
         expect(gameManager.getPlayerScore('population')).toBe(3);
+    })
+
+    it('should reset the game to starting conditions', () => {
+        gameManager.resetGame();
+
+        expect(gameManager.getPlayerScore('ecology')).toBe(0);
+        expect(gameManager.getPlayerScore('population')).toBe(10);
+
+        expect(gameBoard.clearBoard).toHaveBeenCalled();
+        expect(playerHand.clearHand).toHaveBeenCalled();
+        expect(deck.setItems).toHaveBeenCalled();
     })
 });

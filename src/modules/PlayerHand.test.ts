@@ -108,4 +108,12 @@ describe('PlayerHand', () => {
         const selected = items[playerHand.getSelectedItemIndex()]
         expect(selected.getRotation()).not.toBe(0);
     })
+
+    it('should clear the hand', () => {
+        playerHand.addItem(tileBlock);
+        playerHand.clearHand();
+        const items = playerHand.getItems();
+
+        expect(items.length).toBe(0);
+    })
 });

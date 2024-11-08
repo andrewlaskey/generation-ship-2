@@ -44,12 +44,10 @@ export class HtmlGameController {
             cell.addEventListener('mouseover', (event) => {
                 const { x, y } = this.getEventCellCoords(event);
                 this.handleCellHover(true, x, y);
-                console.log('enter', x, y);
             })
             cell.addEventListener('mouseout', (event) => {
                 const { x, y } = this.getEventCellCoords(event);
                 this.handleCellHover(false, x, y);
-                console.log('out', x, y);
             })
         });
     }

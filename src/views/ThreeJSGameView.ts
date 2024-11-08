@@ -4,8 +4,9 @@ import { GameManager } from '../modules/GameManager';  // Import the GameManager
 import { Tile } from '../modules/Tile';
 import { TileBlock } from '../modules/TileBlock';
 import { HandItem } from '../modules/PlayerHand';
+import { GameView } from '../types/GameViewInterface';
 
-export class ThreeJSGameView {
+export class ThreeJSGameView implements GameView {
     private gameManager: GameManager;
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
