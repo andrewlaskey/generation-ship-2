@@ -64,8 +64,7 @@ export class ThreeJSGameView implements GameView {
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
     private initializeView(): void {
         this.appDiv.innerHTML = `
-            <h1>Game Grid</h1>
-            <div id="gridContainer" class="grid"></div>
+            <div id="gridContainer" class="grid three"></div>
             <div id="handContainer" class="hand"></div>
             <div id="deckCounterContainer" class="deck-counter"></div>
             <button id="rotateItem" type="button">Rotate</button>

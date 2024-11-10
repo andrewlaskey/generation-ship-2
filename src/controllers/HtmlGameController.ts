@@ -81,7 +81,14 @@ export class HtmlGameController {
 
     // Handle a click on a hand item
     private handleHandItemClick(index: number): void {
-        this.gameManager.selectItemFromHand(index);  // Select the clicked item from hand
+        const currentIndex = this.gameManager.getSelectedItemIndex();
+
+        if (currentIndex === index) {
+            this.gameManager.rotateSelectedItem();
+        } else {
+            this.gameManager.selectItemFromHand(index);  // Select the clicked item from hand
+        }
+        
         this.updateView();  // Update the view to show the selected item
     }
 

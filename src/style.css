@@ -12,9 +12,14 @@
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+.site-controls {
+  padding: 2em;
 }
 
 h1 {
@@ -23,16 +28,19 @@ h1 {
 }
 
 #app {
-  margin: auto;
+  margin: 0 auto;
 }
 
 .grid {
   display: flex;
   flex-direction: column;
   gap: 2px; /* Smaller gap for a compact look */
+  background-color: black;
+}
+
+.grid.three {
   width: 800px;
   height: 600px;
-  background-color: black;
 }
 
 .row {
@@ -54,11 +62,11 @@ h1 {
 
 /* Tile levels adjust the size of the character */
 .cell.l1 {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
 }
 
 .cell.l2 {
-  font-size: 1.2rem;
+  font-size: 1.6rem;
 }
 
 .cell.l3 {
@@ -69,39 +77,79 @@ h1 {
   border: 1px solid yellow;
 }
 
+
+
 /* Healthy and Unhealthy state styling */
 .cell.healthy {
-  filter: brightness(150%); /* Brighter color for healthy state */
+  filter: saturate(300%);
 }
 
 .cell.unhealthy {
-  filter: brightness(50%); /* Darker color for unhealthy state */
+  filter: grayscale(80%);
 }
 
-/* ASCII Characters for Tile Types */
-
-/* Tree tile ASCII (represented by 'T') */
 .cell.tree::before {
-  content: "♣";
-  color: #00ff00; /* Green for tree tiles */
+  color: #1b9416; /* Green for tree tiles */
 }
 
-/* People tile ASCII (represented by 'P') */
+.cell.tree.l1::before {
+  content: "ᚭ";
+}
+
+.cell.tree.l2::before {
+  content: "ᚨ";
+}
+
+.cell.tree.l3::before {
+  content: "ᚫ";
+}
+
 .cell.people::before {
-  content: "&";
-  color: #D2B48C; /* Adobe color for people tiles */
+  color: #7c4e10; /* Adobe color for people tiles */
 }
 
-/* Farm tile ASCII (represented by 'F') */
+.cell.people.l1::before {
+  content: "ᨊ";
+}
+
+.cell.people.l2::before {
+  content: "ᨕ";
+}
+
+.cell.people.l3::before {
+  content: "ᨐ";
+}
+
 .cell.farm::before {
-  content: "#";
-  color: #FFFF00; /* Yellow for farm tiles */
+  color: #ffd522; /* Yellow for farm tiles */
 }
 
-/* Power tile ASCII (represented by 'P') */
+.cell.farm.l1::before {
+  content: "፡";
+}
+
+.cell.farm.l2::before {
+  content: "፠";
+}
+
+.cell.farm.l3::before {
+  content: "፨";
+}
+
 .cell.power::before {
-  content: "⚡"; /* ASCII-style bolt for power tiles */
-  color: #FF00FF; /* Magenta for power tiles */
+  color: #3800ff;
+}
+
+.cell.power.l1::before {
+  content: "ᚢ";
+}
+
+.cell.power.l2::before {
+  content: "ᚣ";
+}
+
+.cell.power.l3::before {
+  content: "ᚥ";
 }
 
 /* Empty cell (no ASCII character) */
