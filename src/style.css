@@ -160,7 +160,7 @@ h1 {
 /* Player Hand Styling */
 .hand-grid {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-top: 10px;
   align-items: flex-start; /* Ensure vertical tiles align to the top */
   height: 48px; /* Fixed height for the hand grid */
@@ -170,14 +170,13 @@ h1 {
 .hand-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   height: 52px;
   width: 52px;
 }
 
 .hand-row {
   display: flex;
-  gap: 2px;
+  gap: 1px;
 }
 
 /* Cell inside the hand-item */
@@ -195,7 +194,39 @@ h1 {
 
 /* Only apply the yellow border to the selected cell, not the entire hand item */
 .hand-item.selected .cell {
-  border: 2px solid yellow;
+  border: 1px solid #ebeb8a;
 }
 
+.card-display {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
 
+.deck-counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  background: black;
+  box-shadow:
+    0 2px 0 black,
+    0 4px 0 white,    
+    0 6px 0 black,
+    0 8px 0 white,
+    0 10px 0 black,    
+    0 12px 0 white;   
+  height: 24px;
+  width: 48px;
+  font-size: 1rem;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.scoreboard .score {
+  padding: 3px 10px;
+}

@@ -73,6 +73,8 @@ describe('GameManager', () => {
         vi.spyOn(gameManager, 'updateBoard').mockImplementation(() => {});
         vi.spyOn(gameManager, 'fillHand').mockImplementation(() => { return true; });
 
+        (gameBoard.countTileTypes as Mock).mockReturnValue({});
+
         // Call startGame
         gameManager.startGame();
 
@@ -195,7 +197,7 @@ describe('GameManager', () => {
 
     it('should return the default player score', () => {
         expect(gameManager.getPlayerScore('ecology')).toBe(0);
-        expect(gameManager.getPlayerScore('population')).toBe(10);
+        expect(gameManager.getPlayerScore('population')).toBe(0);
     })
 
     it('board changes should update the player score', () => {
@@ -215,14 +217,16 @@ describe('GameManager', () => {
         })
         gameManager.updatePlayerScore()
         expect(gameManager.getPlayerScore('ecology')).toBe(4);
-        expect(gameManager.getPlayerScore('population')).toBe(3);
+        expect(gameManager.getPlayerScore('population')).toBe(15); // 3 * 5
     })
 
     it('should reset the game to starting conditions', () => {
+        (gameBoard.countTileTypes as Mock).mockReturnValue({});
+
         gameManager.resetGame();
 
         expect(gameManager.getPlayerScore('ecology')).toBe(0);
-        expect(gameManager.getPlayerScore('population')).toBe(10);
+        expect(gameManager.getPlayerScore('population')).toBe(0);
 
         expect(gameBoard.clearBoard).toHaveBeenCalled();
         expect(playerHand.clearHand).toHaveBeenCalled();

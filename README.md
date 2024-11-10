@@ -2,6 +2,8 @@
 
 ***In active development***
 
+![Screenshot of gameplay](public/Screenshot.png)
+
 This is a remake of a previous game I built a few years ago. You can find the code for that project [here](https://github.com/andrewlaskey/generation-ship) or play it [here](https://generation-ship.vercel.app/). I also wrote a bit about the motivations and design goals for the original game [here](https://www.andrewlaskey.com/Andrew-Laskey-8f215a2f56104b2dae16c6d7f534f041?p=5135555e41824b7fbcbab09d3d68f332&pm=s).
 
 For this new version I had a couple objectives. First I wanted to improve the code organization and test coverage so that making gameplay changes would be easier. Second I wanted to abstract the rendering and UI from the game mechanics. I did this so that it would possibly make it easier to port the code into a game engine like Unity or Godot. Also this could be a good way to demo different front end frameworks.

@@ -35,7 +35,7 @@ export class GameManager {
         this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
         this.playerScore = {
             ecology: new ScoreObject('ecology', 0),
-            population: new ScoreObject('population', 10)
+            population: new ScoreObject('population', 0)
         }
     }
 
@@ -131,6 +131,7 @@ export class GameManager {
         this.updateBoard();
         this.fillHand();
         this.gameBoard.setStartingCondition();
+        this.updatePlayerScore();
     }
 
     resetGame(): void {
@@ -140,8 +141,9 @@ export class GameManager {
         this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
         this.playerScore = {
             ecology: new ScoreObject('ecology', 0),
-            population: new ScoreObject('population', 10)
+            population: new ScoreObject('population', 0)
         }
+        this.updatePlayerScore();
     }
 
     getPlayerScore(name: string): number {
@@ -162,7 +164,7 @@ export class GameManager {
         }
 
         if (tileTypeCounts.hasOwnProperty('people')) {
-            this.playerScore.population.update(tileTypeCounts['people'])
+            this.playerScore.population.update(tileTypeCounts['people'] * 5)
         } else {
             this.playerScore.population.update(0);
         }

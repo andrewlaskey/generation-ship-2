@@ -23,12 +23,12 @@ export class HtmlGameView implements GameView {
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
     private initializeView(): void {
         this.appDiv.innerHTML = `
-            <div id="gridContainer" class="grid"></div>
-            <div id="handContainer" class="hand"></div>
-            <div id="deckCounterContainer" class="deck-counter"></div>
-            <!--<button id="nextTurn" type="button">Next Turn</button>
-            <button id="drawItem" type="button">Draw Item</button>-->
             <div id="scoreboard" class="scoreboard"></div>
+            <div id="gridContainer" class="grid"></div>
+            <div class="card-display">
+                <div id="handContainer" class="hand"></div>
+                <div id="deckCounterContainer" class="deck-counter"></div>
+            </div>
         `;
 
         // Cache the containers for dynamic updates
@@ -98,7 +98,7 @@ export class HtmlGameView implements GameView {
     private renderHand(): string {
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
         const selectedIndex = this.gameManager.getSelectedItemIndex();
-        let handHtml = '<h2>Player Hand</h2>';
+        let handHtml = '';
 
         if (handItems.length === 0) {
             handHtml += '<p>No items in hand</p>';
@@ -136,7 +136,8 @@ export class HtmlGameView implements GameView {
     // Method to display the total number of items left in the deck
     private renderDeckCounter(): string {
         const deckCount = this.gameManager.getDeckItemCount();
-        return `<h2>Deck Size</h2><p>${deckCount} items left</p>`;
+        
+        return `<div class="deck">${deckCount}</div>`;
     }
 
     private renderScoreBoard(): string {
