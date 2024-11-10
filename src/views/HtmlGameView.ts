@@ -136,8 +136,12 @@ export class HtmlGameView implements GameView {
     // Method to display the total number of items left in the deck
     private renderDeckCounter(): string {
         const deckCount = this.gameManager.getDeckItemCount();
-        
-        return `<div class="deck">${deckCount}</div>`;
+        let classString = 'deck';
+
+        if (deckCount === 0) {
+            classString += ' is-empty';
+        }
+        return `<div class="${classString}">${deckCount}</div>`;
     }
 
     private renderScoreBoard(): string {

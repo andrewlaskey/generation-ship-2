@@ -203,7 +203,7 @@ h1 {
   margin-top: 1rem;
 }
 
-.deck-counter {
+.deck-counter .deck {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -219,6 +219,11 @@ h1 {
   height: 24px;
   width: 48px;
   font-size: 1rem;
+}
+
+.deck-counter .deck.is-empty {
+  border: 1px dashed white;
+  box-shadow: none;
 }
 
 .scoreboard {
