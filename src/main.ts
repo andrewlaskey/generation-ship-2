@@ -44,8 +44,9 @@ appLoadButton.addEventListener('click', () => {
             gameManager = new GameManager({
                 size: gameSize,
                 initialDeckSize: 50,
-                maxHandSize: 8,
-                infiniteDeck: true
+                maxHandSize: 9,
+                infiniteDeck: true,
+                randomTileStates: true
             });
             view = new FlyingGameView(gameManager, document);
             loadGame(gameManager, view);

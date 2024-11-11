@@ -14,6 +14,7 @@ export type GameManagerOptions = {
  maxHandSize: number;
  seed?: string;
  infiniteDeck?: boolean;
+ randomTileStates?: boolean;
 }
 export class GameManager {
     gameBoard: GameBoard;
@@ -31,7 +32,7 @@ export class GameManager {
         this.gameBoard = new GameBoard(this.options.size);
         this.tileHandlerRegistry = new TileHandlerRegistry();
         this.playerHand = new PlayerHand(this.options.maxHandSize);  // Initialize the player's hand
-        this.deck = new Deck(this.options.seed, this.options.infiniteDeck);  // Initialize the deck with seed and infinite options
+        this.deck = new Deck(this.options.seed, this.options.infiniteDeck, undefined, this.options.randomTileStates);  // Initialize the deck with seed and infinite options
         this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
         this.playerScore = {
             ecology: new ScoreObject('ecology', 0),

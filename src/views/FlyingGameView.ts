@@ -9,7 +9,7 @@ export class FlyingGameView implements GameView{
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
-    private objectsDiv!: HTMLDivElement;
+    private tiles!: NodeListOf<HTMLDivElement>;
 
     constructor(gameManager: GameManager, document: Document) {
         this.gameManager = gameManager;
@@ -21,7 +21,7 @@ export class FlyingGameView implements GameView{
     }
 
     public updateGrid(): void {
-        this.objectsDiv.innerHTML = this.renderHand();
+        this.renderHand();
     }
 
     private initializeView(): void {
@@ -32,30 +32,43 @@ export class FlyingGameView implements GameView{
                     <div class="grid-fade"></div>
                     <div class="grid-lines"></div>
                 </div>
-                <div id="objects" class="grid-objects"></div>
+                <div id="objects" class="grid-objects">
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                    <div class="tile"></div>
+                </div>
             </div>
         `
 
         this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
-        this.objectsDiv = this.document.querySelector<HTMLDivElement>('#objects')!;
+        this.tiles = this.document.querySelectorAll<HTMLDivElement>('#objects .tile')!;
 
-        this.objectsDiv.innerHTML = this.renderHand();
+        this.renderHand();
     }
 
-    private renderHand(): string {
-        let html = '';
+    private renderHand(): void {
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
-
-        for (const item of handItems) {
+        const allTiles = handItems.reduce((acc, item) => {
             const tiles = (item as TileBlock).getTiles();
-            html += tiles.reduce((str, tile) => {
-                if (tile) {
-                    str += `<div class="tile ${tile?.type} l${tile?.level}"></div>`
-                }
-                return str
-            }, '')
-        }
 
-        return html;
+            return acc.concat(tiles)
+        },[] as (Tile | null)[]);
+
+        this.tiles.forEach((div, index) => {
+            if (index < allTiles.length) {
+                const tile = allTiles[index];
+                const tileType = tile ? tile.type : 'empty';
+                const tileLevel = tile ? tile.level : 0;
+                const tileState = tile ? tile.state : 'neutral';
+                            
+                div.className =`tile ${tileType} ${tileState} l${tileLevel}`
+            }
+        });
     }
 }

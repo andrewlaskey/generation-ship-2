@@ -13,8 +13,9 @@ export class Deck {
     private infinite: boolean;
     private random: () => number;  // Random function (either seeded or default)
     private tileProbability: TileProbability;
+    private randomTileState: boolean;
     
-    constructor(seed: string | null = null, infinite: boolean = false, probabilityConfig?: TileProbability) {
+    constructor(seed: string | null = null, infinite: boolean = false, probabilityConfig?: TileProbability, randomTileState?: boolean) {
         this.items = [];
         this.infinite = infinite;
         // Default probability configuration
@@ -25,6 +26,7 @@ export class Deck {
             power: 0.2,
             null: 0.1 // Default probability for null (empty space)
         };
+        this.randomTileState = randomTileState ?? false;
 
         // Initialize the random function, with or without a seed
         this.random = seed ? seedrandom(seed) : Math.random;
@@ -111,6 +113,13 @@ export class Deck {
 
     // Updated createRandomTile to accept a TileType argument
     private createRandomTile(tileType: TileType): Tile {
+        if (this.randomTileState) {
+            const levels = [1, 2, 3];
+            const states = [TileState.Healthy, TileState.Neutral, TileState.Unhealthy];
+            const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+            const randomState = states[Math.floor(Math.random() * states.length)];
+            return new Tile(tileType, randomLevel, randomState);
+        }
         return new Tile(tileType, 1, TileState.Neutral); // Default to Level 1 and Neutral state
     }
 

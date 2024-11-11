@@ -8,6 +8,7 @@ export class FlyingGameController {
     private lastTimestamp: number;
     private accumulatedTime: number;
     private readonly interval: number;
+    private readonly prob: number
 
     constructor(gameManager: GameManager, gameView: FlyingGameView) {
         this.gameManager = gameManager;
@@ -16,13 +17,13 @@ export class FlyingGameController {
         this.lastTimestamp = 0;
         this.accumulatedTime = 0;
 
-        const intervalInSeconds = 2;
+        const intervalInSeconds = 4;
         this.interval = intervalInSeconds * 1000; // Convert seconds to milliseconds
-
+        this.prob = 0.8;
 
         this.initEventListeners();
 
-        this.gameManager.drawItemToHand();
+        this.gameManager.fillHand();
         this.gameView.updateGrid();
 
         // Start the animation loop
@@ -55,14 +56,19 @@ export class FlyingGameController {
             this.accumulatedTime = 0; // Reset the accumulator
         }
 
-        
+        this.gameView.updateGrid();
 
         // Continue the animation loop
         this.loop();
     }
 
     private executeAction(): void {
-        
+        const rand = Math.random();
+
+        if (rand <= this.prob) {
+            this.gameManager.playerHand.removeItem(0)
+            this.gameManager.drawItemToHand();
+        }
     }
 
     public togglePlay(): void {
