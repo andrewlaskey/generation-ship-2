@@ -5,6 +5,8 @@ import { HtmlGameController } from './controllers/HtmlGameController';
 import { ThreeJSGameView } from './views/ThreeJSGameView';
 import { ThreeJSGameController } from './controllers/ThreeJSGameController';
 import { GameView } from './types/GameViewInterface';
+import { FlyingGameView } from './views/FlyingGameView';
+import { FlyingGameController } from './controllers/FlyingGameController';
 
 
 // Base UI Elements
@@ -13,7 +15,7 @@ const appLoadButton = document.querySelector<HTMLButtonElement>('#init-app')!;
 
 // Initialize the game board
 const gameSize = 12;  // Size of the grid (e.g., 5x5)
-const gameManager = new GameManager({
+let gameManager = new GameManager({
     size: gameSize,
     initialDeckSize: 40,
     maxHandSize: 3
@@ -37,6 +39,17 @@ appLoadButton.addEventListener('click', () => {
             view = new ThreeJSGameView(gameManager, document);    
             loadGame(gameManager, view);
             controller = new ThreeJSGameController(gameManager, view as ThreeJSGameView);
+            break;
+        case 'flying':
+            gameManager = new GameManager({
+                size: gameSize,
+                initialDeckSize: 50,
+                maxHandSize: 8,
+                infiniteDeck: true
+            });
+            view = new FlyingGameView(gameManager, document);
+            loadGame(gameManager, view);
+            controller = new FlyingGameController(gameManager, view as FlyingGameView);
             break;
         default:
             view = new HtmlGameView(gameManager, document);
