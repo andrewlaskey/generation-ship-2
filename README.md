@@ -2,7 +2,8 @@
 
 ***In active development***
 
-![Screenshot of gameplay](public/Screenshot.png)
+![Screenshot of vanilla JS gameplay. Its meant to evoke Dwarf Fortress.](public/Screenshot.png)
+![Screenshot of a version that uses game modules to render a CSS 3D flying demo. The style is meant to be vaporwave-y.](public/vaporwave.png)
 
 This is a remake of a previous game I built a few years ago. You can find the code for that project [here](https://github.com/andrewlaskey/generation-ship) or play it [here](https://generation-ship.vercel.app/). I also wrote a bit about the motivations and design goals for the original game [here](https://www.andrewlaskey.com/Andrew-Laskey-8f215a2f56104b2dae16c6d7f534f041?p=5135555e41824b7fbcbab09d3d68f332&pm=s).
 
