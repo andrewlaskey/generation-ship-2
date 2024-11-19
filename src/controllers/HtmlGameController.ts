@@ -110,13 +110,7 @@ export class HtmlGameController {
     // Handle advancing the turn
     public advanceTurn(): void {
         // Update the game state via GameManager
-        this.gameManager.updateBoard();
-
-        // Update the player's score
-        this.gameManager.updatePlayerScore();
-
-        // Update the player's hand
-        this.gameManager.fillHand();
+        this.gameManager.advanceTurn();
         
         // Notify the view to re-render the updated game state
         this.updateView();

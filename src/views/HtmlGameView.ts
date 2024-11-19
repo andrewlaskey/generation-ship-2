@@ -23,11 +23,13 @@ export class HtmlGameView implements GameView {
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
     private initializeView(): void {
         this.appDiv.innerHTML = `
-            <div id="scoreboard" class="scoreboard"></div>
-            <div id="gridContainer" class="grid"></div>
-            <div class="card-display">
-                <div id="handContainer" class="hand"></div>
-                <div id="deckCounterContainer" class="deck-counter"></div>
+            <div class="html-game-view-wrapper">
+                <div id="scoreboard" class="scoreboard"></div>
+                <div id="gridContainer" class="grid"></div>
+                <div class="card-display">
+                    <div id="handContainer" class="hand"></div>
+                    <div id="deckCounterContainer" class="deck-counter"></div>
+                </div>
             </div>
         `;
 

@@ -1,6 +1,6 @@
 .flying-view-wrapper {
     position: relative;
-    width: 100%;
+    width: 100vw;
     margin: 1rem  0 2rem;
     padding-top: 56.25%; /* 16:9 aspect ratio (9 / 16 * 100) */
     overflow: hidden;

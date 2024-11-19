@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
-import { GameManager } from './GameManager';
+import { GameManager, GameState } from './GameManager';
 import { TileBlock } from './TileBlock';
 import { Tile } from './Tile';
 import { GameBoard } from './GameBoard';
 import { PlayerHand } from './PlayerHand';
 import { Deck } from './Deck';
 import { BoardSpace } from './BoardSpace';
+import { ScoreObject } from './ScoreObject';
 
 // Mock necessary classes
 const createMockBoardSpace = (): Partial<BoardSpace> => ({
@@ -223,13 +224,86 @@ describe('GameManager', () => {
     it('should reset the game to starting conditions', () => {
         (gameBoard.countTileTypes as Mock).mockReturnValue({});
 
+        gameManager.startGame();
         gameManager.resetGame();
 
         expect(gameManager.getPlayerScore('ecology')).toBe(0);
         expect(gameManager.getPlayerScore('population')).toBe(0);
+        expect(gameManager.state).toBe(GameState.Ready);
 
         expect(gameBoard.clearBoard).toHaveBeenCalled();
         expect(playerHand.clearHand).toHaveBeenCalled();
         expect(deck.setItems).toHaveBeenCalled();
+    });
+
+    it('should call necessary updates when advancing turn', () => {
+        vi.spyOn(gameManager, 'updateBoard').mockImplementation(() => {});
+        vi.spyOn(gameManager, 'updatePlayerScore').mockImplementation(() => {});
+        vi.spyOn(gameManager, 'fillHand').mockImplementation(() => true);
+
+        gameManager.advanceTurn();
+
+        expect(gameManager.updateBoard).toHaveBeenCalled();
+        expect(gameManager.updatePlayerScore).toHaveBeenCalled();
+        expect(gameManager.fillHand).toHaveBeenCalled();
+    });
+
+    it('should update state to lose if zero population', () => {
+        gameManager.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 0)
+        }
+
+        gameManager.checkWinLossConditions();
+
+        expect(gameManager.state).toBe(GameState.GameOver);
+    });
+
+    it('should update state to finished if deck is empty', () => {
+        // simulate an empty player hand
+        (playerHand.getItems as Mock).mockReturnValue([]);
+
+        gameManager.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 10)
+        }
+
+        gameManager.checkWinLossConditions();
+
+        expect(gameManager.state).toBe(GameState.Complete);
+    });
+
+    it('should not update state if in freeplay mode', () => {
+        const freeplayGameManager = new GameManager({
+                size:5, 
+                initialDeckSize: deckSize,
+                maxHandSize: 5,
+                freeplay: true
+        });
+        freeplayGameManager.gameBoard = gameBoard as GameBoard;
+        freeplayGameManager.deck = deck as Deck;
+        freeplayGameManager.playerHand = playerHand as PlayerHand;
+
+        // Set population to zero
+        freeplayGameManager.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 0)
+        };
+
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 0,
+            people: 0
+        });
+
+        // simulate an empty player hand
+        (playerHand.getItems as Mock).mockReturnValue([]);
+
+        // Start the game to set state to Playing
+        freeplayGameManager.startGame();
+
+        // Method being tested
+        freeplayGameManager.checkWinLossConditions();
+
+        expect(freeplayGameManager.state).toBe(GameState.Playing);
     })
 });

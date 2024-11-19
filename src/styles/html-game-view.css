@@ -1,3 +1,8 @@
+.html-game-view-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
 .grid {
     display: flex;
     flex-direction: column;

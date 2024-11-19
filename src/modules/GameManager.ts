@@ -15,7 +15,16 @@ export type GameManagerOptions = {
  seed?: string;
  infiniteDeck?: boolean;
  randomTileStates?: boolean;
+ freeplay?: boolean;
 }
+
+export enum GameState {
+    Ready = 'ready',
+    Playing = 'playing',
+    GameOver = 'game over',
+    Complete = 'complete'
+}
+
 export class GameManager {
     gameBoard: GameBoard;
     tileHandlerRegistry: TileHandlerRegistry;
@@ -23,6 +32,7 @@ export class GameManager {
     deck: Deck;  // Deck for drawing HandItems
     playerScore: Record<string, ScoreObject>;
     options: GameManagerOptions;
+    state: GameState;
 
     constructor(options: GameManagerOptions) {
         this.options = {
@@ -38,6 +48,7 @@ export class GameManager {
             ecology: new ScoreObject('ecology', 0),
             population: new ScoreObject('population', 0)
         }
+        this.state = GameState.Ready;
     }
 
     // Draw a new item from the deck into the player's hand
@@ -133,6 +144,7 @@ export class GameManager {
         this.fillHand();
         this.gameBoard.setStartingCondition();
         this.updatePlayerScore();
+        this.state = GameState.Playing;
     }
 
     resetGame(): void {
@@ -145,6 +157,37 @@ export class GameManager {
             population: new ScoreObject('population', 0)
         }
         this.updatePlayerScore();
+        this.state = GameState.Ready;
+
+    }
+
+    advanceTurn(): void {
+        this.updateBoard();
+        this.updatePlayerScore();
+        this.fillHand();
+    }
+
+    checkWinLossConditions(): void {
+        // Skip checking conditions if in freeplay mode
+        if (this.options.freeplay) {
+            return;
+        }
+
+        // Lose if population is zero
+        const pop = this.getPlayerScore('population');
+
+        if (pop <= 0) {
+            this.state = GameState.GameOver;
+            return; // skip other conditions;
+        }
+
+        // Game ends when player runs out of tiles to play
+        const numTilesInHand = this.getPlayerHand().length;
+
+        if (numTilesInHand <= 0) {
+            this.state = GameState.Complete;
+            return; // skip other conditions
+        }
     }
 
     getPlayerScore(name: string): number {
