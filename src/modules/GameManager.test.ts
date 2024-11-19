@@ -240,12 +240,14 @@ describe('GameManager', () => {
         vi.spyOn(gameManager, 'updateBoard').mockImplementation(() => {});
         vi.spyOn(gameManager, 'updatePlayerScore').mockImplementation(() => {});
         vi.spyOn(gameManager, 'fillHand').mockImplementation(() => true);
+        vi.spyOn(gameManager, 'checkWinLossConditions').mockImplementation(() => {});
 
         gameManager.advanceTurn();
 
         expect(gameManager.updateBoard).toHaveBeenCalled();
         expect(gameManager.updatePlayerScore).toHaveBeenCalled();
         expect(gameManager.fillHand).toHaveBeenCalled();
+        expect(gameManager.checkWinLossConditions).toHaveBeenCalled();
     });
 
     it('should update state to lose if zero population', () => {

@@ -22,15 +22,24 @@ export class HtmlGameController {
         const nextTurnButton = this.gameView.document.querySelector<HTMLButtonElement>('#nextTurn');
         const drawItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#drawItem');
         const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
+        const helpButton = this.gameView.document.querySelector<HTMLButtonElement>('#helpButton');
+        const closeHelpButton = this.gameView.document.querySelector<HTMLButtonElement>('#closeHelp');
         
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
         drawItemButton?.addEventListener('click', () => this.drawItem());
         rotateItemButton?.addEventListener('click', () => this.rotateItem());
+        helpButton?.addEventListener('click', () => {
+            this.gameView.showHelp();
+        })
+        closeHelpButton?.addEventListener('click', () => {
+            this.gameView.hideHelp();
+        })
 
         // Initialize listeners on grid cells and hand items
         this.initGridCellListeners();
         this.initHandItemListeners();
+        this.initPlayerActionListeners();
     }
 
     // Initialize listeners for grid cell clicks
@@ -66,6 +75,18 @@ export class HtmlGameController {
         });
     }
 
+    private initPlayerActionListeners(): void {
+        const restartGameButton = this.gameView.document.querySelector<HTMLButtonElement>('#restartGame');
+
+        if (restartGameButton) {
+            restartGameButton.addEventListener('click', () => {
+                this.gameManager.resetGame();
+                this.gameManager.startGame();
+                this.updateView();
+            })
+        }
+    }
+
     // Handle a click on a grid cell
     private handleCellClick(x: number, y: number): void {
         const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
@@ -96,6 +117,7 @@ export class HtmlGameController {
     private updateView(): void {
         this.gameView.updateGrid();
         this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
+        this.initPlayerActionListeners();
     }
 
     private handleCellHover(enter: boolean, x: number, y: number): void {

@@ -37,6 +37,7 @@ export class GameManager {
     constructor(options: GameManagerOptions) {
         this.options = {
             infiniteDeck: false,
+            freeplay: false,
             ...options
         }
         this.gameBoard = new GameBoard(this.options.size);
@@ -165,6 +166,7 @@ export class GameManager {
         this.updateBoard();
         this.updatePlayerScore();
         this.fillHand();
+        this.checkWinLossConditions();
     }
 
     checkWinLossConditions(): void {

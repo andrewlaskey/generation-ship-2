@@ -1,4 +1,4 @@
-import { GameManager } from '../modules/GameManager';  // Import the GameManager class
+import { GameManager, GameState } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
 import { TileBlock } from '../modules/TileBlock';
 import { GameView } from '../types/GameViewInterface';
@@ -10,6 +10,9 @@ export class HtmlGameView implements GameView {
     private handContainer!: HTMLDivElement;
     private deckCounterContainer!: HTMLDivElement;
     private scoreBoard!: HTMLDivElement;
+    private playerNotice!: HTMLDivElement;
+    private playerActions!: HTMLDivElement;
+    private aboutScreen!: HTMLDivElement;
 
     constructor(gameManager: GameManager, document: Document) {
         this.gameManager = gameManager;
@@ -26,9 +29,34 @@ export class HtmlGameView implements GameView {
             <div class="html-game-view-wrapper">
                 <div id="scoreboard" class="scoreboard"></div>
                 <div id="gridContainer" class="grid"></div>
+                <div class="game-updates">
+                    <div id="playerNotice"></div>
+                    <div id="playerActions"></div>
+                </div>
                 <div class="card-display">
                     <div id="handContainer" class="hand"></div>
                     <div id="deckCounterContainer" class="deck-counter"></div>
+                </div>
+                <div class="help">
+                    <button id="helpButton">Help</button>
+                </div>
+                <div id="about" class="about">
+                    <h3>Goal</h3>
+                    <p>For hundreds, possibly thousands of years, this ship will travel at sub-light speeds to a star system with a habitable world.</p>
+                    <p>Your goal is to sustain a viable population and ecology that will be able to colonize the planet.</p>
+                    <p>Place tiles on the grid to build the generation ship's resources. If the ship's population drops to zero, that is game over. Survive until there are no more tiles in the deck.<p>
+                    <h3>Tiles</h3>
+                    <dl>
+                        <dt><span style="color: #1b9416; filter: saturate(300%);">ᚫ</span><dt>
+                        <dd>Trees represent the natural ecology you want to transport to the destination world. They thrive when next to each other, but will die from overcrowding or too many people nearby.</dd>
+                        <dt><span style="color: #7c4e10; filter: saturate(300%);">ᨊ</span><dt>
+                        <dd>Habitats are where the human population lives. People require a balance of nature, farms, and power in order to grow.</dd>
+                        <dt><span style="color: #ffd522; filter: saturate(300%);">፠</span><dt>
+                        <dd>Farms are required to feed your population, and also depend on people to be maintained or improve. Farms can also suffer from overwilding if surrounded by too many trees.</dd>
+                        <dt><span style="color: #3800ff; filter: saturate(300%);">ᚢ</span><dt>
+                        <dd>Fusion reactor power stations allow your population centers to grow. They need people to maintain them and they can suffer if the grid is overloaded with too much nearby power.</dd>
+                    </dl>
+                    <button id="closeHelp">Okay</button>
                 </div>
             </div>
         `;
@@ -38,6 +66,9 @@ export class HtmlGameView implements GameView {
         this.handContainer = this.document.querySelector<HTMLDivElement>('#handContainer')!;
         this.deckCounterContainer = this.document.querySelector<HTMLDivElement>('#deckCounterContainer')!;
         this.scoreBoard = this.document.querySelector<HTMLDivElement>('#scoreboard')!;
+        this.playerNotice = this.document.querySelector<HTMLDivElement>('#playerNotice')!;
+        this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
+        this.aboutScreen = this.document.querySelector<HTMLDivElement>('#about')!;
 
         this.gridContainer.innerHTML = this.initializeGridView();
     }
@@ -152,6 +183,35 @@ export class HtmlGameView implements GameView {
         return ecoScore + popScore;
     }
 
+    private renderPlayerUpdates(): void {
+        switch(this.gameManager.state) {
+            case GameState.GameOver:
+                this.playerNotice.innerHTML = `
+<h3>Game Over</h3>
+<p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
+`;
+                this.playerActions.innerHTML = `
+                <button id="restartGame">Restart</button>
+                `;
+                break;
+            case GameState.Complete:
+                const ecoScore = this.gameManager.getPlayerScore('ecology');
+                const popScore = this.gameManager.getPlayerScore('population');
+                this.playerNotice.innerHTML = `
+                <h3>Success!</h3>
+                <p>After centuries traveling through space the ship has reached a suitable planet for permanent colonization.</p>
+                <p>The colony will be seeded with ecological score of ${ecoScore} and a population of ${popScore}.</p>
+                `;
+                this.playerActions.innerHTML = `
+                <button id="restartGame">Play Again</button>
+                `;
+                break;
+            default:
+                this.playerActions.innerHTML = '';
+                this.playerNotice.innerHTML = '';
+        }
+    }
+
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
@@ -159,5 +219,14 @@ export class HtmlGameView implements GameView {
         this.handContainer.innerHTML = this.renderHand();
         this.deckCounterContainer.innerHTML = this.renderDeckCounter();
         this.scoreBoard.innerHTML = this.renderScoreBoard();
+        this.renderPlayerUpdates();
+    }
+
+    public showHelp(): void {
+        this.aboutScreen.classList.add('is-visible');
+    }
+
+    public hideHelp(): void {
+        this.aboutScreen.classList.remove('is-visible');
     }
 }
