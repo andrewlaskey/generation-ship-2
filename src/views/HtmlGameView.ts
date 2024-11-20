@@ -28,7 +28,9 @@ export class HtmlGameView implements GameView {
         this.appDiv.innerHTML = `
             <div class="html-game-view-wrapper">
                 <div id="scoreboard" class="scoreboard"></div>
-                <div id="gridContainer" class="grid"></div>
+                <div class="grid-wrapper">
+                    <div id="gridContainer" class="grid"></div>
+                </div>
                 <div class="game-updates">
                     <div id="playerNotice"></div>
                     <div id="playerActions"></div>
