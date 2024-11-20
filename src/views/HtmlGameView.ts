@@ -27,7 +27,12 @@ export class HtmlGameView implements GameView {
     private initializeView(): void {
         this.appDiv.innerHTML = `
             <div class="html-game-view-wrapper">
-                <div id="scoreboard" class="scoreboard"></div>
+                <div class="info-bar">
+                    <div class="help">
+                        <button id="helpButton">⚙️</button>
+                    </div>
+                    <div id="scoreboard" class="scoreboard"></div>
+                </div>
                 <div class="grid-wrapper">
                     <div id="gridContainer" class="grid"></div>
                 </div>
@@ -38,9 +43,6 @@ export class HtmlGameView implements GameView {
                 <div class="card-display">
                     <div id="handContainer" class="hand"></div>
                     <div id="deckCounterContainer" class="deck-counter"></div>
-                </div>
-                <div class="help">
-                    <button id="helpButton">Help</button>
                 </div>
                 <div id="about" class="about">
                     <h3>Goal</h3>
@@ -58,7 +60,7 @@ export class HtmlGameView implements GameView {
                         <dt><span style="color: #3800ff; filter: saturate(300%);">ᚢ</span><dt>
                         <dd>Fusion reactor power stations allow your population centers to grow. They need people to maintain them and they can suffer if the grid is overloaded with too much nearby power.</dd>
                     </dl>
-                    <button id="closeHelp">Okay</button>
+                    <button id="closeHelp">✅</button>
                 </div>
             </div>
         `;
