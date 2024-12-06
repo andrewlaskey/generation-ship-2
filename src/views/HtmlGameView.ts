@@ -144,6 +144,10 @@ export class HtmlGameView implements GameView {
     }
 
     private renderPreviewTile(): string {
+        if (!this.isShowingPlayerAction) {
+            return '';
+        }
+
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
         const selectedIndex = this.gameManager.getSelectedItemIndex();
         const selectedItem = handItems[selectedIndex];
@@ -261,10 +265,16 @@ export class HtmlGameView implements GameView {
     }
 
     private renderPlayerActions(): void {
-        this.playerActions.innerHTML = `
-        <div class="prompt">Confirm placement?</div>
-        <button id="player-action-affirmative" class="btn-player-action">Yes</button>
-        `
+        if (this.isShowingPlayerAction) {
+            this.playerActions.innerHTML = `
+            <div class="prompt">Confirm placement?</div>
+            <button id="player-action-affirmative" class="btn-player-action">Yes</button>
+            <span>/</span>
+            <button id="player-action-negative" class="btn-player-action">No</button>
+            `
+        } else {
+            this.playerActions.innerHTML = '';
+        }
     }
 
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
@@ -285,5 +295,13 @@ export class HtmlGameView implements GameView {
 
     public hideHelp(): void {
         this.aboutScreen.classList.remove('is-visible');
+    }
+
+    public showPlayerActions(): void {
+        this.isShowingPlayerAction = true;
+    }
+
+    public hidePlayerActions(): void {
+        this.isShowingPlayerAction = false;
     }
 }

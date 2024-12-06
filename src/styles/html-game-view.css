@@ -2,6 +2,8 @@
     --tile-edge-color: #c3afaf;
     --tile-hl-color: #ffbb00;
     --cell-size-desk: 3rem;
+    --cell-healthy-color: #153f13;
+    --cell-unhealthy-color: #3c1f20;
 }
 
 .html-game-view-wrapper {
@@ -64,19 +66,17 @@
     font-size: 1.8rem;
   }
   
-  .cell.highlight {
-    border: 1px solid var(--tile-hl-color);
-  }
-  
   
   
   /* Healthy and Unhealthy state styling */
   .cell.healthy {
-    filter: saturate(300%);
+    /* filter: saturate(300%); */
+    background-color: var(--cell-healthy-color)
   }
   
   .cell.unhealthy {
-    filter: grayscale(80%);
+    /* filter: grayscale(80%); */
+    background-color: var(--cell-unhealthy-color);
   }
   
   .cell.tree::before {
@@ -280,4 +280,9 @@
   .player-actions {
     display: flex;
     align-items: center;
+  }
+
+  .btn-player-action {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
   }

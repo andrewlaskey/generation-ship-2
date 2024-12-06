@@ -14,10 +14,10 @@ const appSelectDropdown = document.querySelector<HTMLSelectElement>('#app-type')
 const appLoadButton = document.querySelector<HTMLButtonElement>('#init-app')!;
 
 // Initialize the game board
-const gameSize = 12;  // Size of the grid (e.g., 5x5)
+const gameSize = 9;  // Size of the grid (e.g., 5x5)
 let gameManager = new GameManager({
     size: gameSize,
-    initialDeckSize: 4,
+    initialDeckSize: 40,
     maxHandSize: 3
 });
 

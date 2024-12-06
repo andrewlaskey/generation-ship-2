@@ -80,6 +80,7 @@ export class HtmlGameController {
     private initPlayerActionListeners(): void {
         const restartGameButton = this.gameView.document.querySelector<HTMLButtonElement>('#restartGame');
         const playerActionAffirmative = this.gameView.document.querySelector<HTMLButtonElement>('#player-action-affirmative');
+        const playerActionNegative = this.gameView.document.querySelector<HTMLButtonElement>('#player-action-negative');
 
         if (restartGameButton) {
             restartGameButton.addEventListener('click', () => {
@@ -102,6 +103,13 @@ export class HtmlGameController {
                 this.advanceTurn();
             });
         }
+
+        if (playerActionNegative) {
+            playerActionNegative.addEventListener('click', () => {
+                this.gameView.hidePlayerActions();
+                this.updateView();
+            })
+        }
         
     }
 
@@ -109,9 +117,11 @@ export class HtmlGameController {
     private handleCellClick(x: number, y: number): void {
         if (x == this.selectedGridCell.col && y == this.selectedGridCell.row) {
             this.gameManager.removeBoardHighlight(x, y);
+            this.gameView.hidePlayerActions();
         } else {
             this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
             this.gameManager.addBoardHighlight(x, y);
+            this.gameView.showPlayerActions();
         }
 
         this.selectedGridCell.col = x;
@@ -153,6 +163,7 @@ export class HtmlGameController {
     public advanceTurn(): void {
         // Update the game state via GameManager
         this.gameManager.advanceTurn();
+        this.gameView.hidePlayerActions();
         
         // Notify the view to re-render the updated game state
         this.updateView();
