@@ -4,10 +4,12 @@ import { HtmlGameView } from '../views/HtmlGameView';
 export class HtmlGameController {
     private gameManager: GameManager;
     private gameView: HtmlGameView;
+    private selectedGridCell: { row: number; col: number};
 
     constructor(gameManager: GameManager, gameView: HtmlGameView) {
         this.gameManager = gameManager;
         this.gameView = gameView;
+        this.selectedGridCell = { row: 0, col: 0 };
 
         // Set up any input listeners
         this.initInputListeners();
@@ -24,7 +26,7 @@ export class HtmlGameController {
         const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
         const helpButton = this.gameView.document.querySelector<HTMLButtonElement>('#helpButton');
         const closeHelpButton = this.gameView.document.querySelector<HTMLButtonElement>('#closeHelp');
-        
+
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
         drawItemButton?.addEventListener('click', () => this.drawItem());
@@ -50,14 +52,14 @@ export class HtmlGameController {
                 const { x, y } = this.getEventCellCoords(event);
                 this.handleCellClick(x, y);
             });
-            cell.addEventListener('mouseover', (event) => {
-                const { x, y } = this.getEventCellCoords(event);
-                this.handleCellHover(true, x, y);
-            })
-            cell.addEventListener('mouseout', (event) => {
-                const { x, y } = this.getEventCellCoords(event);
-                this.handleCellHover(false, x, y);
-            })
+            // cell.addEventListener('mouseover', (event) => {
+            //     const { x, y } = this.getEventCellCoords(event);
+            //     this.handleCellHover(true, x, y);
+            // })
+            // cell.addEventListener('mouseout', (event) => {
+            //     const { x, y } = this.getEventCellCoords(event);
+            //     this.handleCellHover(false, x, y);
+            // })
         });
     }
 
@@ -77,6 +79,7 @@ export class HtmlGameController {
 
     private initPlayerActionListeners(): void {
         const restartGameButton = this.gameView.document.querySelector<HTMLButtonElement>('#restartGame');
+        const playerActionAffirmative = this.gameView.document.querySelector<HTMLButtonElement>('#player-action-affirmative');
 
         if (restartGameButton) {
             restartGameButton.addEventListener('click', () => {
@@ -85,19 +88,36 @@ export class HtmlGameController {
                 this.updateView();
             })
         }
+
+        if (playerActionAffirmative) {
+            playerActionAffirmative.addEventListener('click', () => {
+                const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
+                const success = this.gameManager.placeTileBlock(this.selectedGridCell.col, this.selectedGridCell.row, selectedHandIndex);
+                
+                if (!success) {
+                    console.error(`Failed to place tile block at (${this.selectedGridCell.col}, ${this.selectedGridCell.row}). Invalid placement or non-tile item.`);
+                }
+
+                // Advance the players turn after making a placement
+                this.advanceTurn();
+            });
+        }
+        
     }
 
     // Handle a click on a grid cell
     private handleCellClick(x: number, y: number): void {
-        const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
-        const success = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
-        
-        if (!success) {
-            console.error(`Failed to place tile block at (${x}, ${y}). Invalid placement or non-tile item.`);
+        if (x == this.selectedGridCell.col && y == this.selectedGridCell.row) {
+            this.gameManager.removeBoardHighlight(x, y);
+        } else {
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+            this.gameManager.addBoardHighlight(x, y);
         }
 
-        // Advance the players turn after making a placement
-        this.advanceTurn();
+        this.selectedGridCell.col = x;
+        this.selectedGridCell.row = y;
+
+        this.updateView();
     }
 
     // Handle a click on a hand item
@@ -121,12 +141,12 @@ export class HtmlGameController {
     }
 
     private handleCellHover(enter: boolean, x: number, y: number): void {
-        if (enter) {
-            this.gameManager.addBoardHighlight(x, y);
-        } else {
-            this.gameManager.removeBoardHighlight(x, y);
-        }
-        this.updateView();
+        // if (enter) {
+        //     this.gameManager.addBoardHighlight(x, y);
+        // } else {
+        //     this.gameManager.removeBoardHighlight(x, y);
+        // }
+        // this.updateView();
     }
 
     // Handle advancing the turn

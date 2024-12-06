@@ -13,11 +13,14 @@ export class HtmlGameView implements GameView {
     private playerNotice!: HTMLDivElement;
     private playerActions!: HTMLDivElement;
     private aboutScreen!: HTMLDivElement;
+    private placePreview!: HTMLDivElement;
+    private isShowingPlayerAction: boolean;
 
     constructor(gameManager: GameManager, document: Document) {
         this.gameManager = gameManager;
         this.document = document;
         this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
+        this.isShowingPlayerAction = false
 
         // Render static elements (like buttons) once during initialization
         this.initializeView();
@@ -34,11 +37,14 @@ export class HtmlGameView implements GameView {
                     <div id="scoreboard" class="scoreboard"></div>
                 </div>
                 <div class="grid-wrapper">
-                    <div id="gridContainer" class="grid"></div>
+                    <div class="grid-inner-wrap">
+                        <div id="gridContainer" class="grid"></div>
+                        <div id="placementPreview" class="tile-preview"></div>
+                    </div>
                 </div>
                 <div class="game-updates">
                     <div id="playerNotice"></div>
-                    <div id="playerActions"></div>
+                    <div id="playerActions" class="player-actions"></div>
                 </div>
                 <div class="card-display">
                     <div id="handContainer" class="hand"></div>
@@ -60,7 +66,7 @@ export class HtmlGameView implements GameView {
                         <dt><span style="color: #3800ff; filter: saturate(300%);">ᚢ</span><dt>
                         <dd>Fusion reactor power stations allow your population centers to grow. They need people to maintain them and they can suffer if the grid is overloaded with too much nearby power.</dd>
                     </dl>
-                    <button id="closeHelp">✅</button>
+                    <button id="closeHelp">✓</button>
                 </div>
             </div>
         `;
@@ -73,6 +79,7 @@ export class HtmlGameView implements GameView {
         this.playerNotice = this.document.querySelector<HTMLDivElement>('#playerNotice')!;
         this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
         this.aboutScreen = this.document.querySelector<HTMLDivElement>('#about')!;
+        this.placePreview = this.document.querySelector<HTMLDivElement>('#placementPreview')!;
 
         this.gridContainer.innerHTML = this.initializeGridView();
     }
@@ -122,12 +129,49 @@ export class HtmlGameView implements GameView {
                     // Toggle the 'highlight' class based on the space's isHighlighted property
                     if (isHighlighted) {
                         cell.classList.add('highlight');
+                        this.setPreviewTile(x, y);
                     } else {
                         cell.classList.remove('highlight');
                     }
                 }
             }
         }
+    }
+
+    private setPreviewTile(row: number, col: number): void {
+        this.placePreview.style.top = `calc(${row} * (3rem + 2px))`;
+        this.placePreview.style.left = `calc(${col} * (3rem + 2px))`;
+    }
+
+    private renderPreviewTile(): string {
+        const handItems: HandItem[] = this.gameManager.getPlayerHand();
+        const selectedIndex = this.gameManager.getSelectedItemIndex();
+        const selectedItem = handItems[selectedIndex];
+
+        if (!(selectedItem instanceof TileBlock)) {
+            return '';
+        }
+
+        let previewHtml = '<div class="preview-item">';
+        
+        const layout = selectedItem.getLayout();  // Assuming TileBlock has a getLayout() method
+                    
+        // Render each tile in the TileBlock
+        layout.forEach(row => {
+            previewHtml += '<div class="preview-item-row">';
+            row.forEach(tile => {
+                const tileType = tile ? tile.type : 'empty';
+                const tileLevel = tile ? tile.level : 0;
+                const tileState = tile ? tile.state : 'neutral';
+                
+                previewHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}"></div>`;
+            });
+            previewHtml += '</div>';  // End of row
+        });
+
+        previewHtml += '</div>' // End of preview item
+
+        return previewHtml;
     }
     
 
@@ -216,6 +260,13 @@ export class HtmlGameView implements GameView {
         }
     }
 
+    private renderPlayerActions(): void {
+        this.playerActions.innerHTML = `
+        <div class="prompt">Confirm placement?</div>
+        <button id="player-action-affirmative" class="btn-player-action">Yes</button>
+        `
+    }
+
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
@@ -224,6 +275,8 @@ export class HtmlGameView implements GameView {
         this.deckCounterContainer.innerHTML = this.renderDeckCounter();
         this.scoreBoard.innerHTML = this.renderScoreBoard();
         this.renderPlayerUpdates();
+        this.renderPlayerActions();
+        this.placePreview.innerHTML = this.renderPreviewTile();
     }
 
     public showHelp(): void {
