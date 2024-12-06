@@ -2,8 +2,8 @@
     --tile-edge-color: #c3afaf;
     --tile-hl-color: #ffbb00;
     --cell-size-desk: 3rem;
-    --cell-healthy-color: #153f13;
-    --cell-unhealthy-color: #3c1f20;
+    --cell-healthy-color: #175314;
+    --cell-unhealthy-color: #741518;
 }
 
 .html-game-view-wrapper {
@@ -55,28 +55,28 @@
   
   /* Tile levels adjust the size of the character */
   .cell.l1 {
-    font-size: 1.2rem;
+    font-size: 1.8rem;
   }
   
   .cell.l2 {
-    font-size: 1.6rem;
+    font-size: 2.2rem;
   }
   
   .cell.l3 {
-    font-size: 1.8rem;
+    font-size: 2.5rem;
   }
   
   
   
   /* Healthy and Unhealthy state styling */
   .cell.healthy {
-    /* filter: saturate(300%); */
-    background-color: var(--cell-healthy-color)
+    background-image: radial-gradient(var(--cell-healthy-color) 1px, transparent 0);
+    background-size: 7px 7px;
   }
   
   .cell.unhealthy {
-    /* filter: grayscale(80%); */
-    background-color: var(--cell-unhealthy-color);
+    background-image: radial-gradient(var(--cell-unhealthy-color) 1px, transparent 0);
+    background-size: 7px 7px;
   }
   
   .cell.tree::before {
@@ -128,7 +128,7 @@
   }
   
   .cell.power::before {
-    color: #3800ff;
+    color: #00f1ff;
   }
   
   .cell.power.l1::before {
@@ -142,10 +142,33 @@
   .cell.power.l3::before {
     content: "ᚥ";
   }
+
+  .grid .cell.power {
+    position: relative;
+  }
+
+  .grid .cell.power::after {
+    content: '⚡';
+    position: absolute;
+    top: 0.2em;
+    right: 0.5em;
+    color: yellow;
+    animation: power-flash 500ms ease-in-out infinite;
+    font-size: 1.3rem;
+  }
   
   /* Empty cell (no ASCII character) */
   .cell.empty::before {
     content: " ";
+  }
+
+  @keyframes power-flash {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
   
   /* Player Hand Styling */
