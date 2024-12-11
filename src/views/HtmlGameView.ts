@@ -24,6 +24,9 @@ export class HtmlGameView implements GameView {
 
         // Render static elements (like buttons) once during initialization
         this.initializeView();
+
+        this.animateFolksWalking();
+        setInterval(this.animateFolksWalking, 1000 * 2);
     }
 
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
@@ -125,6 +128,11 @@ export class HtmlGameView implements GameView {
                 if (cell) {
                     // Update the class names based on the current state
                     cell.className = `cell ${tileType} ${tileState} ${tileLevel}`;
+
+                    if (tile && tileType == 'people') {
+                        const folkSpanHtml = '<span>⫯</span>';
+                        cell.innerHTML = folkSpanHtml.repeat(tile.level * 2);
+                    }
     
                     // Toggle the 'highlight' class based on the space's isHighlighted property
                     if (isHighlighted) {
@@ -135,6 +143,17 @@ export class HtmlGameView implements GameView {
                     }
                 }
             }
+        }
+    }
+
+    private animateFolksWalking() {
+        const folkSpans = this.document.querySelectorAll<HTMLSpanElement>('.cell.people span');
+
+        for (const span of folkSpans) {
+            const x = Math.random() * 600 - 300; // Random x between -100 and 100
+            const y = Math.random() * 200 - 100; // Random y between -100 and 100
+
+            span.style.transform = `translate(${x}%, ${y}%)`;
         }
     }
 
@@ -281,6 +300,7 @@ export class HtmlGameView implements GameView {
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
         this.renderGrid();
+        this.animateFolksWalking();
         this.handContainer.innerHTML = this.renderHand();
         this.deckCounterContainer.innerHTML = this.renderDeckCounter();
         this.scoreBoard.innerHTML = this.renderScoreBoard();
