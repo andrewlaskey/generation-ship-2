@@ -17,8 +17,8 @@ export enum TileState {
 export class Tile {
     static readonly validTypes = ['tree', 'farm', 'people', 'power'] as const;
     static readonly validStates = ['neutral', 'healthy', 'unhealthy'] as const;
-    static readonly minLevel = 1;
-    static readonly maxLevel = 3;
+    readonly minLevel = 1;
+    readonly maxLevel = 3;
 
     type: typeof Tile.validTypes[number];
     level: number;
@@ -28,7 +28,7 @@ export class Tile {
         if (!Tile.validTypes.includes(type)) {
             throw new Error('Invalid tile type');
         }
-        if (level < Tile.minLevel || level > Tile.maxLevel) {
+        if (level < this.minLevel || level > this.maxLevel) {
             throw new Error('Invalid tile level');
         }
         if (!Tile.validStates.includes(state)) {
@@ -49,16 +49,22 @@ export class Tile {
     }
 
     // Method to upgrade the level
-    upgrade(): void {
-        if (this.level < Tile.maxLevel) {
+    upgrade(): boolean {
+        if (this.level < this.maxLevel) {
             this.level++;
+            return true;
         }
+        
+        return false;
     }
 
     // Method to downgrade the level
-    downgrade(): void {
-        if (this.level > Tile.minLevel) {
+    downgrade(): boolean {
+        if (this.level > this.minLevel) {
             this.level--;
+            return true;
         }
+
+        return false;
     }
 }

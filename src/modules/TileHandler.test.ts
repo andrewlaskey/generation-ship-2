@@ -11,7 +11,8 @@ const createMockGameManager = () => ({
 });
 
 const createMockBoardSpace = (tileType: TileType, level: number, state: TileState) => ({
-    tile: new Tile(tileType, level, state)
+    tile: new Tile(tileType, level, state),
+    removeTile: vi.fn()
 });
 
 
@@ -30,7 +31,7 @@ describe('TileHandler Tests', () => {
 
             treeTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, true, false);
+            expect(space.tile.state).toBe('healthy');
         });
 
         it('should set tile to unhealthy if struggling condition is met', () => {
@@ -47,15 +48,48 @@ describe('TileHandler Tests', () => {
 
             treeTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, false, true);
+            expect(space.tile.state).toBe('unhealthy');
         });
+
+        it('should meet struggling condition if too many trees', () => {
+            const treeTileHandler = new TreeTileHandler();
+            const gameManager = createMockGameManager();
+            const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
+
+            gameManager.countNeighbors.mockImplementation((space, types) => {
+                if (types.includes('tree')) return 5;
+                return 0;
+            });
+
+            treeTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
+
+            expect(space.tile.state).toBe('unhealthy');
+        });
+
+        it('should call the remove tile method if meets struggling condition and currently unhealthy', () => {
+            const treeTileHandler = new TreeTileHandler();
+            const gameManager = createMockGameManager();
+            const space = createMockBoardSpace(TileType.Tree, 1, TileState.Unhealthy);
+
+            gameManager.countNeighbors.mockImplementation((space, types) => {
+                if (types.includes('tree')) return 0;
+                if (types.includes('people')) return 5;
+                if (types.includes('power')) return 2;
+                return 0;
+            });
+
+            treeTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
+
+            expect(space.removeTile).toHaveBeenCalledOnce()
+            expect(space.tile.state).toBe('unhealthy');
+        })
     });
 
     describe('FarmTileHandler', () => {
         it('should set tile to healthy if thriving condition is met', () => {
             const farmTileHandler = new FarmTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('farm', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Farm, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('tree')) return 2;
@@ -65,13 +99,13 @@ describe('TileHandler Tests', () => {
 
             farmTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, true, false);
+            expect(space.tile.state).toBe('healthy');
         });
 
         it('should set tile to unhealthy if struggling condition is met', () => {
             const farmTileHandler = new FarmTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('farm', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Farm, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('tree')) return 5;
@@ -81,7 +115,7 @@ describe('TileHandler Tests', () => {
 
             farmTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, false, true);
+            expect(space.tile.state).toBe('unhealthy');
         });
     });
 
@@ -89,7 +123,7 @@ describe('TileHandler Tests', () => {
         it('should set tile to healthy if thriving condition is met', () => {
             const peopleTileHandler = new PeopleTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('people', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.People, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('farm')) return 1;
@@ -100,13 +134,13 @@ describe('TileHandler Tests', () => {
 
             peopleTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, true, false);
+            expect(space.tile.state).toBe('healthy');
         });
 
         it('should set tile to unhealthy if struggling condition is met', () => {
             const peopleTileHandler = new PeopleTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('people', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.People, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('tree')) return 0;
@@ -116,7 +150,7 @@ describe('TileHandler Tests', () => {
 
             peopleTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, false, true);
+            expect(space.tile.state).toBe('unhealthy');
         });
     });
 
@@ -124,7 +158,7 @@ describe('TileHandler Tests', () => {
         it('should set tile to healthy if thriving condition is met', () => {
             const powerTileHandler = new PowerTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('power', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Power, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('people')) return 1;
@@ -134,13 +168,13 @@ describe('TileHandler Tests', () => {
 
             powerTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, true, false);
+            expect(space.tile.state).toBe('healthy');
         });
 
         it('should set tile to unhealthy if struggling condition is met', () => {
             const powerTileHandler = new PowerTileHandler();
             const gameManager = createMockGameManager();
-            const space = createMockBoardSpace('power', 1, 'neutral');
+            const space = createMockBoardSpace(TileType.Power, 1, TileState.Neutral);
 
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes('people')) return 0;
@@ -150,7 +184,7 @@ describe('TileHandler Tests', () => {
 
             powerTileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
 
-            expect(gameManager.handleTileState).toHaveBeenCalledWith(space, false, true);
+            expect(space.tile.state).toBe('unhealthy');
         });
     });
 });

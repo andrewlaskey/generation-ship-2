@@ -228,38 +228,6 @@ export class GameManager {
         }, 0);
     }
 
-    // Generic method to handle tile state transitions
-    handleTileState(space: BoardSpace, thrivingCondition: boolean, strugglingCondition: boolean) {
-        const tile = space.tile;
-
-        if (!tile) return;
-
-        // Going up a level if thriving
-        if (thrivingCondition) {
-            if (tile.state === 'neutral') {
-                tile.state = 'healthy';  // Thriving: Change to healthy first
-            } else if (tile.state === 'healthy') {
-                tile.level = Math.min(3, tile.level + 1);  // After being healthy, go up a level
-                tile.state = 'neutral';  // Reset to neutral after leveling up
-            }
-        }
-        // Going down a level if struggling
-        else if (strugglingCondition) {
-            if (tile.state === 'neutral') {
-                tile.state = 'unhealthy';  // Struggling: Change to unhealthy first
-            } else if (tile.state === 'unhealthy') {
-                if (tile.level > 1) {
-                    tile.level -= 1;  // After being unhealthy, go down a level
-                } else {
-                    space.removeTile();  // If at level 1, the tile is removed
-                }
-                tile.state = 'neutral';  // Reset to neutral after going down or being removed
-            }
-        } else {
-            tile.state = 'neutral';  // Stay neutral if no condition is met
-        }
-    }
-
     // Method to update space based on the tile type
     updateSpace(x: number, y: number): void {
         const space = this.gameBoard.getSpace(x, y);
