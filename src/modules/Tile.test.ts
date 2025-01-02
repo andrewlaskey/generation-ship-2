@@ -52,4 +52,20 @@ describe('Tile', () => {
         tile.downgrade();
         expect(tile.level).toBe(1); // Level should remain at min
     });
+
+    it('should not downgrade if currently dead', () => {
+        const tile = new Tile('farm', 1, 'dead');
+        const result = tile.downgrade();
+
+        expect(result).toBe(false);
+        expect(tile.level).toBe(1);
+    });
+
+    it('should not upgrade if currently dead', () => {
+        const tile = new Tile('farm', 1, 'dead');
+        const result = tile.upgrade();
+
+        expect(result).toBe(false);
+        expect(tile.level).toBe(1);
+    });
 });
