@@ -1,7 +1,8 @@
 import { GameManager } from '../modules/GameManager';
 import { FlyingGameView } from '../views/FlyingGameView';
+import { ViewController } from '../types/ViewControllerInterface';
 
-export class FlyingGameController {
+export class FlyingGameController implements ViewController{
     private gameManager: GameManager;
     private gameView: FlyingGameView;
     private isRunning: boolean;
@@ -20,7 +21,9 @@ export class FlyingGameController {
         const intervalInSeconds = 4;
         this.interval = intervalInSeconds * 1000; // Convert seconds to milliseconds
         this.prob = 0.8;
+    }
 
+    init() {
         this.initEventListeners();
 
         this.gameManager.fillHand();

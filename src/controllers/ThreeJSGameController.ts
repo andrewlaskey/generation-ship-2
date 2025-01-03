@@ -1,3 +1,5 @@
+// @ts-nocheck
+// Currently not in use
 import { GameManager } from '../modules/GameManager';
 import { ThreeJSGameView } from '../views/ThreeJSGameView';
 

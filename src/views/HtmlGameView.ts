@@ -15,12 +15,14 @@ export class HtmlGameView implements GameView {
     private aboutScreen!: HTMLDivElement;
     private placePreview!: HTMLDivElement;
     private isShowingPlayerAction: boolean;
+    private gameType: 'daily' |'custom';
 
-    constructor(gameManager: GameManager, document: Document) {
+    constructor(gameManager: GameManager, document: Document, gameType: 'daily' |'custom') {
         this.gameManager = gameManager;
         this.document = document;
         this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
-        this.isShowingPlayerAction = false
+        this.isShowingPlayerAction = false;
+        this.gameType = gameType;
 
         // Render static elements (like buttons) once during initialization
         this.initializeView();
@@ -35,6 +37,7 @@ export class HtmlGameView implements GameView {
             <div class="html-game-view-wrapper">
                 <div class="info-bar">
                     <div class="help">
+                        <button id="quitButton">⬅</button>
                         <button id="helpButton">⚙️</button>
                     </div>
                     <div id="scoreboard" class="scoreboard"></div>
@@ -126,6 +129,9 @@ export class HtmlGameView implements GameView {
                 const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${x}"][data-y="${y}"]`);
     
                 if (cell) {
+                    // Clean up any lingering people
+                    cell.innerHTML = '';
+
                     // Update the class names based on the current state
                     cell.className = `cell ${tileType} ${tileState} ${tileLevel}`;
 
@@ -200,6 +206,10 @@ export class HtmlGameView implements GameView {
 
     // Method to create the HTML representation of the player's hand
     private renderHand(): string {
+        if (this.gameManager.state != GameState.Playing) {
+            return '';
+        }
+
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
         const selectedIndex = this.gameManager.getSelectedItemIndex();
         let handHtml = '';
@@ -239,6 +249,10 @@ export class HtmlGameView implements GameView {
 
     // Method to display the total number of items left in the deck
     private renderDeckCounter(): string {
+        if (this.gameManager.state != GameState.Playing) {
+            return '';
+        }
+
         const deckCount = this.gameManager.getDeckItemCount();
         let classString = 'deck';
 
@@ -262,9 +276,7 @@ export class HtmlGameView implements GameView {
 <p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
 <p>Final score: ${this.gameManager.getCalculatedPlayerScore()}</p>
 `;
-                this.playerActions.innerHTML = `
-                <button id="restartGame">Restart</button>
-                `;
+                this.showPlayerActions();
                 break;
             case GameState.Complete:
                 const ecoScore = this.gameManager.getPlayerScore('ecology');
@@ -275,24 +287,36 @@ export class HtmlGameView implements GameView {
                 <p>The colony will be seeded with ecological score of ${ecoScore} and a population of ${popScore}.</p>
                 <p>Total score: ${this.gameManager.getCalculatedPlayerScore()}</p>
                 `;
-                this.playerActions.innerHTML = `
-                <button id="restartGame">Play Again</button>
-                `;
+                this.showPlayerActions();
                 break;
             default:
-                this.playerActions.innerHTML = '';
                 this.playerNotice.innerHTML = '';
         }
     }
 
     private renderPlayerActions(): void {
         if (this.isShowingPlayerAction) {
-            this.playerActions.innerHTML = `
+            switch(this.gameManager.state) {
+                case GameState.GameOver:
+                    this.playerActions.innerHTML = `
+                <button id="restartGame">Restart</button>
+                `;
+                    break;
+                case GameState.Complete:
+                    this.playerActions.innerHTML = `
+                <button id="restartGame">Play Again</button>
+                ${this.gameType == 'daily' ? `<button id="shareScore">Share Score</button>` : ''}
+                `;
+                    break;
+                default:
+                    this.playerActions.innerHTML = `
             <div class="prompt">Confirm placement?</div>
             <button id="player-action-affirmative" class="btn-player-action">Yes</button>
             <span>/</span>
             <button id="player-action-negative" class="btn-player-action">No</button>
             `
+            }
+            
         } else {
             this.playerActions.innerHTML = '';
         }
@@ -303,12 +327,12 @@ export class HtmlGameView implements GameView {
         // Only update the dynamic parts, not the entire app container
         this.renderGrid();
         this.animateFolksWalking();
-        this.handContainer.innerHTML = this.renderHand();
-        this.deckCounterContainer.innerHTML = this.renderDeckCounter();
         this.scoreBoard.innerHTML = this.renderScoreBoard();
         this.renderPlayerUpdates();
         this.renderPlayerActions();
         this.placePreview.innerHTML = this.renderPreviewTile();
+        this.handContainer.innerHTML = this.renderHand();
+        this.deckCounterContainer.innerHTML = this.renderDeckCounter();
     }
 
     public showHelp(): void {

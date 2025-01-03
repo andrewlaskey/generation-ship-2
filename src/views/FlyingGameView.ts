@@ -8,7 +8,6 @@ export class FlyingGameView implements GameView{
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
-    private gridContainer!: HTMLDivElement;
     private tiles!: NodeListOf<HTMLDivElement>;
     private cvs!: HTMLCanvasElement;
 
@@ -52,7 +51,6 @@ export class FlyingGameView implements GameView{
             </div>
         `
 
-        this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
         this.tiles = this.document.querySelectorAll<HTMLDivElement>('#objects .tile')!;
         this.cvs = this.document.querySelector<HTMLCanvasElement>('#starfield')!;
 

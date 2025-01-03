@@ -23,6 +23,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 3;
                 if (types.includes(TileType.People)) return 0;
@@ -39,6 +40,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 0;
                 if (types.includes(TileType.People)) return 5;
@@ -56,6 +58,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Tree, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 5;
                 return 0;
@@ -71,6 +74,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Tree, 1, TileState.Unhealthy);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 0;
                 if (types.includes(TileType.People)) return 5;
@@ -91,6 +95,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Farm, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 2;
                 if (types.includes(TileType.People)) return 1;
@@ -107,6 +112,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Farm, 1, TileState.Unhealthy);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 2;
                 if (types.includes(TileType.People)) return 1;
@@ -123,6 +129,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Farm, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 5;
                 if (types.includes(TileType.People)) return 0;
@@ -139,6 +146,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Farm, 1, TileState.Healthy);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 5;
                 if (types.includes(TileType.People)) return 0;
@@ -157,6 +165,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.People, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Farm)) return 1;
                 if (types.includes(TileType.Power)) return 1;
@@ -174,6 +183,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.People, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 0;
                 if (types.includes(TileType.Farm)) return 0;
@@ -192,6 +202,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Power, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.People)) return 1;
                 if (types.includes(TileType.Power)) return 2;
@@ -208,6 +219,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Power, 1, TileState.Neutral);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.People)) return 0;
                 if (types.includes(TileType.Power)) return 4;
@@ -224,6 +236,7 @@ describe('TileHandler Tests', () => {
             const gameManager = createMockGameManager();
             const space = createMockBoardSpace(TileType.Power, 1, TileState.Unhealthy);
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.People)) return 0;
                 if (types.includes(TileType.Power)) return 4;
@@ -246,6 +259,7 @@ describe('TileHandler Tests', () => {
                 removeTile: vi.fn()
             };
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.Tree)) return 4;
                 return 0;
@@ -267,6 +281,7 @@ describe('TileHandler Tests', () => {
                 removeTile: vi.fn()
             };
 
+            // @ts-ignore `space` not needed for mocking
             gameManager.countNeighbors.mockImplementation((space, types) => {
                 if (types.includes(TileType.People)) return 1;
                 if (types.includes(TileType.Power)) return 1;

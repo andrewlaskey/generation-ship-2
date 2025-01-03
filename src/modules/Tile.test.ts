@@ -11,6 +11,7 @@ describe('Tile', () => {
     });
 
     it('should throw an error for invalid type', () => {
+        // @ts-ignore run time error checking
         expect(() => new Tile('invalidType', 1, 'neutral')).toThrowError('Invalid tile type');
     });
 
@@ -19,6 +20,7 @@ describe('Tile', () => {
     });
 
     it('should throw an error for invalid state', () => {
+        // @ts-ignore run time error checking
         expect(() => new Tile('tree', 1, 'invalidState')).toThrowError('Invalid tile state');
     });
 
@@ -30,6 +32,7 @@ describe('Tile', () => {
 
     it('should throw an error when updating to an invalid state', () => {
         const tile = new Tile('power', 3, 'neutral');
+        // @ts-ignore run time error checking
         expect(() => tile.setState('invalidState')).toThrowError('Invalid tile state');
     });
 

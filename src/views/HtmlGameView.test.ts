@@ -44,7 +44,7 @@ describe('HtmlGameView', () => {
 
         // Create a mock game manager with a grid size of 5x5
         gameManager = createMockGameManager(5) as unknown as GameManager;
-        htmlGameView = new HtmlGameView(gameManager, document);
+        htmlGameView = new HtmlGameView(gameManager, document, 'daily');
 
         // Replace document.querySelector with the one from the mock DOM
         global.document = document;

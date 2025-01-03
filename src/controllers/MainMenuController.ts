@@ -1,8 +1,9 @@
 import { GameManager } from "../modules/GameManager";
+import { ViewController } from "../types/ViewControllerInterface";
 import { View } from "../types/ViewInterface";
 import { getCurrentDate } from "../utils/getCurrentDate";
 
-export class MainMenuController {
+export class MainMenuController implements ViewController {
      private gameManager: GameManager;
      private view: View;
      private switchViewFn: (appType: string) => void;
@@ -10,8 +11,10 @@ export class MainMenuController {
      constructor(view: View, gameManager: GameManager, fn: (appType: string) => void) {
         this.gameManager = gameManager;
         this.view = view;
-        this.switchViewFn = fn;
+        this.switchViewFn = fn;       
+     }
 
+     init() {
         this.initSubMenuButtonListeners();
         this.initStartGameButtonListeners();
      }

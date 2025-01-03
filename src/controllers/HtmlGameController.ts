@@ -1,16 +1,22 @@
 import { GameManager } from '../modules/GameManager';
+import { ViewController } from '../types/ViewControllerInterface';
+import { getCurrentDate } from '../utils/getCurrentDate';
 import { HtmlGameView } from '../views/HtmlGameView';
 
-export class HtmlGameController {
+export class HtmlGameController implements ViewController {
     private gameManager: GameManager;
     private gameView: HtmlGameView;
     private selectedGridCell: { row: number; col: number};
+    private switchViewFn?: (appType: string) => void;
 
-    constructor(gameManager: GameManager, gameView: HtmlGameView) {
+    constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: (appType: string) => void) {
         this.gameManager = gameManager;
         this.gameView = gameView;
         this.selectedGridCell = { row: 0, col: 0 };
+        this.switchViewFn = fn;
+    }
 
+    init() {
         // Set up any input listeners
         this.initInputListeners();
 
@@ -26,6 +32,7 @@ export class HtmlGameController {
         const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
         const helpButton = this.gameView.document.querySelector<HTMLButtonElement>('#helpButton');
         const closeHelpButton = this.gameView.document.querySelector<HTMLButtonElement>('#closeHelp');
+        const quitButton = this.gameView.document.querySelector<HTMLButtonElement>('#quitButton');
 
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
@@ -36,6 +43,13 @@ export class HtmlGameController {
         })
         closeHelpButton?.addEventListener('click', () => {
             this.gameView.hideHelp();
+        })
+        quitButton?.addEventListener('click', () => {
+            this.gameManager.resetGame();
+            
+            if (this.switchViewFn) {
+                this.switchViewFn('menu');
+            }
         })
 
         // Initialize listeners on grid cells and hand items
@@ -79,6 +93,7 @@ export class HtmlGameController {
 
     private initPlayerActionListeners(): void {
         const restartGameButton = this.gameView.document.querySelector<HTMLButtonElement>('#restartGame');
+        const shareScoreButton = this.gameView.document.querySelector<HTMLButtonElement>('#shareScore');
         const playerActionAffirmative = this.gameView.document.querySelector<HTMLButtonElement>('#player-action-affirmative');
         const playerActionNegative = this.gameView.document.querySelector<HTMLButtonElement>('#player-action-negative');
 
@@ -88,6 +103,24 @@ export class HtmlGameController {
                 this.gameManager.startGame();
                 this.updateView();
             })
+        }
+
+        if (shareScoreButton) {
+            shareScoreButton.addEventListener('click', async () => {
+                const ecoScore = this.gameManager.getPlayerScore('ecology');
+                const popScore = this.gameManager.getPlayerScore('population');
+                const totalScore = this.gameManager.getCalculatedPlayerScore();
+                try {
+                    const text = `Generation Ship 2 Daily Challenge ${getCurrentDate()}
+🌲 ${ecoScore}
+👤 ${popScore}
+🧮 ${totalScore}`
+                    await navigator.clipboard.writeText(text);
+                    alert('Text copied to clipboard!');
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
         }
 
         if (playerActionAffirmative) {
@@ -148,15 +181,6 @@ export class HtmlGameController {
         this.gameView.updateGrid();
         this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
         this.initPlayerActionListeners();
-    }
-
-    private handleCellHover(enter: boolean, x: number, y: number): void {
-        // if (enter) {
-        //     this.gameManager.addBoardHighlight(x, y);
-        // } else {
-        //     this.gameManager.removeBoardHighlight(x, y);
-        // }
-        // this.updateView();
     }
 
     // Handle advancing the turn

@@ -1,6 +1,6 @@
 // Import necessary classes
 import { GameBoard } from './GameBoard';
-import { Tile, TileState } from './Tile';
+import { TileState } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { TileHandlerRegistry } from './TileHandlerRegistry';
 import { PlayerHand, HandItem } from './PlayerHand';
@@ -335,9 +335,9 @@ export class GameManager {
 
     getGameDurationMs(): number {
         if (this.state == GameState.Playing) {
-            return Date.now() - this.gameStartTime;
+            return this.gameStartTime - Date.now();
         }
 
-        return this.gameEndTime - this.gameStartTime;
+        return this.gameStartTime - this.gameEndTime;
     }
 }

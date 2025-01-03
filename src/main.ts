@@ -2,13 +2,14 @@ import './style.css';
 import { GameManager } from './modules/GameManager'; 
 import { HtmlGameView } from './views/HtmlGameView';
 import { HtmlGameController } from './controllers/HtmlGameController';
-import { ThreeJSGameView } from './views/ThreeJSGameView';
-import { ThreeJSGameController } from './controllers/ThreeJSGameController';
+// import { ThreeJSGameView } from './views/ThreeJSGameView';
+// import { ThreeJSGameController } from './controllers/ThreeJSGameController';
 import { GameView } from './types/GameViewInterface';
 import { FlyingGameView } from './views/FlyingGameView';
 import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
+import { ViewController } from './types/ViewControllerInterface';
 
 
 let gameManager = new GameManager();
@@ -20,15 +21,20 @@ function loadGame(gameManager: GameManager, gameView: GameView) {
 
 function switchView(appType: string) {
     console.log('loading...')
-    let controller;
+    let controller: ViewController;
     let view: GameView;
 
     switch(appType) {
-        case 'three':
-            view = new ThreeJSGameView(gameManager, document);    
-            loadGame(gameManager, view);
-            controller = new ThreeJSGameController(gameManager, view as ThreeJSGameView);
+        case 'menu':
+            const mainMenu = new MainMenuView(document);
+            controller = new MainMenuController(mainMenu, gameManager, switchView);
+            controller.init();
             break;
+        // case 'three':
+        //     view = new ThreeJSGameView(gameManager, document);    
+        //     loadGame(gameManager, view);
+        //     controller = new ThreeJSGameController(gameManager, view as ThreeJSGameView);
+        //     break;
         case 'flying':
             gameManager = new GameManager({
                 initialDeckSize: 50,
@@ -39,18 +45,20 @@ function switchView(appType: string) {
             view = new FlyingGameView(gameManager, document);
             loadGame(gameManager, view);
             controller = new FlyingGameController(gameManager, view as FlyingGameView);
+            controller.init();
             break;
         case 'daily':
-            view = new HtmlGameView(gameManager, document);
+            view = new HtmlGameView(gameManager, document, 'daily');
             loadGame(gameManager, view);
-            controller = new HtmlGameController(gameManager, view as HtmlGameView);
+            controller = new HtmlGameController(gameManager, view as HtmlGameView, switchView);
+            controller.init();
             break;
         default:
-            view = new HtmlGameView(gameManager, document);
+            view = new HtmlGameView(gameManager, document, 'custom');
             loadGame(gameManager, view);
-            controller = new HtmlGameController(gameManager, view as HtmlGameView);
+            controller = new HtmlGameController(gameManager, view as HtmlGameView, switchView);
+            controller.init();
     }
 }
 
-const mainMenu = new MainMenuView(document);
-const mainMenuController = new MainMenuController(mainMenu, gameManager, switchView);
+switchView('menu');

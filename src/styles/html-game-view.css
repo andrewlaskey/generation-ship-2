@@ -9,6 +9,7 @@
 .html-game-view-wrapper {
     display: flex;
     flex-direction: column;
+    max-width: min-content;
     position: relative;
     padding: 3rem;
 }
@@ -16,6 +17,7 @@
 .grid {
     display: flex;
     flex-direction: column;
+    max-width: fit-content;
     background-color: black;
     border-bottom: 3px solid var(--tile-edge-color);
     border-right: 1px dashed #505050;
@@ -23,10 +25,12 @@
 
   .grid-wrapper {
     perspective: 1200px;
+    max-width: fit-content;
   }
 
   .grid-inner-wrap {
     transform: rotateX(30deg);
+    max-width: fit-content;
   }
   
   .grid.three {
@@ -36,6 +40,7 @@
   
   .row {
     display: flex;
+    max-width: fit-content;
   }
   
   .cell {
