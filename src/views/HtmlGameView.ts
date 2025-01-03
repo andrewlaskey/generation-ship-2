@@ -260,6 +260,7 @@ export class HtmlGameView implements GameView {
                 this.playerNotice.innerHTML = `
 <h3>Game Over</h3>
 <p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
+<p>Final score: ${this.gameManager.getCalculatedPlayerScore()}</p>
 `;
                 this.playerActions.innerHTML = `
                 <button id="restartGame">Restart</button>
@@ -272,6 +273,7 @@ export class HtmlGameView implements GameView {
                 <h3>Success!</h3>
                 <p>After centuries traveling through space the ship has reached a suitable planet for permanent colonization.</p>
                 <p>The colony will be seeded with ecological score of ${ecoScore} and a population of ${popScore}.</p>
+                <p>Total score: ${this.gameManager.getCalculatedPlayerScore()}</p>
                 `;
                 this.playerActions.innerHTML = `
                 <button id="restartGame">Play Again</button>

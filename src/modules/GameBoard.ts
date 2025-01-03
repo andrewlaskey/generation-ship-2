@@ -106,18 +106,19 @@ export class GameBoard {
         }
     }
 
-    countTileTypes(): Record<string, number> {
+    countTileTypes(isAdjustedCount = false): Record<string, number> {
         return this.grid.reduce((counts, row) => {
             const rowCounts = row.reduce((rowCounts, value) => {
                 const tile = value.tile;
 
                 if (tile) {
                     const type = tile.type as TileType;
+                    const pointValue = isAdjustedCount ? tile.level : 1;
 
                     if (rowCounts.hasOwnProperty(type)) {
-                        rowCounts[type] += 1;
+                        rowCounts[type] += pointValue;
                     } else {
-                        rowCounts[type] = 1
+                        rowCounts[type] = pointValue
                     }
                 }
 

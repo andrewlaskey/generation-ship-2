@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameBoard } from './GameBoard';
-import { Tile } from './Tile';
+import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 
 describe('GameBoard', () => {
@@ -108,6 +108,14 @@ describe('GameBoard', () => {
         expect(board.countTileTypes()).toStrictEqual({
             farm: 1,
             power: 1
+        })
+    })
+
+    it('should return an adjusted count of tile types', () => {
+        const highLevelTile = new Tile(TileType.Tree, 3, TileState.Neutral);
+        board.placeTileAt(1,1, highLevelTile);
+        expect(board.countTileTypes(true)).toStrictEqual({
+            tree: 3
         })
     })
 

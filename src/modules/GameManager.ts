@@ -40,6 +40,10 @@ export class GameManager {
         infiniteDeck: false,
         freeplay: false,
     }
+    gameStartTime: number = Date.now();
+    gameEndTime: number = Date.now();
+    
+    private timeScoreFactor: number = 10;
 
     constructor(options?: Partial<GameManagerOptions>) {
         this.options = {
@@ -169,6 +173,7 @@ export class GameManager {
         this.gameBoard.setStartingCondition();
         this.updatePlayerScore();
         this.state = GameState.Playing;
+        this.gameStartTime = Date.now();
     }
 
     resetGame(): void {
@@ -213,6 +218,10 @@ export class GameManager {
             this.state = GameState.Complete;
             return; // skip other conditions
         }
+
+        if ([GameState.Complete, GameState.GameOver].includes(this.state)) {
+            this.gameEndTime = Date.now();
+        }
     }
 
     getPlayerScore(name: string): number {
@@ -224,7 +233,7 @@ export class GameManager {
     }
 
     updatePlayerScore(): void {
-        const tileTypeCounts = this.gameBoard.countTileTypes();
+        const tileTypeCounts = this.gameBoard.countTileTypes(true);
 
         if (tileTypeCounts.hasOwnProperty('tree')) {
             this.playerScore.ecology.update(tileTypeCounts['tree'])
@@ -302,5 +311,33 @@ export class GameManager {
 
     rotateSelectedItem(): void {
         this.playerHand.rotateSelected();
+    }
+
+    getCalculatedPlayerScore(): number {
+        // Base score is (ecology + pop) * 100
+        let score = 100 * (this.getPlayerScore('ecology') + this.getPlayerScore('population'));
+
+        // Subtract number of cards remaining in deck
+        score -= this.getDeckItemCount();
+
+        // Reward faster play times
+        const gameTimeInMinutes = this.getGameDurationMs() / 60000;
+
+        if (gameTimeInMinutes <= 0) {
+            throw new Error("Invalid game time. Must be greater than 0.");
+        }
+
+        const timeMultiplier = 1 + this.timeScoreFactor / gameTimeInMinutes;
+        score = Math.round(score * timeMultiplier);
+
+        return score;
+    }
+
+    getGameDurationMs(): number {
+        if (this.state == GameState.Playing) {
+            return Date.now() - this.gameStartTime;
+        }
+
+        return this.gameEndTime - this.gameStartTime;
     }
 }

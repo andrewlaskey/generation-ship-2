@@ -159,8 +159,8 @@ describe('GameManager', () => {
     });
 
     it('should get the remaining deck size', () => {
-        const deckSize = gameManager.getDeckItemCount();
-        expect(deckSize).toBe(deckSize);
+        const deckSizeResult = gameManager.getDeckItemCount();
+        expect(deckSizeResult).toBe(deckSize);
         expect(deck.getItemCount).toHaveBeenCalled();
     });
 
@@ -300,4 +300,57 @@ describe('GameManager', () => {
 
         expect(result).toBe(0);
     })
+
+    it('should return the correct calculated player score', () => {
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 1,
+            people: 2
+        });
+        vi.spyOn(gameManager, 'getGameDurationMs').mockImplementation(() => { return 60000; });
+
+        gameManager.updatePlayerScore();
+        const result = gameManager.getCalculatedPlayerScore();
+
+        // result = ((100 * (1 + (2 * 5))) - 10) * (1 + 10/1)
+        expect(result).toBe(11990);
+    })
+
+    it('should correctly subtract deckSize from calculated player score', () => {
+        // One ecology and 2 people = 1 + (2 * 5)
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 1,
+            people: 2
+        });
+        // 5 Cards remaining in deck
+        (deck.getItemCount as Mock).mockReturnValue(5);
+
+        // 10 minute game duration
+        vi.spyOn(gameManager, 'getGameDurationMs').mockImplementation(() => { return 60000 * 10; });
+
+        gameManager.updatePlayerScore();
+
+        const result = gameManager.getCalculatedPlayerScore();
+
+        // result = ((100 * (1 + (2 * 5)) - 5) * (1 + 10/10)
+        expect(result).toBe(2190);
+    });
+
+    it('should correctly multiply calculated player score by the time factor', () => {
+        // One people tile = 5 points
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 0,
+            people: 1
+        });
+        // Empty deck
+        (deck.getItemCount as Mock).mockReturnValue(0)
+
+        // 3 minutes
+        vi.spyOn(gameManager, 'getGameDurationMs').mockImplementation(() => { return 60000 * 3; });
+
+        gameManager.updatePlayerScore();
+        const result = gameManager.getCalculatedPlayerScore();
+
+        // result = Math.round(((100 * (0 + (1 * 5))) - 0) * (1 + 10/3))
+        expect(result).toBe(2167);
+    });
 });
