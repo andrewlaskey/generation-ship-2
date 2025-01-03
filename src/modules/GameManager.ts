@@ -33,11 +33,34 @@ export class GameManager {
     playerScore: Record<string, ScoreObject>;
     options: GameManagerOptions;
     state: GameState;
+    readonly optionDefaults: GameManagerOptions = {
+        size: 9,
+        initialDeckSize: 40,
+        maxHandSize: 3,
+        infiniteDeck: false,
+        freeplay: false,
+    }
 
-    constructor(options: GameManagerOptions) {
+    constructor(options?: Partial<GameManagerOptions>) {
         this.options = {
-            infiniteDeck: false,
-            freeplay: false,
+            ...this.optionDefaults,
+            ...options
+        }
+        this.gameBoard = new GameBoard(this.options.size);
+        this.tileHandlerRegistry = new TileHandlerRegistry();
+        this.playerHand = new PlayerHand(this.options.maxHandSize);  // Initialize the player's hand
+        this.deck = new Deck(this.options.seed, this.options.infiniteDeck, undefined, this.options.randomTileStates);  // Initialize the deck with seed and infinite options
+        this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
+        this.playerScore = {
+            ecology: new ScoreObject('ecology', 0),
+            population: new ScoreObject('population', 0)
+        }
+        this.state = GameState.Ready;
+    }
+
+    configGame(options: Partial<GameManagerOptions>) {
+        this.options = {
+            ...this.options,
             ...options
         }
         this.gameBoard = new GameBoard(this.options.size);

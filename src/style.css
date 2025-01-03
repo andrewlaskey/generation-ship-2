@@ -1,5 +1,6 @@
 @import url('styles/html-game-view.css');
 @import url('styles/flying-game-view.css');
+@import url('styles/main-menu-view.css');
 
 :root {
   font-family: monospace; /* Use monospace for classic retro game style */

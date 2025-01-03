@@ -7,30 +7,19 @@ import { ThreeJSGameController } from './controllers/ThreeJSGameController';
 import { GameView } from './types/GameViewInterface';
 import { FlyingGameView } from './views/FlyingGameView';
 import { FlyingGameController } from './controllers/FlyingGameController';
+import { MainMenuView } from './views/MainMenuView';
+import { MainMenuController } from './controllers/MainMenuController';
 
 
-// Base UI Elements
-const appSelectDropdown = document.querySelector<HTMLSelectElement>('#app-type')!;
-const appLoadButton = document.querySelector<HTMLButtonElement>('#init-app')!;
-
-// Initialize the game board
-const gameSize = 9;  // Size of the grid (e.g., 5x5)
-let gameManager = new GameManager({
-    size: gameSize,
-    initialDeckSize: 40,
-    maxHandSize: 3
-});
-
+let gameManager = new GameManager();
 
 function loadGame(gameManager: GameManager, gameView: GameView) {
     gameManager.resetGame();
     gameView.updateGrid();
 }
 
-
-appLoadButton.addEventListener('click', () => {
+function switchView(appType: string) {
     console.log('loading...')
-    const appType = appSelectDropdown.value;
     let controller;
     let view: GameView;
 
@@ -42,7 +31,6 @@ appLoadButton.addEventListener('click', () => {
             break;
         case 'flying':
             gameManager = new GameManager({
-                size: gameSize,
                 initialDeckSize: 50,
                 maxHandSize: 9,
                 infiniteDeck: true,
@@ -52,9 +40,17 @@ appLoadButton.addEventListener('click', () => {
             loadGame(gameManager, view);
             controller = new FlyingGameController(gameManager, view as FlyingGameView);
             break;
+        case 'daily':
+            view = new HtmlGameView(gameManager, document);
+            loadGame(gameManager, view);
+            controller = new HtmlGameController(gameManager, view as HtmlGameView);
+            break;
         default:
             view = new HtmlGameView(gameManager, document);
             loadGame(gameManager, view);
             controller = new HtmlGameController(gameManager, view as HtmlGameView);
     }
-})
+}
+
+const mainMenu = new MainMenuView(document);
+const mainMenuController = new MainMenuController(mainMenu, gameManager, switchView);
