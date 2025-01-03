@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { GameManager, GameState } from './GameManager';
 import { TileBlock } from './TileBlock';
-import { Tile } from './Tile';
+import { Tile, TileState, TileType } from './Tile';
 import { GameBoard } from './GameBoard';
 import { PlayerHand } from './PlayerHand';
 import { Deck } from './Deck';
@@ -174,28 +174,6 @@ describe('GameManager', () => {
         expect(playerHand.rotateSelected).toHaveBeenCalled();
     });
 
-    it('should handle an empty space correctly by calling handleEmpty', () => {
-        // Create a mock for handleEmpty
-        const handleEmptySpy = vi.spyOn(gameManager, 'handleEmpty');
-        
-        // Mock an empty space (no tile)
-        const emptySpace = createMockBoardSpace();
-        emptySpace.tile = null;
-        
-        // Mock gameBoard.getSpace to return this empty space
-        (gameBoard.getSpace as Mock).mockReturnValue(emptySpace as BoardSpace);
-    
-        // Call updateSpace on the coordinates (0, 0)
-        gameManager.updateSpace(0, 0);
-    
-        // Ensure handleEmpty was called for the empty space
-        expect(handleEmptySpy).toHaveBeenCalledWith(emptySpace);
-    
-        // Ensure that getHandler was never called since the space was empty
-        const getHandlerSpy = vi.spyOn(gameManager.tileHandlerRegistry, 'getHandler');
-        expect(getHandlerSpy).not.toHaveBeenCalled();
-    });
-
     it('should return the default player score', () => {
         expect(gameManager.getPlayerScore('ecology')).toBe(0);
         expect(gameManager.getPlayerScore('population')).toBe(0);
@@ -307,5 +285,19 @@ describe('GameManager', () => {
         freeplayGameManager.checkWinLossConditions();
 
         expect(freeplayGameManager.state).toBe(GameState.Playing);
+    });
+
+    it('should not count dead neighbors', () => {
+        const deadTile = new Tile(TileType.Power, 1, TileState.Dead);
+        const mockNeighborSpace = {
+            ...createMockBoardSpace(),
+            tile: deadTile
+        };
+        const boardSpace = new BoardSpace(0, 0);
+        (gameBoard.getSpace as Mock).mockReturnValue(mockNeighborSpace);
+
+        const result = gameManager.countNeighbors(boardSpace, [TileType.Power])
+
+        expect(result).toBe(0);
     })
 });

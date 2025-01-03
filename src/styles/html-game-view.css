@@ -147,7 +147,11 @@
     position: relative;
   }
 
-  .grid .cell.power::after {
+  .grid .cell.power.dead::before {
+    color: #9b9e9e;
+  }
+
+  .grid .cell.power:not(.dead):after {
     content: '⚡';
     position: absolute;
     top: 0.2em;

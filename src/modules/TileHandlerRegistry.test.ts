@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TileHandlerRegistry } from './TileHandlerRegistry';
-import { TileHandler } from './TileHandler';
+import { EmptyTileHandler, TileHandler } from './TileHandler';
 import { FarmTileHandler, PeopleTileHandler, PowerTileHandler, TreeTileHandler } from './TileHandler';
 
 describe('TileHandlerRegistry', () => {
@@ -29,6 +29,11 @@ describe('TileHandlerRegistry', () => {
     it('should return the correct handler for "power" tile type', () => {
         const handler = registry.getHandler('power');
         expect(handler).toBeInstanceOf(PowerTileHandler);
+    });
+
+    it('should return the correct handler for "empty" tile type', () => {
+        const handler = registry.getHandler('empty');
+        expect(handler).toBeInstanceOf(EmptyTileHandler);
     });
 
     it('should return undefined for an unregistered tile type', () => {

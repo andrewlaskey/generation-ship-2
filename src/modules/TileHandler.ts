@@ -1,5 +1,6 @@
 import { GameManager } from "./GameManager";
 import { BoardSpace } from "./BoardSpace";
+import { Tile, TileState, TileType } from "./Tile";
 
 export interface TileHandler {
     updateState(space: BoardSpace, gameManager: GameManager): void;
@@ -54,6 +55,8 @@ export class PeopleTileHandler implements TileHandler {
 
 
 export class PowerTileHandler implements TileHandler {
+    // For now power stations have a single level (power output)
+    // When a power station "dies" rather than being removed from the board it will stay
     updateState(space: BoardSpace, gameManager: GameManager): void {
         const peopleCount = gameManager.countNeighbors(space, ['people']);
         const powerCount = gameManager.countNeighbors(space, ['power']);
@@ -61,39 +64,88 @@ export class PowerTileHandler implements TileHandler {
         const thrivingCondition = peopleCount >= 1 && powerCount <= 2;  // Power stations thrive with people and moderate power
         const strugglingCondition = peopleCount < 1 || powerCount > 3;  // Power stations struggle without people or too much power
 
-        handleTileState(space, thrivingCondition, strugglingCondition);
-    }
-}
-
-// Generic method to handle tile state transitions
-function handleTileState(space: BoardSpace, thrivingCondition: boolean, strugglingCondition: boolean) {
         const tile = space.tile;
 
         if (!tile) return;
 
-        // Going up a level if thriving
-        if (thrivingCondition) {
-            if (tile.state === 'neutral') {
-                tile.setState('healthy');  // Thriving: Change to healthy first
-            } else if (tile.state === 'healthy') {
-                tile.upgrade();
-                tile.setState('healthy');
+        if (thrivingCondition && tile.state != TileState.Dead) {
+            tile.setState(TileState.Healthy);
+        }
+
+        if (strugglingCondition && tile.state != TileState.Dead) {
+            if (tile.state == TileState.Unhealthy) {
+                tile.setState(TileState.Dead);
+            } else {
+                tile.setState(TileState.Unhealthy);
             }
         }
-        // Going down a level if struggling
-        else if (strugglingCondition) {
-            if (tile.state === 'neutral') {
-                tile.setState('unhealthy');  // Struggling: Change to unhealthy first
-            } else if (tile.state === 'unhealthy') {
+    }
+}
+
+export class EmptyTileHandler implements TileHandler {
+    updateState(space: BoardSpace, gameManager: GameManager): void {
+        const treeCount = gameManager.countNeighbors(space, ['tree']);
+        const peopleCount = gameManager.countNeighbors(space, ['people']);
+        const powerCount = gameManager.countNeighbors(space, ['power']);
+        const farmCount = gameManager.countNeighbors(space, ['farm']);
+
+        if (treeCount >= 4) {
+            space.removeTile();
+            space.placeTile(new Tile(TileType.Tree, 1, TileState.Neutral));  // A tree starts growing
+        } else if (peopleCount >= 1 && powerCount >= 1 && farmCount >= 2) {
+            // A settlement starts when there is adjacent people, power, and farms
+            // This is simulating a growing population that is overflowing into neighbor spaces
+            // Critically this happens with or without nearby trees which are essential to survival
+            // Settlements like these will die if no trees
+            space.removeTile();
+            space.placeTile(new Tile('people', 1, 'neutral'));  
+        }
+    }
+}
+
+// Generic method to handle tile state transitions.
+// Power Tiles have custom logic.
+function handleTileState(space: BoardSpace, thrivingCondition: boolean, strugglingCondition: boolean) {
+    const tile = space.tile;
+
+    if (!tile) return;
+
+    // Going up a level if thriving
+    if (thrivingCondition) {
+        switch(tile.state) {
+            case TileState.Neutral:
+                tile.setState(TileState.Healthy);
+                break;
+            case TileState.Unhealthy:
+                tile.setState(TileState.Neutral);
+                break;
+            case TileState.Healthy:
+                tile.upgrade();
+                tile.setState(TileState.Neutral);
+                break;
+        }
+    }
+    // Going down a level if struggling
+    else if (strugglingCondition) {
+        switch(tile.state) {
+            case TileState.Neutral:
+                tile.setState(TileState.Unhealthy);
+                break;
+            case TileState.Unhealthy:
                 const downgradeSuccess = tile.downgrade(); // After being unhealthy, go down a level
 
                 if (downgradeSuccess) {
-                    tile.setState('neutral'); // Reset to neutral after going down
+                    tile.setState(TileState.Neutral); // Reset to neutral after going down
                 } else {
                     space.removeTile(); // If tile can't downgrade below minLevel, the tile is removed
                 }
-        } else {
-            tile.setState('neutral');
+                break;
+            case TileState.Healthy:
+                tile.setState(TileState.Neutral);
+                break;
         }
+            
+    } else {
+        tile.setState(TileState.Neutral);
     }
 }

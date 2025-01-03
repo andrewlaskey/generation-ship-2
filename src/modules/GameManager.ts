@@ -1,6 +1,6 @@
 // Import necessary classes
 import { GameBoard } from './GameBoard';
-import { Tile } from './Tile';
+import { Tile, TileState } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { TileHandlerRegistry } from './TileHandlerRegistry';
 import { PlayerHand, HandItem } from './PlayerHand';
@@ -221,7 +221,11 @@ export class GameManager {
         const { x, y } = space;
         const neighbors = this.getNeighbors(x, y);
         return neighbors.reduce((count, neighborSpace) => {
-            if (neighborSpace.tile && types.includes(neighborSpace.tile.type)) {
+            if (
+                neighborSpace.tile && 
+                types.includes(neighborSpace.tile.type) &&
+                neighborSpace.tile.state != TileState.Dead
+            ) {
                 count++;
             }
             return count;
@@ -239,24 +243,11 @@ export class GameManager {
                 handler.updateState(space, this);  // Let the handler update the space based on the tile's type
             }
         } else {
-            this.handleEmpty(space);  // Default behavior for empty spaces or unrecognized tile types
-        }
-    }
+            const emptyHandler = this.tileHandlerRegistry.getHandler('empty');
 
-    // Method to handle logic for an empty space
-    handleEmpty(space: BoardSpace): void {
-        const treeCount = this.countNeighbors(space, ['tree']);
-        const peopleCount = this.countNeighbors(space, ['people']);
-        const powerCount = this.countNeighbors(space, ['power']);
-        const farmCount = this.countNeighbors(space, ['farm']);
-
-        if (treeCount >= 4) {
-            space.placeTile(new Tile('tree', 1, 'neutral'));  // A tree starts growing
-        } else if (peopleCount >= 1 && powerCount >= 1 && farmCount >= 2) {
-            space.placeTile(new Tile('people', 1, 'neutral'));  // A settlement starts
-        } else {
-            // Keep the space empty
-            space.removeTile()
+            if (emptyHandler) {
+                emptyHandler.updateState(space, this);
+            }
         }
     }
 
