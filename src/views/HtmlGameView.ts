@@ -1,7 +1,9 @@
+import { GameResults } from '../modules/AutoPlayer';
 import { GameManager, GameState } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
 import { TileBlock } from '../modules/TileBlock';
 import { GameView } from '../types/GameViewInterface';
+import * as d3 from 'd3';
 export class HtmlGameView implements GameView {
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
@@ -14,6 +16,7 @@ export class HtmlGameView implements GameView {
     private playerActions!: HTMLDivElement;
     private aboutScreen!: HTMLDivElement;
     private placePreview!: HTMLDivElement;
+    private histogramDiv!: HTMLDivElement;
     private isShowingPlayerAction: boolean;
     private gameType: 'daily' |'custom';
 
@@ -50,6 +53,7 @@ export class HtmlGameView implements GameView {
                 </div>
                 <div class="game-updates">
                     <div id="playerNotice"></div>
+                    <div class="histogram" id="histogram"></div>
                     <div id="playerActions" class="player-actions"></div>
                 </div>
                 <div class="card-display">
@@ -86,6 +90,7 @@ export class HtmlGameView implements GameView {
         this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
         this.aboutScreen = this.document.querySelector<HTMLDivElement>('#about')!;
         this.placePreview = this.document.querySelector<HTMLDivElement>('#placementPreview')!;
+        this.histogramDiv = this.document.querySelector<HTMLDivElement>('#histogram')!;
 
         this.gridContainer.innerHTML = this.initializeGridView();
     }
@@ -351,4 +356,82 @@ export class HtmlGameView implements GameView {
     public hidePlayerActions(): void {
         this.isShowingPlayerAction = false;
     }
+
+    public showHistogram(sampleData: GameResults[], score: number): void {
+        const minWidth = 320;
+        const maxWidth = 800;
+        const aspectRatio = 2; // Width-to-height ratio
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+        const numBins = 5;
+    
+        // Reference the parent container
+        const parent = d3.select(`#${this.histogramDiv.id}`)
+            .style('width', '100%') // Full width within the parent
+            .style('max-width', `${maxWidth}px`)
+            .style('min-width', `${minWidth}px`)
+            .style('margin', '0 auto'); // Center on larger screens
+    
+        const svg = parent.append('svg')
+            .attr('viewBox', `0 0 ${maxWidth} ${maxWidth / aspectRatio}`)
+            .attr('preserveAspectRatio', 'xMidYMid meet') // Maintain aspect ratio
+            .style('width', '100%') // Fully responsive
+            .style('height', 'auto'); // Adjust height automatically
+    
+        const width = maxWidth - margin.left - margin.right;
+        const height = maxWidth / aspectRatio - margin.top - margin.bottom;
+    
+        const data = sampleData.map(result => result.score);
+    
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    
+        const x = d3.scaleLinear()
+            .domain([d3.min([...data, score]) as number, d3.max([...data, score]) as number]) // Input domain
+            .range([0, width]); // Output range
+    
+        const histogram = d3.bin()
+            .domain(x.domain() as [number, number]) // Set the domain of the histogram
+            .thresholds(x.ticks(numBins)); // Number of bins
+    
+        const bins = histogram(data);
+    
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(bins, d => d.length) ?? 0]) // Set y scale domain
+            .range([height, 0]);
+    
+        // Add bars
+        g.selectAll('rect')
+            .data(bins)
+            .enter().append('rect')
+            .attr('x', d => x(d.x0 ?? 0)) // Provide default for x0
+            .attr('y', d => y(d.length ?? 0)) // Provide default for length
+            .attr('width', d => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1) // Adjust for spacing
+            .attr('height', d => height - y(d.length ?? 0)) // Ensure length is valid
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 1);
+    
+        // Add x-axis
+        g.append('g')
+            .attr('transform', `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .attr('color', '#fff')
+            .attr('font-size', '10px');
+    
+        // Add y-axis
+        g.append('g')
+            .call(d3.axisLeft(y))
+            .attr('color', '#fff')
+            .attr('font-size', '10px');
+    
+        // Draw a yellow line for the given score
+        g.append('line')
+            .attr('x1', x(score)) // Position at the score on the x-axis
+            .attr('x2', x(score))
+            .attr('y1', 0) // Start at the top of the graph
+            .attr('y2', height) // End at the bottom of the graph
+            .attr('stroke', '#ffbb00')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '4 2'); // Dashed for better visibility
+    }
+    
 }

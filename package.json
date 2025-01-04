@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/jsdom": "^21.1.7",
     "@types/seedrandom": "^3.0.8",
     "@types/three": "^0.169.0",
@@ -19,6 +20,7 @@
     "vitest": "^2.1.2"
   },
   "dependencies": {
+    "d3": "^7.9.0",
     "seedrandom": "^3.0.5",
     "three": "^0.169.0"
   }

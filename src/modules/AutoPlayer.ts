@@ -14,6 +14,10 @@ export class AutoPlayer {
         this.gameManager = gameManager;
     }
 
+    updateManager(gameManager: GameManager): void {
+        this.gameManager = gameManager;
+    }
+
     startNewGame(): void {
         this.gameManager.resetGame();
         this.gameManager.startGame();

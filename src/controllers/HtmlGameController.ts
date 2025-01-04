@@ -1,4 +1,5 @@
-import { GameManager } from '../modules/GameManager';
+import { AutoPlayer, GameResults } from '../modules/AutoPlayer';
+import { GameManager, GameState } from '../modules/GameManager';
 import { ViewController } from '../types/ViewControllerInterface';
 import { getCurrentDate } from '../utils/getCurrentDate';
 import { HtmlGameView } from '../views/HtmlGameView';
@@ -8,12 +9,14 @@ export class HtmlGameController implements ViewController {
     private gameView: HtmlGameView;
     private selectedGridCell: { row: number; col: number};
     private switchViewFn?: (appType: string) => void;
+    private autoPlayer: AutoPlayer;
 
     constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: (appType: string) => void) {
         this.gameManager = gameManager;
         this.gameView = gameView;
         this.selectedGridCell = { row: 0, col: 0 };
         this.switchViewFn = fn;
+        this.autoPlayer = new AutoPlayer(gameManager);
     }
 
     init() {
@@ -188,6 +191,11 @@ export class HtmlGameController implements ViewController {
         // Update the game state via GameManager
         this.gameManager.advanceTurn();
         this.gameView.hidePlayerActions();
+
+        if (this.gameManager.state == GameState.Complete || this.gameManager.state == GameState.GameOver) {
+            const sampleData = this.generateHistogram(1000);
+            this.gameView.showHistogram(sampleData, this.gameManager.getCalculatedPlayerScore());
+        }
         
         // Notify the view to re-render the updated game state
         this.updateView();
@@ -202,5 +210,15 @@ export class HtmlGameController implements ViewController {
     public rotateItem(): void {
         this.gameManager.rotateSelectedItem();
         this.updateView();
+    }
+
+    public generateHistogram(sampleSize = 10000): GameResults[] {
+        const repeateGameManager = new GameManager({
+            ...this.gameManager.options
+        });
+        this.autoPlayer.updateManager(repeateGameManager)
+        const results = this.autoPlayer.repeat(sampleSize);
+
+        return results;
     }
 }
