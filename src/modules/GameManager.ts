@@ -7,6 +7,7 @@ import { PlayerHand, HandItem } from './PlayerHand';
 import { Deck } from './Deck';
 import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
+import { ConsoleLogLevel } from '../types/ConsoleLogLevels';
 
 export type GameManagerOptions = {
  size: number;
@@ -16,6 +17,7 @@ export type GameManagerOptions = {
  infiniteDeck?: boolean;
  randomTileStates?: boolean;
  freeplay?: boolean;
+ logging?: boolean;
 }
 
 export enum GameState {
@@ -39,6 +41,7 @@ export class GameManager {
         maxHandSize: 3,
         infiniteDeck: false,
         freeplay: false,
+        logging: false
     }
     gameStartTime: number = Date.now();
     gameEndTime: number = Date.now();
@@ -107,13 +110,13 @@ export class GameManager {
         const item = this.deck.drawItem();
     
         if (!item) {
-            console.warn("Deck is empty, cannot fill hand completely.");
+            this.log('warn', "Deck is empty, cannot fill hand completely.");
             return false;  // No more items in the deck
         }
     
         const success = this.playerHand.addItem(item);
         if (!success) {
-            console.error("Failed to add item to player hand.");
+            this.log('error', "Failed to add item to player hand.");
             return false;
         }
     
@@ -131,7 +134,7 @@ export class GameManager {
                 this.playerHand.removeItem(handIndex);  // Remove the placed item from the hand
                 return true;
             } catch (e) {
-                console.error(e);  // Log the error and return false
+                this.log('error', e);  // Log the error and return false
                 return false;
             }
         }
@@ -228,7 +231,7 @@ export class GameManager {
         if (Object(this.playerScore).hasOwnProperty(name)) {
             return this.playerScore[name].value;
         }
-        console.error(`No player score of ${name} exists`)
+        this.log('error', `No player score of ${name} exists`);
         return 0;
     }
 
@@ -321,10 +324,10 @@ export class GameManager {
         score -= this.getDeckItemCount();
 
         // Reward faster play times
-        const gameTimeInMinutes = this.getGameDurationMs() / 60000;
+        let gameTimeInMinutes = this.getGameDurationMs() / 60000;
 
-        if (gameTimeInMinutes <= 0) {
-            throw new Error("Invalid game time. Must be greater than 0.");
+        if (gameTimeInMinutes <= 1) {
+            gameTimeInMinutes = 1;
         }
 
         const timeMultiplier = 1 + this.timeScoreFactor / gameTimeInMinutes;
@@ -339,5 +342,11 @@ export class GameManager {
         }
 
         return this.gameStartTime - this.gameEndTime;
+    }
+
+    log(logLevel: ConsoleLogLevel, msg: string | unknown): void {
+        if (this.options.logging) {
+            console[logLevel](msg);
+        }
     }
 }
