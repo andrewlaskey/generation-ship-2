@@ -37,8 +37,8 @@ export class HtmlGameView implements GameView {
             <div class="html-game-view-wrapper">
                 <div class="info-bar">
                     <div class="help">
-                        <button id="quitButton">⬅</button>
-                        <button id="helpButton">⚙️</button>
+                        <button class="button warn" id="quitButton">⬅</button>
+                        <button class="button" id="helpButton">⚙️</button>
                     </div>
                     <div id="scoreboard" class="scoreboard"></div>
                 </div>
@@ -72,7 +72,7 @@ export class HtmlGameView implements GameView {
                         <dt><span style="color: #3800ff; filter: saturate(300%);">ᚢ</span><dt>
                         <dd>Fusion reactor power stations allow your population centers to grow. They need people to maintain them and they can suffer if the grid is overloaded with too much nearby power.</dd>
                     </dl>
-                    <button id="closeHelp">✓</button>
+                    <button class="button"  id="closeHelp">✓</button>
                 </div>
             </div>
         `;
@@ -299,21 +299,22 @@ export class HtmlGameView implements GameView {
             switch(this.gameManager.state) {
                 case GameState.GameOver:
                     this.playerActions.innerHTML = `
-                <button id="restartGame">Restart</button>
+                <button class="button" id="restartGame">Restart</button>
                 `;
                     break;
                 case GameState.Complete:
                     this.playerActions.innerHTML = `
-                <button id="restartGame">Play Again</button>
-                ${this.gameType == 'daily' ? `<button id="shareScore">Share Score</button>` : ''}
+                <button class="button" id="restartGame">Play Again</button>
+                <button class="button" id="shareScore">Share Score</button>
+                ${this.gameType == 'daily' ? `<button class="button" id="shareScore">Share Score</button>` : ''}
                 `;
                     break;
                 default:
                     this.playerActions.innerHTML = `
             <div class="prompt">Confirm placement?</div>
-            <button id="player-action-affirmative" class="btn-player-action">Yes</button>
+            <button id="player-action-affirmative" class="button small btn-player-action">Yes</button>
             <span>/</span>
-            <button id="player-action-negative" class="btn-player-action">No</button>
+            <button id="player-action-negative" class="button small btn-player-action">No</button>
             `
             }
             

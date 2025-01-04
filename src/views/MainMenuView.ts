@@ -16,9 +16,9 @@ export class MainMenuView implements View {
             <div class="main-menu">
                 <h1 class="title">Generation Ship 2</h1>
                 <ul class="main-menu-options">
-                    <li><button id="startGame" data-game-type="daily">Daily Challenge</button></li>
-                    <li><button id="openSubMenu" data-menu="customGameOptions">Custom Game</button></li>
-                    <li><button id="openSubMenu" data-menu="about">About</button></li>
+                    <li><button class="button" id="startGame" data-game-type="daily">Daily Challenge</button></li>
+                    <li><button class="button" id="openSubMenu" data-menu="customGameOptions">Custom Game</button></li>
+                    <li><button class="button" id="openSubMenu" data-menu="about">About</button></li>
                 </ul>
                 <div class="submenu hidden" id="customGameOptions">
                     <h3>Select Options</h3>
@@ -34,8 +34,8 @@ export class MainMenuView implements View {
                         <p>Deck size:<p>
                         <input type="number" id="deckSizeInput" value="40" min="10" max="100"/>
                     </div>
-                    <button id="closeSubmenu">←</button>
-                    <button id="startGame" data-game-type="custom">Start</button>
+                    <button class="button" id="closeSubmenu">←</button>
+                    <button class="button" id="startGame" data-game-type="custom">Start</button>
                 </div>
                 <div class="submenu hidden" id="about">
                     <h3>Goal</h3>
@@ -53,7 +53,7 @@ export class MainMenuView implements View {
                         <dt><span style="color: #3800ff; filter: saturate(300%);">ᚢ</span><dt>
                         <dd>Fusion reactor power stations allow your population centers to grow. They need people to maintain them and they can suffer if the grid is overloaded with too much nearby power.</dd>
                     </dl>
-                    <button id="closeSubmenu">✓</button>
+                    <button class="button" id="closeSubmenu">✓</button>
                 </div>
             </div>
         `;

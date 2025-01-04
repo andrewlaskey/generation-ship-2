@@ -303,11 +303,22 @@
     justify-content: space-between;
     align-items: center;
   }
+
+  .info-bar .help {
+    display: flex;
+    align-items: center;
+  }
+
+  .info-bar .button {
+    height: 3em;
+    margin-right: 0.5em;
+  }
   
   .scoreboard {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    font-size: 1.5rem;
   }
   
   .scoreboard .score {
@@ -339,6 +350,12 @@
   .player-actions {
     display: flex;
     align-items: center;
+    justify-content: center;
+  }
+
+  .player-actions .button {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
   }
 
   .btn-player-action {
