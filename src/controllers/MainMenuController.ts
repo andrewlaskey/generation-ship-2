@@ -73,8 +73,8 @@ export class MainMenuController implements ViewController {
                         const deckSizeInput = this.view.document.querySelector<HTMLInputElement>('#deckSizeInput');
                         const deckSizeInputValue = deckSizeInput ? parseInt(deckSizeInput.value, 10) : this.gameManager.optionDefaults.initialDeckSize;
 
-                        const seedInput = this.view.document.querySelector<HTMLInputElement>('#deckSizeInput');
-                        const seedInputValue = seedInput ? seedInput.value : undefined
+                        const seedInput = this.view.document.querySelector<HTMLInputElement>('#seedInputStr');
+                        const seedInputValue = seedInput && seedInput.value.length ? seedInput.value : undefined
 
                         this.gameManager.configGame({
                             seed: seedInputValue,

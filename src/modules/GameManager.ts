@@ -70,6 +70,7 @@ export class GameManager {
             ...this.options,
             ...options
         }
+
         this.gameBoard = new GameBoard(this.options.size);
         this.tileHandlerRegistry = new TileHandlerRegistry();
         this.playerHand = new PlayerHand(this.options.maxHandSize);  // Initialize the player's hand
