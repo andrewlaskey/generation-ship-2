@@ -4,12 +4,10 @@ import { HtmlGameView } from './views/HtmlGameView';
 import { HtmlGameController } from './controllers/HtmlGameController';
 // import { ThreeJSGameView } from './views/ThreeJSGameView';
 // import { ThreeJSGameController } from './controllers/ThreeJSGameController';
-import { GameView } from './types/GameViewInterface';
 import { FlyingGameView } from './views/FlyingGameView';
 import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
-import { ViewController } from './types/ViewControllerInterface';
 import { SwitchViewFn } from './types/SwitchViewFn';
 
 
