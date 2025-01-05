@@ -10,6 +10,7 @@ function getActualTileCounts(deck: Deck): { [key in keyof TileProbability]: numb
         farm: 0,
         people: 0,
         power: 0,
+        waste: 0,
         null: 0
     };
 

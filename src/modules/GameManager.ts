@@ -47,7 +47,7 @@ export class GameManager {
     gameStartTime: number = Date.now();
     gameEndTime: number = Date.now();
     
-    private timeScoreFactor: number = 10;
+    // private timeScoreFactor: number = 10;
 
     constructor(options?: Partial<GameManagerOptions>) {
         this.options = {
@@ -345,14 +345,14 @@ export class GameManager {
         score -= this.getDeckItemCount();
 
         // Reward faster play times
-        let gameTimeInMinutes = this.getGameDurationMs() / 60000;
+        // let gameTimeInMinutes = this.getGameDurationMs() / 60000;
 
-        if (gameTimeInMinutes <= 1) {
-            gameTimeInMinutes = 1;
-        }
+        // if (gameTimeInMinutes <= 1) {
+        //     gameTimeInMinutes = 1;
+        // }
 
-        const timeMultiplier = 1 + this.timeScoreFactor / gameTimeInMinutes;
-        score = Math.round(score * timeMultiplier);
+        // const timeMultiplier = 1 + this.timeScoreFactor / gameTimeInMinutes;
+        // score = Math.round(score * timeMultiplier);
 
         return score;
     }
