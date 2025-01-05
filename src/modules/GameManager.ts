@@ -8,6 +8,7 @@ import { Deck } from './Deck';
 import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
 import { ConsoleLogLevel } from '../types/ConsoleLogLevels';
+import { SpaceUpdate } from './TileHandler';
 
 export type GameManagerOptions = {
  size: number;
@@ -162,12 +163,26 @@ export class GameManager {
 
     // Update the entire board (existing logic)
     updateBoard(): void {
+        const updates: { col: number, row: number, update: SpaceUpdate }[] = [];
         const size = this.gameBoard.size;
-        for (let x = 0; x < size; x++) {
-            for (let y = 0; y < size; y++) {
-                this.updateSpace(x, y);
+
+        for (let col = 0; col < size; col++) {
+            for (let row = 0; row < size; row++) {
+                const result = this.getUpdateSpace(col, row);
+
+                if (result) {
+                    updates.push({
+                        col,
+                        row,
+                        update: result
+                    })
+                }
             }
         }
+
+        updates.forEach((updateAction) => {
+            this.gameBoard.executeSpaceUpate(updateAction.col, updateAction.row, updateAction.update);
+        })
     }
 
     // Start a new game
@@ -253,7 +268,7 @@ export class GameManager {
     }
 
     // Helper method to count specific types of neighbors
-    countNeighbors(space: BoardSpace, types: string[]): number {
+    countNeighbors(space: BoardSpace, types: string[], includeLevelInCount = false): number {
         const { x, y } = space;
         const neighbors = this.getNeighbors(x, y);
         return neighbors.reduce((count, neighborSpace) => {
@@ -262,29 +277,34 @@ export class GameManager {
                 types.includes(neighborSpace.tile.type) &&
                 neighborSpace.tile.state != TileState.Dead
             ) {
-                count++;
+                count += includeLevelInCount ? neighborSpace.tile.level : 1;
             }
+
             return count;
         }, 0);
     }
 
     // Method to update space based on the tile type
-    updateSpace(x: number, y: number): void {
+    getUpdateSpace(x: number, y: number): SpaceUpdate | null {
         const space = this.gameBoard.getSpace(x, y);
-        if (!space) return;
 
-        if (space.tile) {
-            const handler = this.tileHandlerRegistry.getHandler(space.tile.type);
-            if (handler) {
-                handler.updateState(space, this);  // Let the handler update the space based on the tile's type
-            }
-        } else {
-            const emptyHandler = this.tileHandlerRegistry.getHandler('empty');
+        if (space) {
+            if (space.tile) {
+                const handler = this.tileHandlerRegistry.getHandler(space.tile.type);
+                
+                if (handler) {
+                    return handler.updateState(space, this);  // Let the handler update the space based on the tile's type
+                }
+            } else {
+                const emptyHandler = this.tileHandlerRegistry.getHandler('empty');
 
-            if (emptyHandler) {
-                emptyHandler.updateState(space, this);
+                if (emptyHandler) {
+                    return emptyHandler.updateState(space, this);
+                }
             }
         }
+
+        return null
     }
 
     // Method to get all neighboring spaces of a given space on the gameboard

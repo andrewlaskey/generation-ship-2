@@ -71,4 +71,12 @@ describe('Tile', () => {
         expect(result).toBe(false);
         expect(tile.level).toBe(1);
     });
+
+    it('should not actually change level if preview is true', () => {
+        const tile = new Tile('people', 1, 'neutral');
+        tile.upgrade(true);
+        expect(tile.level).toBe(1);
+        tile.downgrade(true);
+        expect(tile.level).toBe(1);
+    });
 });

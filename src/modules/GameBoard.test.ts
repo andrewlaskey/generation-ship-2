@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameBoard, GameBoardRenderFn } from './GameBoard';
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
+import { SpaceChange, SpaceUpdate } from './TileHandler';
 
 describe('GameBoard', () => {
     let board: GameBoard;
@@ -162,5 +163,86 @@ describe('GameBoard', () => {
 
             expect(result).toStrictEqual(['0x0 - X', '0x1 - O', '1x0 - O', '1x1 - X']);
         })
+    });
+
+    describe('executeSpaceUpdate', () => {
+        it('should change the space\'s state', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, tile1);
+
+            const update: SpaceUpdate = {
+                change: SpaceChange.ChangeState,
+                newState: TileState.Healthy
+            };
+
+            board.executeSpaceUpate(1, 1, update);
+
+            const space = board.getSpace(1, 1);
+
+            expect(space?.tile?.state).toBe(TileState.Healthy);
+        });
+
+        it('should increase the space tile level on Upgrade', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, tile1);
+
+            const update: SpaceUpdate = {
+                change: SpaceChange.Upgrade
+            };
+
+            board.executeSpaceUpate(1, 1, update);
+
+            const space = board.getSpace(1, 1);
+
+            expect(space?.tile?.level).toBe(2);
+        });
+
+        it('should decrease the space tile level on Downgrade', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+
+            const update: SpaceUpdate = {
+                change: SpaceChange.Downgrade
+            };
+
+            board.executeSpaceUpate(1, 1, update);
+
+            const space = board.getSpace(1, 1);
+
+            expect(space?.tile?.level).toBe(1);
+        });
+
+        it('should correctly remove a tile', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+
+            const update: SpaceUpdate = {
+                change: SpaceChange.Remove
+            };
+
+            board.executeSpaceUpate(1, 1, update);
+
+            const space = board.getSpace(1, 1);
+
+            expect(space?.tile).toBeNull();
+        });
+
+        it('should correctly replace a tile', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+
+            const update: SpaceUpdate = {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral)
+            };
+
+            board.executeSpaceUpate(1, 1, update);
+
+            const space = board.getSpace(1, 1);
+
+            expect(space?.tile?.type).toBe(TileType.Waste)
+            expect(space?.tile?.state).toBe(TileState.Neutral);
+            expect(space?.tile?.level).toBe(1);
+        });
     })
 });

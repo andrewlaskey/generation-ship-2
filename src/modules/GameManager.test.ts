@@ -144,7 +144,7 @@ describe('GameManager', () => {
 
     it('should update the board by calling updateSpace 25 times for a 5x5 grid', () => {
         // Spy on updateSpace method
-        const updateSpaceSpy = vi.spyOn(gameManager, 'updateSpace');
+        const updateSpaceSpy = vi.spyOn(gameManager, 'getUpdateSpace');
     
         // Call updateBoard
         gameManager.updateBoard();
@@ -287,19 +287,40 @@ describe('GameManager', () => {
         expect(freeplayGameManager.state).toBe(GameState.Playing);
     });
 
-    it('should not count dead neighbors', () => {
-        const deadTile = new Tile(TileType.Power, 1, TileState.Dead);
-        const mockNeighborSpace = {
-            ...createMockBoardSpace(),
-            tile: deadTile
-        };
-        const boardSpace = new BoardSpace(0, 0);
-        (gameBoard.getSpace as Mock).mockReturnValue(mockNeighborSpace);
+    describe('countNeighbors', () => {
 
-        const result = gameManager.countNeighbors(boardSpace, [TileType.Power])
+        it('should not count dead neighbors', () => {
+            const deadTile = new Tile(TileType.Power, 1, TileState.Dead);
+            const mockNeighborSpace = {
+                ...createMockBoardSpace(),
+                tile: deadTile
+            };
+            const boardSpace = new BoardSpace(0, 0);
+            (gameBoard.getSpace as Mock).mockReturnValue(mockNeighborSpace);
 
-        expect(result).toBe(0);
-    })
+            const result = gameManager.countNeighbors(boardSpace, [TileType.Power])
+
+            expect(result).toBe(0);
+        });
+
+        it('should include tile level in count', () => {
+            const tile = new Tile(TileType.Tree, 2, TileState.Healthy);
+            const mockNeighborSpace = {
+                ...createMockBoardSpace(),
+                tile
+            };
+            const boardSpace = new BoardSpace(0, 0);
+            (gameBoard.getSpace as Mock)
+                .mockReturnValueOnce(mockNeighborSpace)
+                .mockReturnValue(null);
+
+
+            const result = gameManager.countNeighbors(boardSpace, [TileType.Tree], true);
+
+            expect(result).toBe(2);
+        })
+
+    });
 
     it('should return the correct calculated player score', () => {
         (gameBoard.countTileTypes as Mock).mockReturnValueOnce({

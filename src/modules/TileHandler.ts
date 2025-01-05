@@ -2,43 +2,129 @@ import { GameManager } from "./GameManager";
 import { BoardSpace } from "./BoardSpace";
 import { Tile, TileState, TileType } from "./Tile";
 
+export enum SpaceChange {
+    Upgrade = 'upgrade',
+    Downgrade  = 'downgrade',
+    ChangeState = 'change state',
+    Remove = 'remove',
+    Replace = 'replace'
+}
+
+export interface SpaceUpdate {
+    change: SpaceChange;
+    newState?: TileState;
+    replaceTile?: Tile;
+}
 export interface TileHandler {
-    updateState(space: BoardSpace, gameManager: GameManager): void;
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null;
 }
 
 export class TreeTileHandler implements TileHandler {
-    updateState(space: BoardSpace, gameManager: GameManager): void {
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
         const treeCount = gameManager.countNeighbors(space, [TileType.Tree]);
         const peopleCount = gameManager.countNeighbors(space, [TileType.People]);
         const powerCount = gameManager.countNeighbors(space, [TileType.Power])
 
+        const maxPeople = 5;
+        const maxPower = 3;
+        const maxTrees = 5;
+
         const strugglingCondition = 
             treeCount === 0 || 
-            peopleCount >= 5 || 
-            powerCount >= 2 ||
-            treeCount >= 5;
+            peopleCount >= maxPeople || 
+            powerCount >= maxPower ||
+            treeCount >= maxTrees;
 
         // Only check thriving condition if not struggling
         const thrivingCondition = !strugglingCondition && treeCount >= 3;
 
-        handleTileState(space, thrivingCondition, strugglingCondition);
+        return handleTileState(space, thrivingCondition, strugglingCondition);
     }
 }
 
 export class FarmTileHandler implements TileHandler {
-    updateState(space: BoardSpace, gameManager: GameManager): void {
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
         const treeCount = gameManager.countNeighbors(space, [TileType.Tree]);
-        const peopleCount = gameManager.countNeighbors(space, [TileType.People]);
+        const peopleCount = gameManager.countNeighbors(space, [TileType.People], true);
+        const farmCount = gameManager.countNeighbors(space, [TileType.Farm], true);
 
-        const thrivingCondition = peopleCount >= 1 && treeCount <= 3;  // Farms do well with some people and few trees
-        const strugglingCondition = peopleCount === 0 || treeCount >= 5;  // Farms struggle without people or too many trees
+        const peopleFarmDiff = peopleCount - farmCount;
 
-        handleTileState(space, thrivingCondition, strugglingCondition);
+        // Farms do well with some people and few trees
+        const thrivingCondition =
+            peopleCount > 1 &&
+            peopleCount <= 4 &&
+            treeCount <= 3;
+         
+        // Farms struggle without people or too many trees
+        const strugglingCondition =
+            peopleCount === 0 ||
+            peopleFarmDiff >= 5 ||
+            treeCount >= 5;
+
+        const tile = space.tile;
+
+        if (!tile) return null;
+
+        const update: SpaceUpdate = {
+            change: SpaceChange.ChangeState
+        }
+
+        // Going up a level if thriving
+        // Same as default handleTileState logic
+        if (thrivingCondition) {
+            switch(tile.state) {
+                case TileState.Neutral:
+                    update.newState = TileState.Healthy;
+                    break;
+                case TileState.Unhealthy:
+                    update.newState = TileState.Neutral;
+                    break;
+                case TileState.Healthy:
+                    const upgradeSuccess = tile.upgrade(true);
+
+                    if (upgradeSuccess) {
+                        update.change = SpaceChange.Upgrade;
+                        update.newState = TileState.Neutral;
+                    } else {
+                        return null;
+                    }
+                    break;
+            }
+        }
+        // Going down a level if struggling
+        else if (strugglingCondition) {
+            switch(tile.state) {
+                case TileState.Neutral:
+                    update.newState = TileState.Unhealthy;
+                    break;
+                case TileState.Healthy:
+                    update.newState = TileState.Neutral;
+                    break;
+                case TileState.Unhealthy:
+                    const downgradeSuccess = tile.downgrade(true); // After being unhealthy, go down a level
+
+                    if (downgradeSuccess) {
+                        update.change = SpaceChange.Downgrade;
+                        update.newState = TileState.Neutral;
+                    } else {
+                        // If farm tile can't downgrade it dies and is replaced with a waste tile
+                        update.change = SpaceChange.Replace;
+                        update.replaceTile = new Tile(TileType.Waste, 1, TileState.Neutral);
+                    }
+                    break;
+                
+            }       
+        } else {
+            update.newState = TileState.Neutral;
+        }
+
+        return update;
     }
 }
 
 export class PeopleTileHandler implements TileHandler {
-    updateState(space: BoardSpace, gameManager: GameManager): void {
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
         const treeCount = gameManager.countNeighbors(space, [TileType.Tree]);
         const farmCount = gameManager.countNeighbors(space, [TileType.Farm]);
         const powerCount = gameManager.countNeighbors(space, [TileType.Power]);
@@ -49,7 +135,7 @@ export class PeopleTileHandler implements TileHandler {
         // Only check thriving condition if the tile is not struggling
         const thrivingCondition = !strugglingCondition && farmCount >= 1 && powerCount >= 1;  // People thrive with farms and power
 
-        handleTileState(space, thrivingCondition, strugglingCondition);
+        return handleTileState(space, thrivingCondition, strugglingCondition);
     }
 }
 
@@ -57,71 +143,130 @@ export class PeopleTileHandler implements TileHandler {
 export class PowerTileHandler implements TileHandler {
     // For now power stations have a single level (power output)
     // When a power station "dies" rather than being removed from the board it will stay
-    updateState(space: BoardSpace, gameManager: GameManager): void {
-        const peopleCount = gameManager.countNeighbors(space, [TileType.People]);
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
+        const peopleCount = gameManager.countNeighbors(space, [TileType.People], true);
         const powerCount = gameManager.countNeighbors(space, [TileType.Power]);
 
-        const thrivingCondition = peopleCount >= 1 && powerCount <= 2;  // Power stations thrive with people and moderate power
-        const strugglingCondition = peopleCount < 1 || powerCount > 3;  // Power stations struggle without people or too much power
+        const minPeople = 1;
+        const maxPeople = 4;
+        const maxPower = 3;
+
+        // Power stations thrive with people and moderate power
+        const thrivingCondition =
+            peopleCount >= minPeople &&
+            peopleCount <= maxPeople &&
+            powerCount <= maxPower;
+
+        // Power stations struggle without people or too much power
+        const strugglingCondition =
+            peopleCount < minPeople ||
+            peopleCount > maxPeople ||
+            powerCount > maxPower; 
 
         const tile = space.tile;
 
-        if (!tile) return;
+        if (!tile) return null;
 
-        if (thrivingCondition && tile.state != TileState.Dead) {
-            tile.setState(TileState.Healthy);
+        if (tile.state == TileState.Dead) return null;
+
+        const update: SpaceUpdate = {
+            change: SpaceChange.ChangeState,
+            newState: TileState.Neutral
         }
 
-        if (strugglingCondition && tile.state != TileState.Dead) {
+        if (thrivingCondition) {
+            update.newState = TileState.Healthy;
+        }
+
+        if (strugglingCondition) {
             if (tile.state == TileState.Unhealthy) {
-                tile.setState(TileState.Dead);
+                update.newState = TileState.Dead;
             } else {
-                tile.setState(TileState.Unhealthy);
+                update.newState = TileState.Unhealthy;
             }
         }
+
+        return update;
     }
 }
 
 export class EmptyTileHandler implements TileHandler {
-    updateState(space: BoardSpace, gameManager: GameManager): void {
-        const treeCount = gameManager.countNeighbors(space, [TileType.Tree]);
-        const peopleCount = gameManager.countNeighbors(space, [TileType.People]);
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
+        const treeCount = gameManager.countNeighbors(space, [TileType.Tree], true);
+        const peopleCount = gameManager.countNeighbors(space, [TileType.People], true);
         const powerCount = gameManager.countNeighbors(space, [TileType.Power]);
-        const farmCount = gameManager.countNeighbors(space, [TileType.Farm]);
+        const farmCount = gameManager.countNeighbors(space, [TileType.Farm], true);
+        const wasteCount = gameManager.countNeighbors(space, [TileType.Waste]);
 
         if (treeCount >= 4) {
-            space.removeTile();
-            space.placeTile(new Tile(TileType.Tree, 1, TileState.Neutral));  // A tree starts growing
+            // A tree starts growing
+            return {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Tree, 1, TileState.Neutral)
+            }
         } else if (peopleCount >= 1 && powerCount >= 1 && farmCount >= 2) {
             // A settlement starts when there is adjacent people, power, and farms
             // This is simulating a growing population that is overflowing into neighbor spaces
             // Critically this happens with or without nearby trees which are essential to survival
             // Settlements like these will die if no trees
-            space.removeTile();
-            space.placeTile(new Tile(TileType.People, 1, TileState.Neutral));  
+            return {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.People, 1, TileState.Neutral)
+            }
+        } else if (wasteCount >= 3) {
+            // Waste/Pollution easily propagates
+            return {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral)
+            }
         }
+
+        return null;
+    }
+}
+
+export class WasteTileHandler implements TileHandler {
+    updateState(space: BoardSpace, gameManager: GameManager): SpaceUpdate | null {
+        const treeCount = gameManager.countNeighbors(space, [TileType.Tree], true);
+
+        if (treeCount >= 4) {
+            return {
+                change: SpaceChange.Remove
+            };
+        }
+
+        return null
     }
 }
 
 // Generic method to handle tile state transitions.
 // Power Tiles have custom logic.
-function handleTileState(space: BoardSpace, thrivingCondition: boolean, strugglingCondition: boolean) {
+function handleTileState(space: BoardSpace, thrivingCondition: boolean, strugglingCondition: boolean): SpaceUpdate | null {
     const tile = space.tile;
+    const result: SpaceUpdate = {
+        change: SpaceChange.ChangeState
+    } 
 
-    if (!tile) return;
+    if (!tile) return null;
 
     // Going up a level if thriving
     if (thrivingCondition) {
         switch(tile.state) {
             case TileState.Neutral:
-                tile.setState(TileState.Healthy);
+                result.newState = TileState.Healthy;
                 break;
             case TileState.Unhealthy:
-                tile.setState(TileState.Neutral);
+                result.newState = TileState.Neutral;
                 break;
             case TileState.Healthy:
-                tile.upgrade();
-                tile.setState(TileState.Neutral);
+                const upgradeSuccess = tile.upgrade(true);
+
+                if (upgradeSuccess) {
+                    result.change = SpaceChange.Upgrade;
+                    result.newState = TileState.Neutral;
+                } else {
+                    return null;
+                }
                 break;
         }
     }
@@ -129,23 +274,26 @@ function handleTileState(space: BoardSpace, thrivingCondition: boolean, struggli
     else if (strugglingCondition) {
         switch(tile.state) {
             case TileState.Neutral:
-                tile.setState(TileState.Unhealthy);
+                result.newState = TileState.Unhealthy;
+                break;
+            case TileState.Healthy:
+                result.newState = TileState.Neutral;
                 break;
             case TileState.Unhealthy:
-                const downgradeSuccess = tile.downgrade(); // After being unhealthy, go down a level
+                const downgradeSuccess = tile.downgrade(true); // Preview change
 
                 if (downgradeSuccess) {
                     tile.setState(TileState.Neutral); // Reset to neutral after going down
+                    result.change = SpaceChange.Downgrade;
+                    result.newState = TileState.Neutral;
                 } else {
-                    space.removeTile(); // If tile can't downgrade below minLevel, the tile is removed
+                    result.change = SpaceChange.Remove;
                 }
                 break;
-            case TileState.Healthy:
-                tile.setState(TileState.Neutral);
-                break;
         }
-            
     } else {
-        tile.setState(TileState.Neutral);
+        result.newState = TileState.Neutral;
     }
+
+    return result;
 }

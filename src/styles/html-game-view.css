@@ -160,6 +160,12 @@
     animation: power-flash 500ms ease-in-out infinite;
     font-size: 1.3rem;
   }
+
+  .cell.waste::before {
+    color: #9b9e9e;
+    content: '░'
+  }
+  
   
   /* Empty cell (no ASCII character) */
   .cell.empty::before {

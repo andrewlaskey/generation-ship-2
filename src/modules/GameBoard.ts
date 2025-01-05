@@ -1,5 +1,6 @@
 import { Tile, TileType } from "./Tile";
 import { BoardSpace } from "./BoardSpace";
+import { SpaceChange, SpaceUpdate } from "./TileHandler";
 
 export type GameBoardRenderFn<T> = (col: number, row: number, space: BoardSpace) => T;
 
@@ -109,6 +110,55 @@ export class GameBoard {
         return false;
     }
 
+    executeSpaceUpate(col: number, row: number, update: SpaceUpdate): void {
+        const space = this.getSpace(col, row);
+        let tile: Tile | null;
+
+        if (!space) return;
+
+        switch(update.change) {
+            case SpaceChange.ChangeState:
+                tile = space.tile;
+
+                if (!update.newState) {
+                    console.error(space.tile, update);
+                    throw new Error('Space update for change state missing new state!');
+                }
+
+                if (tile) {
+                    tile.setState(update.newState);
+                }
+                break;
+            case SpaceChange.Upgrade:
+                tile = space.tile;
+
+                if (tile) {
+                    tile.upgrade();
+                }
+                break;
+            case SpaceChange.Downgrade:
+                tile = space.tile;
+
+                if (tile) {
+                    tile.downgrade();
+                }
+                break;
+            case SpaceChange.Remove:
+                space.removeTile();
+                break;
+            case SpaceChange.Replace:
+                space.removeTile();
+
+                if (!update.replaceTile) {
+                    console.error(space.tile, update);
+                    throw new Error('No replacement tile to replace current tile!');
+                }
+
+                space.placeTile(update.replaceTile)
+                break;
+        }
+    }
+
     // Method to check if the coordinates are valid
     private isValidCoordinate(x: number, y: number): boolean {
         return x >= 0 && x < this.size && y >= 0 && y < this.size;
@@ -139,7 +189,7 @@ export class GameBoard {
                 }
 
                 return rowCounts;
-            }, {} as Record<'tree' | 'farm' | 'people' | 'power', number>);
+            }, {} as Record<TileType, number>);
 
             Object.entries(rowCounts).forEach(([key, value]) => {
                 const typedKey = key as keyof typeof counts;
@@ -151,6 +201,6 @@ export class GameBoard {
             });
             
             return counts;
-        }, {} as Record<'tree' | 'farm' | 'people' | 'power', number>);
+        }, {} as Record<TileType, number>);
     }
 }

@@ -5,7 +5,7 @@ import seedrandom from 'seedrandom';
 
 // Tile probability configuration type
 export type TileProbability = {
-    [key in TileType | 'null']: number; // Include 'null' for empty spaces
+    [key in Exclude<TileType, TileType.Waste> | 'null']: number;
 };
 
 export class Deck {

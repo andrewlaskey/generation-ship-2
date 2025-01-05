@@ -5,6 +5,7 @@ export enum TileType {
     Farm = 'farm',
     People = 'people',
     Power = 'power',
+    Waste = 'waste'
 }
 
 export enum TileState {
@@ -16,7 +17,7 @@ export enum TileState {
 
 
 export class Tile {
-    static readonly validTypes = ['tree', 'farm', 'people', 'power'] as const;
+    static readonly validTypes = ['tree', 'farm', 'people', 'power', 'waste'] as const;
     static readonly validStates = ['neutral', 'healthy', 'unhealthy', 'dead'] as const;
     readonly minLevel = 1;
     readonly maxLevel = 3;
@@ -50,9 +51,11 @@ export class Tile {
     }
 
     // Method to upgrade the level
-    upgrade(): boolean {
+    upgrade(preview = false): boolean {
         if (this.state != TileState.Dead && this.level < this.maxLevel) {
-            this.level++;
+            if (!preview) {
+                this.level++;
+            }
             return true;
         }
         
@@ -60,9 +63,11 @@ export class Tile {
     }
 
     // Method to downgrade the level
-    downgrade(): boolean {
+    downgrade(preview = false): boolean {
         if (this.state != TileState.Dead && this.level > this.minLevel) {
-            this.level--;
+            if (!preview) {
+                this.level--;
+            }
             return true;
         }
 

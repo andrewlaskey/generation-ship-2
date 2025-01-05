@@ -44,7 +44,7 @@ describe('TileHandlerRegistry', () => {
     it('should allow registering a new handler and retrieve it', () => {
         // Mock a new handler
         const mockHandler: TileHandler = {
-            updateState: () => {}
+            updateState: () => null
         };
 
         registry.registerHandler('customTile', mockHandler);
@@ -55,7 +55,7 @@ describe('TileHandlerRegistry', () => {
     it('should override an existing handler when registering a new one', () => {
         // Create a new mock handler for 'tree'
         const mockTreeHandler: TileHandler = {
-            updateState: () => {}
+            updateState: () => null
         };
 
         // Register the new handler
