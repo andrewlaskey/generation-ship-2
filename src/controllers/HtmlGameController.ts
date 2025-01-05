@@ -182,6 +182,7 @@ export class HtmlGameController implements ViewController {
     // Update the view and re-initialize listeners
     private updateView(): void {
         this.gameView.updateGrid();
+        this.gameView.hideHistogram();
         this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
         this.initPlayerActionListeners();
     }

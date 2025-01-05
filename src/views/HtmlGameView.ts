@@ -433,5 +433,9 @@ export class HtmlGameView implements GameView {
             .attr('stroke-width', 2)
             .attr('stroke-dasharray', '4 2'); // Dashed for better visibility
     }
+
+    public hideHistogram(): void {
+        this.histogramDiv.innerHTML = '';
+    }
     
 }
