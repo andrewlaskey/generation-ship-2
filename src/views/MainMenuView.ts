@@ -35,6 +35,10 @@ export class MainMenuView implements View {
                         <p>Deck size:<p>
                         <input type="number" id="deckSizeInput" value="40" min="10" max="100"/>
                     </div>
+                    <div class="input">
+                        <p>Seed:</p>
+                        <input type="text" id="seedInputStr" placeholder="Optional String" />
+                    </div>
                     <button class="button" id="closeSubmenu">←</button>
                     <button class="button" id="startGame" data-game-type="custom">Start</button>
                 </div>

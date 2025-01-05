@@ -49,3 +49,16 @@
 .main-menu .button {
     font-size: 1.25rem;
 }
+
+.main-menu .input {
+    padding-bottom: 1em;
+}
+
+.main-menu .input:last-of-type {
+    padding-bottom: 2em;
+}
+
+.main-menu .input p {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+}

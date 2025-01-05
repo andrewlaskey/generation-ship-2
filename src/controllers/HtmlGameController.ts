@@ -194,7 +194,7 @@ export class HtmlGameController implements ViewController {
         this.gameView.hidePlayerActions();
 
         if (this.gameManager.state == GameState.Complete || this.gameManager.state == GameState.GameOver) {
-            const sampleData = this.generateHistogram(1000);
+            const sampleData = this.generateHistogram(10000);
             this.gameView.showHistogram(sampleData, this.gameManager.getCalculatedPlayerScore());
         }
         
