@@ -1,4 +1,5 @@
 import { GameManager } from "../modules/GameManager";
+import { SwitchViewFn } from "../types/SwitchViewFn";
 import { ViewController } from "../types/ViewControllerInterface";
 import { View } from "../types/ViewInterface";
 import { getCurrentDate } from "../utils/getCurrentDate";
@@ -6,9 +7,9 @@ import { getCurrentDate } from "../utils/getCurrentDate";
 export class MainMenuController implements ViewController {
      private gameManager: GameManager;
      private view: View;
-     private switchViewFn: (appType: string) => void;
+     private switchViewFn: SwitchViewFn
 
-     constructor(view: View, gameManager: GameManager, fn: (appType: string) => void) {
+     constructor(view: View, gameManager: GameManager, fn: SwitchViewFn) {
         this.gameManager = gameManager;
         this.view = view;
         this.switchViewFn = fn;       
@@ -61,7 +62,7 @@ export class MainMenuController implements ViewController {
                             ...this.gameManager.optionDefaults,
                             seed: getCurrentDate()
                         });
-                        this.switchViewFn(target);
+                        this.switchViewFn(target, target);
                         break;
                     case 'custom':
                         const gridSizeInput = this.view.document.querySelector<HTMLInputElement>('#gridSizeInput');
@@ -82,7 +83,7 @@ export class MainMenuController implements ViewController {
                             maxHandSize: handSizeInputValue,
                             initialDeckSize: deckSizeInputValue
                         });
-                        this.switchViewFn(target);
+                        this.switchViewFn(target, target);
                         break;
 
                 }

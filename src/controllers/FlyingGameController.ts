@@ -1,18 +1,22 @@
 import { GameManager } from '../modules/GameManager';
 import { FlyingGameView } from '../views/FlyingGameView';
 import { ViewController } from '../types/ViewControllerInterface';
+import { SwitchViewFn } from '../types/SwitchViewFn';
 
 export class FlyingGameController implements ViewController{
-    private gameManager: GameManager;
+    // private gameManager: GameManager;
     private gameView: FlyingGameView;
     private isRunning: boolean;
     private lastTimestamp: number;
     private accumulatedTime: number;
     private readonly interval: number;
-    private readonly prob: number
+    // private readonly prob: number;
+    private switchViewFn: SwitchViewFn;
 
-    constructor(gameManager: GameManager, gameView: FlyingGameView) {
-        this.gameManager = gameManager;
+    // @ts-ignore I don't need the gameManager now but I might need it again soon
+    constructor(gameManager: GameManager, gameView: FlyingGameView, fn: SwitchViewFn) {
+        // this.gameManager = gameManager;
+        this.switchViewFn = fn;
         this.gameView = gameView;
         this.isRunning = true;
         this.lastTimestamp = 0;
@@ -20,13 +24,12 @@ export class FlyingGameController implements ViewController{
 
         const intervalInSeconds = 4;
         this.interval = intervalInSeconds * 1000; // Convert seconds to milliseconds
-        this.prob = 0.8;
+        // this.prob = 0.8;
     }
 
     init() {
         this.initEventListeners();
 
-        this.gameManager.fillHand();
         this.gameView.updateGrid();
 
         // Start the animation loop
@@ -34,9 +37,12 @@ export class FlyingGameController implements ViewController{
     }
 
     private initEventListeners(): void {
-        const appDiv = this.gameView.document.querySelector<HTMLDivElement>('#app');
+        const exitButton = this.gameView.document.querySelector<HTMLButtonElement>('#exit');
+
+        exitButton?.addEventListener('click', () => {
+            this.switchViewFn('prevHtmlGameView');
+        })
         
-        appDiv?.addEventListener('click', () => this.togglePlay());
     }
 
     private loop(): void {
@@ -59,19 +65,22 @@ export class FlyingGameController implements ViewController{
             this.accumulatedTime = 0; // Reset the accumulator
         }
 
-        this.gameView.updateGrid();
+        // this.gameView.updateGrid();
 
         // Continue the animation loop
         this.loop();
     }
 
     private executeAction(): void {
-        const rand = Math.random();
+        // Do nothing for now...
 
-        if (rand <= this.prob) {
-            this.gameManager.playerHand.removeItem(0)
-            this.gameManager.drawItemToHand();
-        }
+        // Old version that rendered a new hand each time
+        // const rand = Math.random();
+
+        // if (rand <= this.prob) {
+        //     this.gameManager.playerHand.removeItem(0)
+        //     this.gameManager.drawItemToHand();
+        // }
     }
 
     public togglePlay(): void {

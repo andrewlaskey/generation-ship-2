@@ -1,7 +1,7 @@
 // gameboard.test.ts
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GameBoard } from './GameBoard';
+import { GameBoard, GameBoardRenderFn } from './GameBoard';
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 
@@ -145,5 +145,22 @@ describe('GameBoard', () => {
         expect(farmSpace?.isOccupied()).toBe(false); // should be empty
 
         expect(board.countTileTypes()).toStrictEqual({})
+    })
+
+    describe('getGrid', () => {
+        it('should return the grid as determined by the renderFn', () => {
+            board = new GameBoard(2);
+            board.placeTileAt(1, 1, tile1);
+            board.placeTileAt(0, 0, tile2);
+
+
+            const renderFn: GameBoardRenderFn<string> = (row: number, col: number, space: BoardSpace): string => {
+                return `${row}x${col} - ${space.isOccupied() ? 'X' : 'O'}`; 
+            }
+
+            const result = board.getGrid(renderFn);
+
+            expect(result).toStrictEqual(['0x0 - X', '0x1 - O', '1x0 - O', '1x1 - X']);
+        })
     })
 });

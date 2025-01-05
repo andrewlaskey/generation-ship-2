@@ -14,7 +14,7 @@
     padding: 3rem;
 }
 
-.grid {
+.html-game-view-wrapper .grid {
     display: flex;
     flex-direction: column;
     max-width: fit-content;
@@ -31,11 +31,6 @@
   .grid-inner-wrap {
     transform: rotateX(30deg);
     max-width: fit-content;
-  }
-  
-  .grid.three {
-    width: 800px;
-    height: 600px;
   }
   
   .row {

@@ -10,25 +10,20 @@ import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
 import { ViewController } from './types/ViewControllerInterface';
+import { SwitchViewFn } from './types/SwitchViewFn';
 
 
 let gameManager = new GameManager();
+let gameType: 'daily' | 'custom' = 'daily';
 
-function loadGame(gameManager: GameManager, gameView: GameView) {
-    gameManager.resetGame();
-    gameView.updateGrid();
-}
-
-function switchView(appType: string) {
+const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
     console.log('loading...')
-    let controller: ViewController;
-    let view: GameView;
 
-    switch(appType) {
+    switch(viewName) {
         case 'menu':
-            const mainMenu = new MainMenuView(document);
-            controller = new MainMenuController(mainMenu, gameManager, switchView);
-            controller.init();
+            const menuView = new MainMenuView(document);
+            const mainMenuController = new MainMenuController(menuView, gameManager, switchView);
+            mainMenuController.init();
             break;
         // case 'three':
         //     view = new ThreeJSGameView(gameManager, document);    
@@ -36,28 +31,24 @@ function switchView(appType: string) {
         //     controller = new ThreeJSGameController(gameManager, view as ThreeJSGameView);
         //     break;
         case 'flying':
-            gameManager = new GameManager({
-                initialDeckSize: 50,
-                maxHandSize: 9,
-                infiniteDeck: true,
-                randomTileStates: true
-            });
-            view = new FlyingGameView(gameManager, document);
-            loadGame(gameManager, view);
-            controller = new FlyingGameController(gameManager, view as FlyingGameView);
-            controller.init();
-            break;
-        case 'daily':
-            view = new HtmlGameView(gameManager, document, 'daily');
-            loadGame(gameManager, view);
-            controller = new HtmlGameController(gameManager, view as HtmlGameView, switchView);
-            controller.init();
+            const flyingView = new FlyingGameView(gameManager, document);
+            const flyingController = new FlyingGameController(gameManager, flyingView, switchView);
+            flyingController.init();
             break;
         default:
-            view = new HtmlGameView(gameManager, document, 'custom');
-            loadGame(gameManager, view);
-            controller = new HtmlGameController(gameManager, view as HtmlGameView, switchView);
-            controller.init();
+            let gameTypeUpdated = false;
+
+            if (newGametype) {
+                gameType = newGametype;
+                gameTypeUpdated = true;
+                gameManager.resetGame();
+            }
+
+            let htmlView = new HtmlGameView(gameManager, document, gameType);
+            htmlView.updateGrid();
+
+            const htmlGameController = new HtmlGameController(gameManager, htmlView, switchView);
+            htmlGameController.init(gameTypeUpdated);
     }
 }
 

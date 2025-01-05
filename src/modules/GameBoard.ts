@@ -1,6 +1,8 @@
 import { Tile, TileType } from "./Tile";
 import { BoardSpace } from "./BoardSpace";
 
+export type GameBoardRenderFn<T> = (col: number, row: number, space: BoardSpace) => T;
+
 // Class to represent the GameBoard
 export class GameBoard {
     private grid: BoardSpace[][];
@@ -59,6 +61,20 @@ export class GameBoard {
         }
         return null;
     }
+
+    getGrid<T>(renderFn: GameBoardRenderFn<T>): T[] {
+        const spaces: T[] = [];
+
+        for (let col = 0; col < this.gridSize; col++) {
+            for (let row = 0; row < this.gridSize; row++) {
+                const space = this.grid[col][row];
+                const renderResult = renderFn(col, row, space);
+                spaces.push(renderResult);
+            }
+        }
+
+        return spaces;
+    } 
 
     toggleSpaceHighlight(x: number, y: number, addHighlight?: boolean): void {
         if (this.isValidCoordinate(x, y)) {

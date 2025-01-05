@@ -1,3 +1,3 @@
 export interface ViewController {
-    init(): void;
+    init(startGame?: boolean): void;
 }

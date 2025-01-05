@@ -1,5 +1,6 @@
 import { AutoPlayer, GameResults } from '../modules/AutoPlayer';
 import { GameManager, GameState } from '../modules/GameManager';
+import { SwitchViewFn } from '../types/SwitchViewFn';
 import { ViewController } from '../types/ViewControllerInterface';
 import { getCurrentDate } from '../utils/getCurrentDate';
 import { HtmlGameView } from '../views/HtmlGameView';
@@ -8,10 +9,10 @@ export class HtmlGameController implements ViewController {
     private gameManager: GameManager;
     private gameView: HtmlGameView;
     private selectedGridCell: { row: number; col: number};
-    private switchViewFn?: (appType: string) => void;
+    private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
 
-    constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: (appType: string) => void) {
+    constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
         this.gameManager = gameManager;
         this.gameView = gameView;
         this.selectedGridCell = { row: 0, col: 0 };
@@ -19,12 +20,15 @@ export class HtmlGameController implements ViewController {
         this.autoPlayer = new AutoPlayer(gameManager);
     }
 
-    init() {
+    init(startGame?: boolean) {
         // Set up any input listeners
         this.initInputListeners();
 
         // Start the game
-        this.gameManager.startGame();
+        if (startGame) {
+            this.gameManager.startGame();
+        }
+
         this.updateView();
     }
 
@@ -36,6 +40,7 @@ export class HtmlGameController implements ViewController {
         const helpButton = this.gameView.document.querySelector<HTMLButtonElement>('#helpButton');
         const closeHelpButton = this.gameView.document.querySelector<HTMLButtonElement>('#closeHelp');
         const quitButton = this.gameView.document.querySelector<HTMLButtonElement>('#quitButton');
+        const flyingButton = this.gameView.document.querySelector<HTMLButtonElement>('#flying');
 
         // If the "Next Turn" button exists, add an event listener
         nextTurnButton?.addEventListener('click', () => this.advanceTurn());
@@ -43,15 +48,20 @@ export class HtmlGameController implements ViewController {
         rotateItemButton?.addEventListener('click', () => this.rotateItem());
         helpButton?.addEventListener('click', () => {
             this.gameView.showHelp();
-        })
+        });
         closeHelpButton?.addEventListener('click', () => {
             this.gameView.hideHelp();
-        })
+        });
         quitButton?.addEventListener('click', () => {
             this.gameManager.resetGame();
             
             if (this.switchViewFn) {
                 this.switchViewFn('menu');
+            }
+        });
+        flyingButton?.addEventListener('click', () => {
+            if (this.switchViewFn) {
+                this.switchViewFn('flying')
             }
         })
 

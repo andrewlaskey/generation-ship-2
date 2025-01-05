@@ -1,14 +1,12 @@
 import { GameView } from "../types/GameViewInterface";
 import { GameManager } from "../modules/GameManager";
-import { HandItem } from "../modules/PlayerHand";
-import { TileBlock } from "../modules/TileBlock";
-import { Tile } from "../modules/Tile";
+import { BoardSpace } from "../modules/BoardSpace";
 
 export class FlyingGameView implements GameView{
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
-    private tiles!: NodeListOf<HTMLDivElement>;
+    private tiles!: HTMLDivElement;
     private cvs!: HTMLCanvasElement;
 
     constructor(gameManager: GameManager, document: Document) {
@@ -21,7 +19,7 @@ export class FlyingGameView implements GameView{
     }
 
     public updateGrid(): void {
-        this.renderHand();
+        this.renderGrid();
     }
 
     private initializeView(): void {
@@ -37,45 +35,31 @@ export class FlyingGameView implements GameView{
                         <div class="grid-lines"></div>
                     </div>
                     <div id="objects" class="grid-objects">
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
                     </div>
+                    <button class="button" id="exit">⬅</button>
                 </div>
             </div>
         `
 
-        this.tiles = this.document.querySelectorAll<HTMLDivElement>('#objects .tile')!;
+        this.tiles = this.document.querySelector<HTMLDivElement>('#objects')!;
         this.cvs = this.document.querySelector<HTMLCanvasElement>('#starfield')!;
 
-        this.renderHand();
+        this.renderGrid();
         this.renderStarField(500);
     }
 
-    private renderHand(): void {
-        const handItems: HandItem[] = this.gameManager.getPlayerHand();
-        const allTiles = handItems.reduce((acc, item) => {
-            const tiles = (item as TileBlock).getTiles();
+    private renderTile(col: number, row: number, space: BoardSpace): string {
+        const tile = space.tile;
+        const tileType = tile ? tile.type : 'empty';
+        const tileLevel = tile ? tile.level : 0;
+        const tileState = tile ? tile.state : 'neutral';
 
-            return acc.concat(tiles)
-        },[] as (Tile | null)[]);
+        return `<div class="tile ${tileType} ${tileState} l${tileLevel} col-${col} row-${row}"></div>`
+    }
 
-        this.tiles.forEach((div, index) => {
-            if (index < allTiles.length) {
-                const tile = allTiles[index];
-                const tileType = tile ? tile.type : 'empty';
-                const tileLevel = tile ? tile.level : 0;
-                const tileState = tile ? tile.state : 'neutral';
-                            
-                div.className =`tile ${tileType} ${tileState} l${tileLevel}`
-            }
-        });
+    private renderGrid(): void {
+       const htmlArr = this.gameManager.gameBoard.getGrid(this.renderTile);
+       this.tiles.innerHTML = htmlArr.join('');
     }
 
     private renderStarField(n: number): void {

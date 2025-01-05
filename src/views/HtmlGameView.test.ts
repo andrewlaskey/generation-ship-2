@@ -2,23 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GameManager } from '../modules/GameManager';
 import { HtmlGameView } from './HtmlGameView';
 import { JSDOM } from 'jsdom';
+import { Tile, TileState, TileType } from '../modules/Tile';
+import { GameBoard } from '../modules/GameBoard';
 
 // Create a mock GameManager for testing
 const createMockGameManager = (gameSize: number) => {
     return {
-        gameBoard: {
-            size: gameSize,
-            getSpace: vi.fn((x, y) => {
-                // Return mock spaces with different tile types for testing
-                return {
-                    tile: { 
-                        type: (x + y) % 2 === 0 ? 'tree' : 'people', 
-                        level: 2, 
-                        state: 'neutral'
-                    }
-                };
-            })
-        },
+        gameBoard: new GameBoard(gameSize),
         updateBoard: vi.fn(), // Mock updateBoard method,
         getPlayerHand: vi.fn(() => {
             return []
@@ -65,24 +55,24 @@ describe('HtmlGameView', () => {
         const cells = appDiv!.querySelectorAll('.cell');
         expect(cells.length).toBe(25);  // 25 cells for a 5x5 grid
 
-        // Verify that the first cell has the correct class based on the mocked GameManager
-        const firstCell = cells[0];
-        expect(firstCell.classList.contains('tree')).toBe(true);  // Based on the mock logic
-        expect(firstCell.classList.contains('neutral')).toBe(true);  // Default state
     });
 
     it('should render different tile types and levels based on game state', () => {
+        // Update the board with a specific tile
+        gameManager.gameBoard.placeTileAt(0, 0, new Tile(TileType.Tree, 2, TileState.Healthy))
+
         // Call updateGrid to render the grid
         htmlGameView.updateGrid();
 
-        // Verify that cells alternate between "tree" and "people" based on the mock
         const cells = document.querySelectorAll('.cell');
 
+        // Verify that cells type correctly applied
         expect(cells[0].classList.contains('tree')).toBe(true);  // First tile is a tree
-        expect(cells[1].classList.contains('people')).toBe(true);  // Second tile is people
 
         // Verify that tile levels are correctly applied
         expect(cells[0].classList.contains('l2')).toBe(true);  // First tile level is 2
-        expect(cells[1].classList.contains('l2')).toBe(true);  // Second tile level is 2
+
+        // Verify that cells tile status correctly applied
+        expect(cells[0].classList.contains('healthy')).toBe(true);
     });
 });

@@ -5,6 +5,8 @@ import { TileBlock } from '../modules/TileBlock';
 import { GameView } from '../types/GameViewInterface';
 import * as d3 from 'd3';
 import { ABOUT_HTML } from '../utils/constants';
+import { GameBoardRenderFn } from '../modules/GameBoard';
+import { BoardSpace } from '../modules/BoardSpace';
 export class HtmlGameView implements GameView {
     private gameManager: GameManager;
     public document: Document;  // Make document public for the controller to access
@@ -19,7 +21,7 @@ export class HtmlGameView implements GameView {
     private placePreview!: HTMLDivElement;
     private histogramDiv!: HTMLDivElement;
     private isShowingPlayerAction: boolean;
-    private gameType: 'daily' |'custom';
+    public gameType: 'daily' |'custom';
 
     constructor(gameManager: GameManager, document: Document, gameType: 'daily' |'custom') {
         this.gameManager = gameManager;
@@ -43,6 +45,7 @@ export class HtmlGameView implements GameView {
                     <div class="help">
                         <button class="button warn" id="quitButton">⬅</button>
                         <button class="button" id="helpButton">⚙️</button>
+                        <button class="button" id="flying">🚀</button>
                     </div>
                     <div id="scoreboard" class="scoreboard"></div>
                 </div>
@@ -82,43 +85,46 @@ export class HtmlGameView implements GameView {
         this.gridContainer.innerHTML = this.initializeGridView();
     }
 
+    private renderCell(row: number, col: number, space: BoardSpace): string {
+        const tile = space ? space.tile : undefined;
+        const tileType = tile ? tile.type : 'empty';
+        const tileLevel = tile ? tile.level : 0;
+        const tileState = tile ? tile.state : 'neutral';
+        const highlight = space && space.isHighlighted ? 'highlight' : '';
+
+        return `<div class="cell ${tileType} ${tileState} l${tileLevel} ${highlight}" data-x="${row}" data-y="${col}"></div>`;
+    }
+
     // Method to create the grid HTML representation
     private initializeGridView(): string {
         const gameSize = this.gameManager.gameBoard.size;
-        let gridHtml = '';
+        let gridHtml = '<div class="row">';
+        
+        const spaces = this.gameManager.gameBoard.getGrid<string>(this.renderCell);
 
-        for (let x = 0; x < gameSize; x++) {
-            gridHtml += '<div class="row">';
-            for (let y = 0; y < gameSize; y++) {
-                const space = this.gameManager.gameBoard.getSpace(x, y);
-                const tile = space ? space.tile : undefined;
-                const tileType = tile ? tile.type : 'empty';
-                const tileLevel = tile ? tile.level : 0;
-                const tileState = tile ? tile.state : 'neutral';
-                const highlight = space && space.isHighlighted ? 'highlight' : '';
+        for (let i = 0; i < spaces.length; i++) {
+            gridHtml += spaces[i];
 
-                gridHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel} ${highlight}" data-x="${x}" data-y="${y}"></div>`;
+            if (i + 1 == spaces.length) {
+                gridHtml += '</div>';
+            } else if ((i + 1) % gameSize == 0) {
+                gridHtml += '</div><div class="row">'
             }
-            gridHtml += '</div>';
         }
+
         return gridHtml;
     }
 
     private renderGrid(): void {
-        const gameSize = this.gameManager.gameBoard.size;
-    
-        // Loop over each cell in the game board
-        for (let x = 0; x < gameSize; x++) {
-            for (let y = 0; y < gameSize; y++) {
-                const space = this.gameManager.gameBoard.getSpace(x, y);
-                const tile = space ? space.tile : undefined;
+        const updateCellFn: GameBoardRenderFn<void> = (row: number, col: number, space: BoardSpace): void => {
+            const tile = space ? space.tile : undefined;
                 const tileType = tile ? tile.type : 'empty';
                 const tileLevel = tile ? `l${tile.level}` : 'l0';
                 const tileState = tile ? tile.state : 'neutral';
                 const isHighlighted = space && space.isHighlighted;
     
                 // Find the cell element in the DOM
-                const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${x}"][data-y="${y}"]`);
+                const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${row}"][data-y="${col}"]`);
     
                 if (cell) {
                     // Clean up any lingering people
@@ -135,13 +141,14 @@ export class HtmlGameView implements GameView {
                     // Toggle the 'highlight' class based on the space's isHighlighted property
                     if (isHighlighted) {
                         cell.classList.add('highlight');
-                        this.setPreviewTile(x, y);
+                        this.setPreviewTile(row, col);
                     } else {
                         cell.classList.remove('highlight');
                     }
                 }
-            }
         }
+    
+        this.gameManager.gameBoard.getGrid(updateCellFn);
     }
 
     private animateFolksWalking() {
