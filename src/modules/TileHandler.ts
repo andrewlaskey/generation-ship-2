@@ -62,61 +62,13 @@ export class FarmTileHandler implements TileHandler {
             peopleFarmDiff >= 5 ||
             treeCount >= 5;
 
-        const tile = space.tile;
+        const update = handleTileState(space, thrivingCondition, strugglingCondition);
 
-        if (!tile) return null;
-
-        const update: SpaceUpdate = {
-            change: SpaceChange.ChangeState
-        }
-
-        // Going up a level if thriving
-        // Same as default handleTileState logic
-        if (thrivingCondition) {
-            switch(tile.state) {
-                case TileState.Neutral:
-                    update.newState = TileState.Healthy;
-                    break;
-                case TileState.Unhealthy:
-                    update.newState = TileState.Neutral;
-                    break;
-                case TileState.Healthy:
-                    const upgradeSuccess = tile.upgrade(true);
-
-                    if (upgradeSuccess) {
-                        update.change = SpaceChange.Upgrade;
-                        update.newState = TileState.Neutral;
-                    } else {
-                        return null;
-                    }
-                    break;
+        if (update?.change == SpaceChange.Remove) {
+            return {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral)
             }
-        }
-        // Going down a level if struggling
-        else if (strugglingCondition) {
-            switch(tile.state) {
-                case TileState.Neutral:
-                    update.newState = TileState.Unhealthy;
-                    break;
-                case TileState.Healthy:
-                    update.newState = TileState.Neutral;
-                    break;
-                case TileState.Unhealthy:
-                    const downgradeSuccess = tile.downgrade(true); // After being unhealthy, go down a level
-
-                    if (downgradeSuccess) {
-                        update.change = SpaceChange.Downgrade;
-                        update.newState = TileState.Neutral;
-                    } else {
-                        // If farm tile can't downgrade it dies and is replaced with a waste tile
-                        update.change = SpaceChange.Replace;
-                        update.replaceTile = new Tile(TileType.Waste, 1, TileState.Neutral);
-                    }
-                    break;
-                
-            }       
-        } else {
-            update.newState = TileState.Neutral;
         }
 
         return update;
@@ -134,8 +86,17 @@ export class PeopleTileHandler implements TileHandler {
         
         // Only check thriving condition if the tile is not struggling
         const thrivingCondition = !strugglingCondition && farmCount >= 1 && powerCount >= 1;  // People thrive with farms and power
+        
+        const update = handleTileState(space, thrivingCondition, strugglingCondition);
 
-        return handleTileState(space, thrivingCondition, strugglingCondition);
+        if (update?.change == SpaceChange.Remove) {
+            return {
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral)
+            }
+        }
+
+        return update;
     }
 }
 

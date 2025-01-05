@@ -318,6 +318,28 @@ describe('TileHandler Tests', () => {
                 newState: TileState.Unhealthy
             });
         });
+
+        it('should replace the tile with a waste tile if it dies', () => {
+            const tileHandler = new PeopleTileHandler();
+            const gameManager = createMockGameManager();
+            const space: Partial<BoardSpace> = {
+                tile: new Tile(TileType.People, 1, TileState.Unhealthy),
+                placeTile: vi.fn(),
+                removeTile: vi.fn()
+            };
+
+            // @ts-ignore `space` not needed for mocking
+            gameManager.countNeighbors.mockImplementation(() => {
+                return 0;
+            });
+
+            const result = tileHandler.updateState(space as unknown as BoardSpace, gameManager as unknown as GameManager);
+
+            expect(result).toStrictEqual({
+                change: SpaceChange.Replace,
+                replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral)
+            });
+        })
     });
 
     describe('PowerTileHandler', () => {

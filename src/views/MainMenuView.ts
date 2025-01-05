@@ -25,7 +25,7 @@ export class MainMenuView implements View {
                     <h3>Select Options</h3>
                     <div class="input">
                         <p>Grid size:</p>
-                        <input type="number" id="gridSizeInput" value="9" min="5" max="20"/>
+                        <input type="number" id="gridSizeInput" value="9" min="5" max="15"/>
                     </div>
                     <div class="input">
                         <p>Hand size:<p>

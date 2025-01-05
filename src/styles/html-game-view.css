@@ -9,6 +9,7 @@
 .html-game-view-wrapper {
     display: flex;
     flex-direction: column;
+    min-width: max-content;
     max-width: min-content;
     position: relative;
     padding: 3rem;
@@ -26,6 +27,7 @@
   .grid-wrapper {
     perspective: 1200px;
     max-width: fit-content;
+    margin: 0 auto;
   }
 
   .grid-inner-wrap {
