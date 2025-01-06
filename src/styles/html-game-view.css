@@ -54,6 +54,12 @@
     border-right: 1px solid black;
     border-bottom: 1px solid black;
   }
+
+  .cell.highlight {
+    box-shadow:
+      inset 0 0 0 2px black,
+      inset 0 0 0 3px var(--tile-hl-color);
+  }
   
   /* Tile levels adjust the size of the character */
   .cell.l1 {
@@ -188,6 +194,7 @@
     color: rgb(234, 62, 211);
     font-size: 2rem;
     transition: all 2s linear;
+    pointer-events: none;
   }
 
   .cell.people span:nth-child(odd) {

@@ -7,21 +7,26 @@ import * as d3 from 'd3';
 import { ABOUT_HTML } from '../utils/constants';
 import { GameBoardRenderFn } from '../modules/GameBoard';
 import { BoardSpace } from '../modules/BoardSpace';
+import { Tile } from '../modules/Tile';
 export class HtmlGameView implements GameView {
     private gameManager: GameManager;
-    public document: Document;  // Make document public for the controller to access
+
+    public document: Document;
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
-    private handContainer!: HTMLDivElement;
-    private deckCounterContainer!: HTMLDivElement;
     private scoreBoard!: HTMLDivElement;
     private playerNotice!: HTMLDivElement;
     private playerActions!: HTMLDivElement;
     private aboutScreen!: HTMLDivElement;
     private placePreview!: HTMLDivElement;
     private histogramDiv!: HTMLDivElement;
-    private isShowingPlayerAction: boolean;
+    private toolbarDiv!: HTMLDivElement;
+    private dynamicDisplayDiv!: HTMLDivElement;
+
     public gameType: 'daily' |'custom';
+    private isShowingPlayerAction: boolean;
+    private  inspectModeEnabled = false;
+    private inspectTileDetails: Tile | null = null;
 
     constructor(gameManager: GameManager, document: Document, gameType: 'daily' |'custom') {
         this.gameManager = gameManager;
@@ -45,7 +50,6 @@ export class HtmlGameView implements GameView {
                     <div class="help">
                         <button class="button warn" id="quitButton">⬅</button>
                         <button class="button" id="helpButton">⚙️</button>
-                        <button class="button" id="flying">🚀</button>
                     </div>
                     <div id="scoreboard" class="scoreboard"></div>
                 </div>
@@ -60,10 +64,8 @@ export class HtmlGameView implements GameView {
                     <div class="histogram" id="histogram"></div>
                     <div id="playerActions" class="player-actions"></div>
                 </div>
-                <div class="card-display">
-                    <div id="handContainer" class="hand"></div>
-                    <div id="deckCounterContainer" class="deck-counter"></div>
-                </div>
+                <div class="dynamic-display" id="dynamicDisplay"></div>
+                <div class="toolbar" id="toolbar"></div>
                 <div id="about" class="about">
                     ${ABOUT_HTML}
                     <button class="button"  id="closeHelp">✓</button>
@@ -73,14 +75,14 @@ export class HtmlGameView implements GameView {
 
         // Cache the containers for dynamic updates
         this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
-        this.handContainer = this.document.querySelector<HTMLDivElement>('#handContainer')!;
-        this.deckCounterContainer = this.document.querySelector<HTMLDivElement>('#deckCounterContainer')!;
         this.scoreBoard = this.document.querySelector<HTMLDivElement>('#scoreboard')!;
         this.playerNotice = this.document.querySelector<HTMLDivElement>('#playerNotice')!;
         this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
         this.aboutScreen = this.document.querySelector<HTMLDivElement>('#about')!;
         this.placePreview = this.document.querySelector<HTMLDivElement>('#placementPreview')!;
         this.histogramDiv = this.document.querySelector<HTMLDivElement>('#histogram')!;
+        this.toolbarDiv = this.document.querySelector<HTMLDivElement>('#toolbar')!;
+        this.dynamicDisplayDiv = this.document.querySelector<HTMLDivElement>('#dynamicDisplay')!;
 
         this.gridContainer.innerHTML = this.initializeGridView();
     }
@@ -151,6 +153,27 @@ export class HtmlGameView implements GameView {
         this.gameManager.gameBoard.getGrid(updateCellFn);
     }
 
+    private renderDynamicDisplay(): void {
+        let innerContent = '';
+
+        if (this.inspectModeEnabled) {
+            innerContent = `
+<h3>Inspect Mode</h3>
+<div class="cell-details">
+            ${this.renderTileDetails(this.inspectTileDetails)}
+</div>`;
+        } else {
+            innerContent = `
+<div class="card-display">
+    ${this.renderHand()}
+    ${this.renderDeckCounter()}
+</div>
+`;
+        }
+
+        this.dynamicDisplayDiv.innerHTML = innerContent;
+    }
+
     private animateFolksWalking() {
         const folkSpans = this.document.querySelectorAll<HTMLSpanElement>('.cell.people span');
 
@@ -211,7 +234,7 @@ export class HtmlGameView implements GameView {
 
         const handItems: HandItem[] = this.gameManager.getPlayerHand();
         const selectedIndex = this.gameManager.getSelectedItemIndex();
-        let handHtml = '';
+        let handHtml = '<div id="handContainer" class="hand">';
 
         if (handItems.length === 0) {
             handHtml += '<p>No items in hand</p>';
@@ -242,6 +265,8 @@ export class HtmlGameView implements GameView {
             handHtml += '</div>';  // End of hand-grid
         }
 
+        handHtml += '</div>' // Close parent div
+
         return handHtml;
     }
 
@@ -258,7 +283,20 @@ export class HtmlGameView implements GameView {
         if (deckCount === 0) {
             classString += ' is-empty';
         }
-        return `<div class="${classString}">${deckCount}</div>`;
+        return `<div id="deckCounterContainer" class="deck-counter"><div class="${classString}">${deckCount}</div></div>`;
+    }
+
+    private renderTileDetails(tile: Tile | null): string {
+        if (tile) {
+            return `
+<ul>
+    <li><strong>Type:</strong> ${tile.type}</li>
+    <li><strong>Status:</strong> ${tile.state}</li>
+    <li><strong>Level:</strong> ${tile.level}</li>
+</ul>
+`;
+        }
+        return 'Empty'
     }
 
     private renderScoreBoard(): string {
@@ -322,6 +360,17 @@ export class HtmlGameView implements GameView {
         }
     }
 
+    private renderToolbar(): void {
+        this.toolbarDiv.innerHTML = `
+<h3>Tools</h3>
+<div class="tools">
+    <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">🔎</button>
+    <button class="button" id="flying">🚀</button>
+    <button class="button" id="openCharts">📈</button>
+</div>
+        `
+    }
+
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
@@ -331,8 +380,9 @@ export class HtmlGameView implements GameView {
         this.renderPlayerUpdates();
         this.renderPlayerActions();
         this.placePreview.innerHTML = this.renderPreviewTile();
-        this.handContainer.innerHTML = this.renderHand();
-        this.deckCounterContainer.innerHTML = this.renderDeckCounter();
+
+        this.renderDynamicDisplay();
+        this.renderToolbar();
     }
 
     public showHelp(): void {
@@ -432,4 +482,11 @@ export class HtmlGameView implements GameView {
         this.histogramDiv.innerHTML = '';
     }
     
+    public toggleInspectMode(optionalValue?: boolean) {
+        this.inspectModeEnabled = optionalValue ?? !this.inspectModeEnabled;
+    }
+
+    public setInspectTileDetails(tile: Tile | null): void {
+        this.inspectTileDetails = tile;
+    }
 }

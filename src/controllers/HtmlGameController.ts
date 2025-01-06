@@ -11,6 +11,7 @@ export class HtmlGameController implements ViewController {
     private selectedGridCell: { row: number; col: number};
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
+    private inspectModeEnabled = false;
 
     constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
         this.gameManager = gameManager;
@@ -34,18 +35,11 @@ export class HtmlGameController implements ViewController {
 
     // Initialize event listeners for user input
     private initInputListeners(): void {
-        const nextTurnButton = this.gameView.document.querySelector<HTMLButtonElement>('#nextTurn');
-        const drawItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#drawItem');
-        const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
         const helpButton = this.gameView.document.querySelector<HTMLButtonElement>('#helpButton');
         const closeHelpButton = this.gameView.document.querySelector<HTMLButtonElement>('#closeHelp');
         const quitButton = this.gameView.document.querySelector<HTMLButtonElement>('#quitButton');
-        const flyingButton = this.gameView.document.querySelector<HTMLButtonElement>('#flying');
 
         // If the "Next Turn" button exists, add an event listener
-        nextTurnButton?.addEventListener('click', () => this.advanceTurn());
-        drawItemButton?.addEventListener('click', () => this.drawItem());
-        rotateItemButton?.addEventListener('click', () => this.rotateItem());
         helpButton?.addEventListener('click', () => {
             this.gameView.showHelp();
         });
@@ -59,16 +53,31 @@ export class HtmlGameController implements ViewController {
                 this.switchViewFn('menu');
             }
         });
-        flyingButton?.addEventListener('click', () => {
-            if (this.switchViewFn) {
-                this.switchViewFn('flying')
-            }
-        })
 
         // Initialize listeners on grid cells and hand items
         this.initGridCellListeners();
         this.initHandItemListeners();
         this.initPlayerActionListeners();
+        this.initToolbarListeners();
+    }
+
+    private initToolbarListeners(): void {
+        const flyingButton = this.gameView.document.querySelector<HTMLButtonElement>('#flying');
+        const inspectModeButton = this.gameView.document.querySelector<HTMLButtonElement>('#inspectMode');
+
+        flyingButton?.addEventListener('click', () => {
+            if (this.switchViewFn) {
+                this.switchViewFn('flying')
+            }
+        });
+
+        inspectModeButton?.addEventListener('click', () => {
+            this.inspectModeEnabled = !this.inspectModeEnabled;
+            this.gameView.toggleInspectMode(this.inspectModeEnabled);
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+            this.gameView.hidePlayerActions();
+            this.updateView();
+        })
     }
 
     // Initialize listeners for grid cell clicks
@@ -143,10 +152,11 @@ export class HtmlGameController implements ViewController {
                 
                 if (!success) {
                     console.error(`Failed to place tile block at (${this.selectedGridCell.col}, ${this.selectedGridCell.row}). Invalid placement or non-tile item.`);
+                } else {
+                    this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+                    // Advance the players turn after making a placement
+                    this.advanceTurn();
                 }
-
-                // Advance the players turn after making a placement
-                this.advanceTurn();
             });
         }
 
@@ -160,20 +170,44 @@ export class HtmlGameController implements ViewController {
     }
 
     // Handle a click on a grid cell
-    private handleCellClick(x: number, y: number): void {
-        if (x == this.selectedGridCell.col && y == this.selectedGridCell.row) {
-            this.gameManager.removeBoardHighlight(x, y);
+    private handleCellClick(col: number, row: number): void {
+
+        if (this.inspectModeEnabled) {
+            this.handleInspectCell(col, row);
+        } else {
+            this.handleTileBlockPlacementSelect(col, row);
+        }
+
+        this.updateView();
+    }
+
+    private handleTileBlockPlacementSelect(col: number, row: number): void {
+        if (col == this.selectedGridCell.col && row == this.selectedGridCell.row) {
+            this.gameManager.removeBoardHighlight(col, row);
             this.gameView.hidePlayerActions();
         } else {
             this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
-            this.gameManager.addBoardHighlight(x, y);
+            this.gameManager.addBoardHighlight(col, row);
             this.gameView.showPlayerActions();
         }
 
-        this.selectedGridCell.col = x;
-        this.selectedGridCell.row = y;
+        this.selectedGridCell.col = col;
+        this.selectedGridCell.row = row;
+    }
 
-        this.updateView();
+    private handleInspectCell(col: number, row: number): void {
+        this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+        this.selectedGridCell.col = col;
+        this.selectedGridCell.row = row;
+
+        const space = this.gameManager.gameBoard.getSpace(col, row);
+
+        if (space) {
+            this.gameManager.addBoardHighlight(col, row);
+            this.gameView.setInspectTileDetails(space.tile);
+        } else {
+           this.gameView.setInspectTileDetails(null);
+        }
     }
 
     // Handle a click on a hand item
@@ -193,8 +227,9 @@ export class HtmlGameController implements ViewController {
     private updateView(): void {
         this.gameView.updateGrid();
         this.gameView.hideHistogram();
-        this.initHandItemListeners();  // Re-initialize the hand item listeners after re-render
+        this.initHandItemListeners();
         this.initPlayerActionListeners();
+        this.initToolbarListeners();
     }
 
     // Handle advancing the turn
