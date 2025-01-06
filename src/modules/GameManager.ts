@@ -251,6 +251,10 @@ export class GameManager {
         return 0;
     }
 
+    getPlayerScoreObj(name: string): ScoreObject | undefined {
+        return this.playerScore[name];
+    }
+
     updatePlayerScore(): void {
         const tileTypeCounts = this.gameBoard.countTileTypes(true);
 

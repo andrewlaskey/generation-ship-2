@@ -12,6 +12,7 @@ export class HtmlGameController implements ViewController {
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
     private inspectModeEnabled = false;
+    private showScoreGraph = false;
 
     constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
         this.gameManager = gameManager;
@@ -64,6 +65,7 @@ export class HtmlGameController implements ViewController {
     private initToolbarListeners(): void {
         const flyingButton = this.gameView.document.querySelector<HTMLButtonElement>('#flying');
         const inspectModeButton = this.gameView.document.querySelector<HTMLButtonElement>('#inspectMode');
+        const openScoreGraphButton = this.gameView.document.querySelector<HTMLButtonElement>('#openScoreGraph');
 
         flyingButton?.addEventListener('click', () => {
             if (this.switchViewFn) {
@@ -72,8 +74,20 @@ export class HtmlGameController implements ViewController {
         });
 
         inspectModeButton?.addEventListener('click', () => {
+            this.showScoreGraph = false;
             this.inspectModeEnabled = !this.inspectModeEnabled;
             this.gameView.toggleInspectMode(this.inspectModeEnabled);
+            this.gameView.toggleScoreGraph(this.showScoreGraph);
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+            this.gameView.hidePlayerActions();
+            this.updateView();
+        });
+
+        openScoreGraphButton?.addEventListener('click', () => {
+            this.inspectModeEnabled = false;
+            this.showScoreGraph = !this.showScoreGraph;
+            this.gameView.toggleInspectMode(this.inspectModeEnabled);
+            this.gameView.toggleScoreGraph(this.showScoreGraph);
             this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
             this.gameView.hidePlayerActions();
             this.updateView();

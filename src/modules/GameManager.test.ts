@@ -174,29 +174,51 @@ describe('GameManager', () => {
         expect(playerHand.rotateSelected).toHaveBeenCalled();
     });
 
-    it('should return the default player score', () => {
-        expect(gameManager.getPlayerScore('ecology')).toBe(0);
-        expect(gameManager.getPlayerScore('population')).toBe(0);
-    })
-
-    it('board changes should update the player score', () => {
-        // scenario 1
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
-            tree: 1,
-            farm: 2
+    describe('Player Score', () => {
+        it('should return the default player score', () => {
+            expect(gameManager.getPlayerScore('ecology')).toBe(0);
+            expect(gameManager.getPlayerScore('population')).toBe(0);
         })
-        gameManager.updatePlayerScore()
-        expect(gameManager.getPlayerScore('ecology')).toBe(1);
-        expect(gameManager.getPlayerScore('population')).toBe(0);
+    
+        it('board changes should update the player score', () => {
+            // scenario 1
+            (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+                tree: 1,
+                farm: 2
+            })
+            gameManager.updatePlayerScore()
+            expect(gameManager.getPlayerScore('ecology')).toBe(1);
+            expect(gameManager.getPlayerScore('population')).toBe(0);
+    
+            // scenario 2
+            (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+                tree: 4,
+                people: 3
+            })
+            gameManager.updatePlayerScore()
+            expect(gameManager.getPlayerScore('ecology')).toBe(4);
+            expect(gameManager.getPlayerScore('population')).toBe(15); // 3 * 5
+        });
 
-        // scenario 2
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
-            tree: 4,
-            people: 3
+        it('should return a score object', () => {
+            (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+                tree: 1,
+                farm: 2
+            }).mockReturnValue({
+                tree: 0
+            });
+
+            gameManager.updatePlayerScore()
+            gameManager.updatePlayerScore()
+
+            const scoreObj: ScoreObject | undefined = gameManager.getPlayerScoreObj('ecology');
+
+            expect(scoreObj).toMatchObject({
+                name: 'ecology',
+                value: 0,
+                history: [0, 1]
+            });
         })
-        gameManager.updatePlayerScore()
-        expect(gameManager.getPlayerScore('ecology')).toBe(4);
-        expect(gameManager.getPlayerScore('population')).toBe(15); // 3 * 5
     })
 
     it('should reset the game to starting conditions', () => {

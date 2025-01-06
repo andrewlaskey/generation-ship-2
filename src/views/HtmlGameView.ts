@@ -27,6 +27,7 @@ export class HtmlGameView implements GameView {
     private isShowingPlayerAction: boolean;
     private  inspectModeEnabled = false;
     private inspectTileDetails: Tile | null = null;
+    private showScoreGraph = false;
 
     constructor(gameManager: GameManager, document: Document, gameType: 'daily' |'custom') {
         this.gameManager = gameManager;
@@ -154,24 +155,25 @@ export class HtmlGameView implements GameView {
     }
 
     private renderDynamicDisplay(): void {
-        let innerContent = '';
+        this.dynamicDisplayDiv.innerHTML = '';
 
         if (this.inspectModeEnabled) {
-            innerContent = `
+            this.dynamicDisplayDiv.innerHTML = `
 <h3>Inspect Mode</h3>
 <div class="cell-details">
             ${this.renderTileDetails(this.inspectTileDetails)}
 </div>`;
-        } else {
-            innerContent = `
+        } else if (this.showScoreGraph) {
+            this.dynamicDisplayDiv.innerHTML = `<h3>Score History</h3><div class="score-graph" id="scoreGraph"></div>`;
+            this.renderScoreGraph();
+        }else {
+            this.dynamicDisplayDiv.innerHTML = `
 <div class="card-display">
     ${this.renderHand()}
     ${this.renderDeckCounter()}
 </div>
 `;
         }
-
-        this.dynamicDisplayDiv.innerHTML = innerContent;
     }
 
     private animateFolksWalking() {
@@ -325,6 +327,7 @@ export class HtmlGameView implements GameView {
                 <p>Total score: ${this.gameManager.getCalculatedPlayerScore()}</p>
                 `;
                 this.showPlayerActions();
+                
                 break;
             default:
                 this.playerNotice.innerHTML = '';
@@ -366,9 +369,93 @@ export class HtmlGameView implements GameView {
 <div class="tools">
     <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">🔎</button>
     <button class="button" id="flying">🚀</button>
-    <button class="button" id="openCharts">📈</button>
+    <button class="button ${this.showScoreGraph ? 'enabled' : '' }" id="openScoreGraph">📈</button>
 </div>
         `
+    }
+
+    private renderScoreGraph(): void {
+        const popScore = this.gameManager.getPlayerScoreObj('population');
+        const ecoScore = this.gameManager.getPlayerScoreObj('ecology');
+        
+        const popScoreHistory = popScore ? [...popScore.history, popScore.value] : [];
+        const ecoScoreHistory = ecoScore ? [...ecoScore.history, ecoScore.value] : [];
+
+        console.log(popScoreHistory, ecoScoreHistory);
+
+        const minWidth = 320;
+        const maxWidth = 420;
+        const height = 100;
+        const margin = 20;
+    
+        // Reference the parent container
+        const parent = d3.select(`#scoreGraph`)
+            .style('width', '100%')
+            .style('max-width', `${maxWidth}px`)
+            .style('min-width', `${minWidth}px`)
+            .style('margin', '0 auto');
+        
+        const svg = parent.append('svg')
+            .attr('viewBox', `0 0 ${maxWidth} ${height + (margin * 2)}`)
+            .style('width', '100%') // Fully responsive
+            .style('height', `${height + margin}px`) // Adjust height automatically
+    
+        const width = maxWidth - (margin * 2);
+
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin}, ${margin})`);
+    
+        // Define scales
+        const xScale = d3.scaleLinear()
+            .domain([0, popScoreHistory.length - 1]) // Index of the array
+            .range([0, width]);
+    
+        const yScale = d3.scaleLinear()
+            .domain([
+                0,
+                d3.max([d3.max(popScoreHistory) as number, d3.max(ecoScoreHistory) as number]) as number ?? 0,
+            ]) // Value of the array items
+            .range([height, 0]);
+    
+        // Define line generators
+        const line1 = d3.line<number>()
+            .x((d, i) => xScale(i))
+            .y((d) => yScale(d));
+    
+        const line2 = d3.line<number>()
+            .x((d, i) => xScale(i))
+            .y((d) => yScale(d));
+    
+        // Draw first line
+        g.append('path')
+            .datum(popScoreHistory)
+            .attr('fill', 'none')
+            .attr('stroke', 'steelblue')
+            .attr('stroke-width', 2)
+            .attr('d', line1);
+    
+        // Draw second line
+        g.append('path')
+            .datum(ecoScoreHistory)
+            .attr('fill', 'none')
+            .attr('stroke', '#1b9416')
+            .attr('stroke-width', 2)
+            .attr('d', line2);
+    
+        // Add x-axis
+        g.append('g')
+            .attr('transform', `translate(0, ${height})`)
+            .call(d3.axisBottom(xScale).ticks(0))
+            .attr('color', '#fff')
+            .attr('font-size', '10px');
+    
+        // Add y-axis
+        g.append('g')
+            .call(d3.axisLeft(yScale).ticks(5))
+            .attr('color', '#fff')
+            .attr('font-size', '10px')
+            .selectAll('.tick line')
+            .remove(); 
     }
 
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
@@ -488,5 +575,9 @@ export class HtmlGameView implements GameView {
 
     public setInspectTileDetails(tile: Tile | null): void {
         this.inspectTileDetails = tile;
+    }
+
+    public toggleScoreGraph(optionalValue?: boolean) {
+        this.showScoreGraph = optionalValue ?? !this.showScoreGraph;
     }
 }
