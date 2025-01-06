@@ -327,7 +327,7 @@ export class HtmlGameView implements GameView {
                 <p>Total score: ${this.gameManager.getCalculatedPlayerScore()}</p>
                 `;
                 this.showPlayerActions();
-                
+
                 break;
             default:
                 this.playerNotice.innerHTML = '';
@@ -419,11 +419,11 @@ export class HtmlGameView implements GameView {
     
         // Define line generators
         const line1 = d3.line<number>()
-            .x((d, i) => xScale(i))
+            .x((_, i) => xScale(i))
             .y((d) => yScale(d));
     
         const line2 = d3.line<number>()
-            .x((d, i) => xScale(i))
+            .x((_, i) => xScale(i))
             .y((d) => yScale(d));
     
         // Draw first line
