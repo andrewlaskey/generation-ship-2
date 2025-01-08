@@ -1,6 +1,6 @@
 // gameboard.test.ts
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { GameBoard, GameBoardRenderFn } from './GameBoard';
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
