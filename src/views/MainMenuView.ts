@@ -18,7 +18,7 @@ export class MainMenuView implements View {
         this.mainMenuDiv = this.appDiv.querySelector<HTMLDivElement>('.main-menu');
         this.backgroundGameDiv = this.appDiv.querySelector<HTMLDivElement>('.background-player-wrapper');
 
-        this.backgroundGame = new VisualAutoPlayerController(document, '#backgroundPlayer', 30, 20);
+        this.backgroundGame = new VisualAutoPlayerController(document, '#backgroundPlayer', 30, 40);
         this.backgroundGame.init(true);
     }
 

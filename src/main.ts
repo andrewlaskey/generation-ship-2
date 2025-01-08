@@ -9,15 +9,12 @@ import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
 import { SwitchViewFn } from './types/SwitchViewFn';
-import { VisualAutoPlayerController } from './controllers/VisualAutoPlayerController';
 
 
 let gameManager = new GameManager();
 let gameType: 'daily' | 'custom' = 'daily';
 
 const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
-    console.log('loading...')
-
     switch(viewName) {
         case 'menu':
             const menuView = new MainMenuView(document);
