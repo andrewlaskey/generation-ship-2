@@ -132,15 +132,12 @@ describe('Deck', () => {
         deck.setItems([tileBlock]);  // Manually set the deck items
     
         const drawnTileBlock = deck.drawItem() as TileBlock;
-        const layout = drawnTileBlock.getLayout();
-    
-        layout.forEach(row => {
-            row.forEach(tile => {
-                if (tile !== null) {
-                    expect(tile.level).toBe(1);
-                    expect(tile.state).toBe(TileState.Neutral);
-                }
-            });
+        const tiles = drawnTileBlock.getTiles();
+        
+        tiles.forEach(tile => {
+            expect(tile).not.toBeNull();
+            expect(tile?.level).toBe(1);
+            expect(tile?.state).toBe(TileState.Neutral);
         });
     });
 

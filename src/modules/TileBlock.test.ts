@@ -5,11 +5,11 @@ import { GameBoard } from './GameBoard';
 import { BoardSpace } from './BoardSpace';
 
 // Mocking the BoardSpace class
-const createMockBoardSpace = (): Partial<BoardSpace> => ({
+const createMockBoardSpace = (x: number, y: number): Partial<BoardSpace> => ({
     tile: null,
     history: [],
-    x: 0,
-    y: 0,
+    x,
+    y,
     placeTile: vi.fn(),
     removeTile: vi.fn(),
     isOccupied: vi.fn().mockReturnValue(false),
@@ -18,13 +18,25 @@ const createMockBoardSpace = (): Partial<BoardSpace> => ({
 
 // Mocking the GameBoard class with BoardSpaces
 const createMockGameBoard = (size: number): Partial<GameBoard> => {
-    const spaces: BoardSpace[][] = Array.from({ length: size }, () =>
-        Array.from({ length: size }, () => createMockBoardSpace() as unknown as BoardSpace)
-    );
+    const spaces: BoardSpace[] = [];
+
+    for (let x = 0; x < size; x++) {
+        for (let y = 0; y < size; y++) {
+            spaces.push(createMockBoardSpace(x, y) as BoardSpace);
+        }
+    }
 
     return {
         size,
-        getSpace: vi.fn((x: number, y: number) => (spaces[x] && spaces[x][y]) ? spaces[x][y] : null),
+        getSpace: vi.fn((x: number, y: number) => {
+            const space = spaces.find(space => space.x == x && space.y == y);
+
+            if (space) {
+                return space as BoardSpace
+            }
+            
+            return null;
+        })
     };
 };
 
@@ -43,7 +55,7 @@ describe('TileBlock', () => {
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
 
         const space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        const space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        const space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(tile1);
         expect(space2.placeTile).toHaveBeenCalledWith(tile2);
@@ -58,7 +70,7 @@ describe('TileBlock', () => {
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
 
         const space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        const space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+        const space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(tile1);
         expect(space2.placeTile).toHaveBeenCalledWith(tile2);
@@ -71,7 +83,7 @@ describe('TileBlock', () => {
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
 
         const space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        const space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        const space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(tile1);  // Tile placed in the first space
         expect(space2.removeTile).toHaveBeenCalled();  // Null causes removal of tile in the second space
@@ -83,7 +95,7 @@ describe('TileBlock', () => {
         const tileBlock = new TileBlock([tile1, tile2]);
 
         expect(() => {
-            tileBlock.placeOnGrid(0, 4, gameBoard as GameBoard);  // Out of bounds on the right
+            tileBlock.placeOnGrid(4, 0, gameBoard as GameBoard);  // Out of bounds on the right
         }).toThrowError('Invalid placement: out of bounds');
     });
 
@@ -95,23 +107,8 @@ describe('TileBlock', () => {
         tileBlock.rotate(); // Rotate 90 degrees to vertical
 
         expect(() => {
-            tileBlock.placeOnGrid(4, 0, gameBoard as GameBoard);  // Out of bounds vertically
+            tileBlock.placeOnGrid(0, 4, gameBoard as GameBoard);  // Out of bounds vertically
         }).toThrowError('Invalid placement: out of bounds');
-    });
-
-    it('should rotate the TileBlock and change its layout', () => {
-        const tile1 = new Tile(TileType.Tree, 1, TileState.Neutral);
-        const tile2 = new Tile(TileType.Farm, 1, TileState.Neutral);
-        const tileBlock = new TileBlock([tile1, tile2]);
-
-        tileBlock.rotate();  // Rotate 90 degrees to vertical layout
-        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
-
-        const space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        const space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
-
-        expect(space1.placeTile).toHaveBeenCalledWith(tile1);
-        expect(space2.placeTile).toHaveBeenCalledWith(tile2);
     });
 
     it('should rotate TileBlock correctly in all four directions', () => {
@@ -122,7 +119,7 @@ describe('TileBlock', () => {
         // Initial rotation (0 degrees): "🌳🏠"
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
         let space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        let space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        let space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
         expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
@@ -131,7 +128,7 @@ describe('TileBlock', () => {
         tileBlock.rotate();
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
         space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
         expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
@@ -140,7 +137,7 @@ describe('TileBlock', () => {
         tileBlock.rotate();
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
         space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
         expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
@@ -149,7 +146,7 @@ describe('TileBlock', () => {
         tileBlock.rotate();
         tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
         space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
         expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳

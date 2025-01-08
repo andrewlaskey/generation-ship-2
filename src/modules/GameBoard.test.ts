@@ -61,15 +61,6 @@ describe('GameBoard', () => {
         expect(space?.isOccupied()).toBe(true); // Now occupied
     });
 
-    it('should correctly display the board state', () => {
-        board.placeTileAt(2, 2, tile1);
-        board.placeTileAt(3, 3, tile2);
-        const consoleSpy = vi.spyOn(console, 'log'); // Spy on console.log to verify display
-        board.displayBoard();
-        expect(consoleSpy).toHaveBeenCalled(); // Ensure display method logs something
-        consoleSpy.mockRestore(); // Restore console.log after the test
-    });
-
     it('should highlight board space at coordinates', () => {
         board.toggleSpaceHighlight(2, 2);
         const space = board.getSpace(2, 2);
@@ -155,8 +146,8 @@ describe('GameBoard', () => {
             board.placeTileAt(0, 0, tile2);
 
 
-            const renderFn: GameBoardRenderFn<string> = (row: number, col: number, space: BoardSpace): string => {
-                return `${row}x${col} - ${space.isOccupied() ? 'X' : 'O'}`; 
+            const renderFn: GameBoardRenderFn<string> = (space: BoardSpace): string => {
+                return `${space.x}x${space.y} - ${space.isOccupied() ? 'X' : 'O'}`; 
             }
 
             const result = board.getGrid(renderFn);

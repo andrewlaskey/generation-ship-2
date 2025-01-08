@@ -1,19 +1,19 @@
 import { GameResults } from '../modules/AutoPlayer';
 import { GameManager, GameState } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
-import { TileBlock } from '../modules/TileBlock';
+import { TileBlock, TileBlockLayout } from '../modules/TileBlock';
 import { GameView } from '../types/GameViewInterface';
 import * as d3 from 'd3';
 import { ABOUT_HTML } from '../utils/constants';
-import { GameBoardRenderFn } from '../modules/GameBoard';
-import { BoardSpace } from '../modules/BoardSpace';
 import { Tile } from '../modules/Tile';
+import { GridView } from './GridView';
+import { getTileCellClassList } from '../utils/getTileCellClassList';
 export class HtmlGameView implements GameView {
     private gameManager: GameManager;
+    private gridView: GridView;
 
     public document: Document;
     private appDiv: HTMLDivElement;
-    private gridContainer!: HTMLDivElement;
     private scoreBoard!: HTMLDivElement;
     private playerNotice!: HTMLDivElement;
     private playerActions!: HTMLDivElement;
@@ -39,8 +39,7 @@ export class HtmlGameView implements GameView {
         // Render static elements (like buttons) once during initialization
         this.initializeView();
 
-        this.animateFolksWalking();
-        setInterval(this.animateFolksWalking, 1000 * 2);
+        this.gridView = new GridView(document, '#gridContainer', this.gameManager.gameBoard);
     }
 
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
@@ -75,7 +74,6 @@ export class HtmlGameView implements GameView {
         `;
 
         // Cache the containers for dynamic updates
-        this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
         this.scoreBoard = this.document.querySelector<HTMLDivElement>('#scoreboard')!;
         this.playerNotice = this.document.querySelector<HTMLDivElement>('#playerNotice')!;
         this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
@@ -84,74 +82,6 @@ export class HtmlGameView implements GameView {
         this.histogramDiv = this.document.querySelector<HTMLDivElement>('#histogram')!;
         this.toolbarDiv = this.document.querySelector<HTMLDivElement>('#toolbar')!;
         this.dynamicDisplayDiv = this.document.querySelector<HTMLDivElement>('#dynamicDisplay')!;
-
-        this.gridContainer.innerHTML = this.initializeGridView();
-    }
-
-    private renderCell(row: number, col: number, space: BoardSpace): string {
-        const tile = space ? space.tile : undefined;
-        const tileType = tile ? tile.type : 'empty';
-        const tileLevel = tile ? tile.level : 0;
-        const tileState = tile ? tile.state : 'neutral';
-        const highlight = space && space.isHighlighted ? 'highlight' : '';
-
-        return `<div class="cell ${tileType} ${tileState} l${tileLevel} ${highlight}" data-x="${row}" data-y="${col}"></div>`;
-    }
-
-    // Method to create the grid HTML representation
-    private initializeGridView(): string {
-        const gameSize = this.gameManager.gameBoard.size;
-        let gridHtml = '<div class="row">';
-        
-        const spaces = this.gameManager.gameBoard.getGrid<string>(this.renderCell);
-
-        for (let i = 0; i < spaces.length; i++) {
-            gridHtml += spaces[i];
-
-            if (i + 1 == spaces.length) {
-                gridHtml += '</div>';
-            } else if ((i + 1) % gameSize == 0) {
-                gridHtml += '</div><div class="row">'
-            }
-        }
-
-        return gridHtml;
-    }
-
-    private renderGrid(): void {
-        const updateCellFn: GameBoardRenderFn<void> = (row: number, col: number, space: BoardSpace): void => {
-            const tile = space ? space.tile : undefined;
-                const tileType = tile ? tile.type : 'empty';
-                const tileLevel = tile ? `l${tile.level}` : 'l0';
-                const tileState = tile ? tile.state : 'neutral';
-                const isHighlighted = space && space.isHighlighted;
-    
-                // Find the cell element in the DOM
-                const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${row}"][data-y="${col}"]`);
-    
-                if (cell) {
-                    // Clean up any lingering people
-                    cell.innerHTML = '';
-
-                    // Update the class names based on the current state
-                    cell.className = `cell ${tileType} ${tileState} ${tileLevel}`;
-
-                    if (tile && tileType == 'people') {
-                        const folkSpanHtml = '<span>⫯</span>';
-                        cell.innerHTML = folkSpanHtml.repeat(tile.level * 2);
-                    }
-    
-                    // Toggle the 'highlight' class based on the space's isHighlighted property
-                    if (isHighlighted) {
-                        cell.classList.add('highlight');
-                        this.setPreviewTile(row, col);
-                    } else {
-                        cell.classList.remove('highlight');
-                    }
-                }
-        }
-    
-        this.gameManager.gameBoard.getGrid(updateCellFn);
     }
 
     private renderDynamicDisplay(): void {
@@ -176,20 +106,15 @@ export class HtmlGameView implements GameView {
         }
     }
 
-    private animateFolksWalking() {
-        const folkSpans = this.document.querySelectorAll<HTMLSpanElement>('.cell.people span');
+    private setPreviewTile(): void {
+        const cells = this.gridView.div?.querySelectorAll<HTMLDivElement>('.cell');
 
-        for (const span of folkSpans) {
-            const x = Math.random() * 600 - 300; // Random x between -100 and 100
-            const y = Math.random() * 200 - 100; // Random y between -100 and 100
-
-            span.style.transform = `translate(${x}%, ${y}%)`;
-        }
-    }
-
-    private setPreviewTile(row: number, col: number): void {
-        this.placePreview.style.top = `calc(${row} * (3rem + 2px))`;
-        this.placePreview.style.left = `calc(${col} * (3rem + 2px))`;
+        cells?.forEach(cellDiv => {
+            if (cellDiv.classList.contains('highlight')) {
+                this.placePreview.style.top = `calc(${cellDiv.dataset.y} * (3rem + 2px))`;
+                this.placePreview.style.left = `calc(${cellDiv.dataset.x} * (3rem + 2px))`;        
+            }
+        });
     }
 
     private renderPreviewTile(): string {
@@ -204,27 +129,33 @@ export class HtmlGameView implements GameView {
         if (!(selectedItem instanceof TileBlock)) {
             return '';
         }
-
-        let previewHtml = '<div class="preview-item">';
         
-        const layout = selectedItem.getLayout();  // Assuming TileBlock has a getLayout() method
+        const layout: TileBlockLayout = selectedItem.getLayout();  // Assuming TileBlock has a getLayout() method
                     
-        // Render each tile in the TileBlock
-        layout.forEach(row => {
-            previewHtml += '<div class="preview-item-row">';
-            row.forEach(tile => {
-                const tileType = tile ? tile.type : 'empty';
-                const tileLevel = tile ? tile.level : 0;
-                const tileState = tile ? tile.state : 'neutral';
-                
-                previewHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}"></div>`;
-            });
-            previewHtml += '</div>';  // End of row
-        });
+        return `
+        <div class="preview-item">
+        ${this.renderTileBlock(layout, 'preview-item')}
+        </div>`
+    }
 
-        previewHtml += '</div>' // End of preview item
+    private renderTileBlock(layout: TileBlockLayout, className: string): string {
+        if (layout.orientation == 'horizontal') {
+            return `
+    <div class="${className}-row">
+        <div class="${getTileCellClassList(layout.tiles[0])}"></div>
+        <div class="${getTileCellClassList(layout.tiles[1])}"></div>
+    </div>
+`
+        }
 
-        return previewHtml;
+            return `
+    <div class="${className}-row">
+        <div class="${getTileCellClassList(layout.tiles[0])}"></div>
+    </div>
+    <div class="${className}-row">
+        <div class="${getTileCellClassList(layout.tiles[1])}"></div>
+    </div>
+`
     }
     
 
@@ -245,22 +176,10 @@ export class HtmlGameView implements GameView {
             handItems.forEach((item, index) => {
                 if (item instanceof TileBlock) {
                     const selectedClass = index === selectedIndex ? 'selected' : '';
-                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
                     const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
                     
-                    // Render each tile in the TileBlock
-                    layout.forEach(row => {
-                        handHtml += '<div class="hand-row">';
-                        row.forEach(tile => {
-                            const tileType = tile ? tile.type : 'empty';
-                            const tileLevel = tile ? tile.level : 0;
-                            const tileState = tile ? tile.state : 'neutral';
-                            
-                            handHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}"></div>`;
-                        });
-                        handHtml += '</div>';  // End of row
-                    });
-
+                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
+                    handHtml += this.renderTileBlock(layout, 'hand');
                     handHtml += '</div>';  // End of hand-item
                 }
             });
@@ -381,8 +300,6 @@ export class HtmlGameView implements GameView {
         const popScoreHistory = popScore ? [...popScore.history, popScore.value] : [];
         const ecoScoreHistory = ecoScore ? [...ecoScore.history, ecoScore.value] : [];
 
-        console.log(popScoreHistory, ecoScoreHistory);
-
         const minWidth = 320;
         const maxWidth = 420;
         const height = 100;
@@ -461,12 +378,14 @@ export class HtmlGameView implements GameView {
     // Method to update the dynamic parts of the UI (grid, hand, deck counter)
     public updateGrid(): void {
         // Only update the dynamic parts, not the entire app container
-        this.renderGrid();
-        this.animateFolksWalking();
+        this.gridView.updateGrid();
+        
         this.scoreBoard.innerHTML = this.renderScoreBoard();
         this.renderPlayerUpdates();
         this.renderPlayerActions();
+        
         this.placePreview.innerHTML = this.renderPreviewTile();
+        this.setPreviewTile();
 
         this.renderDynamicDisplay();
         this.renderToolbar();

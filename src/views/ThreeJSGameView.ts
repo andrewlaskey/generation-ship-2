@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GameManager } from '../modules/GameManager';  // Import the GameManager class
 import { Tile } from '../modules/Tile';
-import { TileBlock } from '../modules/TileBlock';
-import { HandItem } from '../modules/PlayerHand';
 import { GameView } from '../types/GameViewInterface';
 
 export class ThreeJSGameView implements GameView {
@@ -15,9 +13,6 @@ export class ThreeJSGameView implements GameView {
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
-    private handContainer!: HTMLDivElement;
-    private deckCounterContainer!: HTMLDivElement;
-    private scoreBoard!: HTMLDivElement;
     private controls: OrbitControls;
 
     constructor(gameManager: GameManager, document: Document) {
@@ -73,60 +68,6 @@ export class ThreeJSGameView implements GameView {
 
         // Cache the containers for dynamic updates
         this.gridContainer = this.document.querySelector<HTMLDivElement>('#gridContainer')!;
-        this.handContainer = this.document.querySelector<HTMLDivElement>('#handContainer')!;
-        this.deckCounterContainer = this.document.querySelector<HTMLDivElement>('#deckCounterContainer')!;
-        this.scoreBoard = this.document.querySelector<HTMLDivElement>('#scoreboard')!;
-    }
-
-    // Method to create the HTML representation of the player's hand
-    private renderHand(): string {
-        const handItems: HandItem[] = this.gameManager.getPlayerHand();
-        const selectedIndex = this.gameManager.getSelectedItemIndex();
-        let handHtml = '<h2>Player Hand</h2>';
-
-        if (handItems.length === 0) {
-            handHtml += '<p>No items in hand</p>';
-        } else {
-            handHtml += '<div class="hand-grid">';  // Add a container for the hand items
-            handItems.forEach((item, index) => {
-                if (item instanceof TileBlock) {
-                    const selectedClass = index === selectedIndex ? 'selected' : '';
-                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
-                    const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
-                    
-                    // Render each tile in the TileBlock
-                    layout.forEach(row => {
-                        handHtml += '<div class="hand-row">';
-                        row.forEach(tile => {
-                            const tileType = tile ? tile.type : 'empty';
-                            const tileLevel = tile ? tile.level : 0;
-                            const tileState = tile ? tile.state : 'neutral';
-                            
-                            handHtml += `<div class="cell ${tileType} ${tileState} l${tileLevel}"></div>`;
-                        });
-                        handHtml += '</div>';  // End of row
-                    });
-
-                    handHtml += '</div>';  // End of hand-item
-                }
-            });
-            handHtml += '</div>';  // End of hand-grid
-        }
-
-        return handHtml;
-    }
-
-
-    // Method to display the total number of items left in the deck
-    private renderDeckCounter(): string {
-        const deckCount = this.gameManager.getDeckItemCount();
-        return `<h2>Deck Size</h2><p>${deckCount} items left</p>`;
-    }
-
-    private renderScoreBoard(): string {
-        const ecoScore = `<div class="score">🌲 ${this.gameManager.getPlayerScore('ecology')}</div>`;
-        const popScore = `<div class="score">👤 ${this.gameManager.getPlayerScore('population')}</div>`;
-        return ecoScore + popScore;
     }
 
     // Initialize the grid of 3D objects
@@ -200,9 +141,6 @@ export class ThreeJSGameView implements GameView {
 
         // Re-render the scene after updates
         this.render();
-        this.handContainer.innerHTML = this.renderHand();
-        this.deckCounterContainer.innerHTML = this.renderDeckCounter();
-        this.scoreBoard.innerHTML = this.renderScoreBoard();
     }
 
     // Update the properties of a tile's mesh

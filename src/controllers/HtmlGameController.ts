@@ -8,7 +8,7 @@ import { HtmlGameView } from '../views/HtmlGameView';
 export class HtmlGameController implements ViewController {
     private gameManager: GameManager;
     private gameView: HtmlGameView;
-    private selectedGridCell: { row: number; col: number};
+    private selectedGridCell: { x: number; y: number};
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
     private inspectModeEnabled = false;
@@ -17,7 +17,7 @@ export class HtmlGameController implements ViewController {
     constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
         this.gameManager = gameManager;
         this.gameView = gameView;
-        this.selectedGridCell = { row: 0, col: 0 };
+        this.selectedGridCell = { x: 0, y: 0 };
         this.switchViewFn = fn;
         this.autoPlayer = new AutoPlayer(gameManager);
     }
@@ -78,7 +78,7 @@ export class HtmlGameController implements ViewController {
             this.inspectModeEnabled = !this.inspectModeEnabled;
             this.gameView.toggleInspectMode(this.inspectModeEnabled);
             this.gameView.toggleScoreGraph(this.showScoreGraph);
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
             this.gameView.hidePlayerActions();
             this.updateView();
         });
@@ -88,7 +88,7 @@ export class HtmlGameController implements ViewController {
             this.showScoreGraph = !this.showScoreGraph;
             this.gameView.toggleInspectMode(this.inspectModeEnabled);
             this.gameView.toggleScoreGraph(this.showScoreGraph);
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
             this.gameView.hidePlayerActions();
             this.updateView();
         })
@@ -116,7 +116,7 @@ export class HtmlGameController implements ViewController {
     private getEventCellCoords(event: MouseEvent): { x: number, y: number } {
         const x = parseInt((event.currentTarget as HTMLElement).getAttribute('data-x')!);
         const y = parseInt((event.currentTarget as HTMLElement).getAttribute('data-y')!);
-        return { x, y};
+        return { x, y };
     }
 
     // Initialize listeners for hand item clicks
@@ -162,12 +162,16 @@ export class HtmlGameController implements ViewController {
         if (playerActionAffirmative) {
             playerActionAffirmative.addEventListener('click', () => {
                 const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
-                const success = this.gameManager.placeTileBlock(this.selectedGridCell.col, this.selectedGridCell.row, selectedHandIndex);
+                const success = this.gameManager.placeTileBlock(
+                    this.selectedGridCell.x,
+                    this.selectedGridCell.y,
+                    selectedHandIndex
+                );
                 
                 if (!success) {
-                    console.error(`Failed to place tile block at (${this.selectedGridCell.col}, ${this.selectedGridCell.row}). Invalid placement or non-tile item.`);
+                    console.error(`Failed to place tile block at (${this.selectedGridCell.x}, ${this.selectedGridCell.y}). Invalid placement or non-tile item.`);
                 } else {
-                    this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
+                    this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
                     // Advance the players turn after making a placement
                     this.advanceTurn();
                 }
@@ -184,40 +188,40 @@ export class HtmlGameController implements ViewController {
     }
 
     // Handle a click on a grid cell
-    private handleCellClick(col: number, row: number): void {
+    private handleCellClick(x: number, y: number): void {
 
         if (this.inspectModeEnabled) {
-            this.handleInspectCell(col, row);
+            this.handleInspectCell(x, y);
         } else {
-            this.handleTileBlockPlacementSelect(col, row);
+            this.handleTileBlockPlacementSelect(x, y);
         }
 
         this.updateView();
     }
 
-    private handleTileBlockPlacementSelect(col: number, row: number): void {
-        if (col == this.selectedGridCell.col && row == this.selectedGridCell.row) {
-            this.gameManager.removeBoardHighlight(col, row);
+    private handleTileBlockPlacementSelect(x: number, y: number): void {
+        if (x == this.selectedGridCell.x && y == this.selectedGridCell.y) {
+            this.gameManager.removeBoardHighlight(x, y);
             this.gameView.hidePlayerActions();
         } else {
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
-            this.gameManager.addBoardHighlight(col, row);
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            this.gameManager.addBoardHighlight(x, y);
             this.gameView.showPlayerActions();
         }
 
-        this.selectedGridCell.col = col;
-        this.selectedGridCell.row = row;
+        this.selectedGridCell.x = x;
+        this.selectedGridCell.y = y;
     }
 
-    private handleInspectCell(col: number, row: number): void {
-        this.gameManager.removeBoardHighlight(this.selectedGridCell.col, this.selectedGridCell.row);
-        this.selectedGridCell.col = col;
-        this.selectedGridCell.row = row;
+    private handleInspectCell(x: number, y: number): void {
+        this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+        this.selectedGridCell.x = x;
+        this.selectedGridCell.y = y;
 
-        const space = this.gameManager.gameBoard.getSpace(col, row);
+        const space = this.gameManager.gameBoard.getSpace(x, y);
 
         if (space) {
-            this.gameManager.addBoardHighlight(col, row);
+            this.gameManager.addBoardHighlight(x, y);
             this.gameView.setInspectTileDetails(space.tile);
         } else {
            this.gameView.setInspectTileDetails(null);

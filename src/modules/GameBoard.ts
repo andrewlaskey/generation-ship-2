@@ -2,11 +2,11 @@ import { Tile, TileType } from "./Tile";
 import { BoardSpace } from "./BoardSpace";
 import { SpaceChange, SpaceUpdate } from "./TileHandler";
 
-export type GameBoardRenderFn<T> = (col: number, row: number, space: BoardSpace) => T;
+export type GameBoardRenderFn<T> = (space: BoardSpace) => T;
 
 // Class to represent the GameBoard
 export class GameBoard {
-    private grid: BoardSpace[][];
+    private grid: BoardSpace[];
     private gridSize: number
 
     constructor(public size: number) {
@@ -15,15 +15,15 @@ export class GameBoard {
     }
 
     // Method to create the grid of spaces
-    private createBoard(size: number): BoardSpace[][] {
-        const board: BoardSpace[][] = [];
+    private createBoard(size: number): BoardSpace[] {
+        const board: BoardSpace[] = [];
+
         for (let x = 0; x < size; x++) {
-            const row: BoardSpace[] = [];
             for (let y = 0; y < size; y++) {
-                row.push(new BoardSpace(x, y));
+                board.push(new BoardSpace(x, y));
             }
-            board.push(row);
         }
+
         return board;
     }
 
@@ -58,33 +58,32 @@ export class GameBoard {
     // Method to get a specific space by coordinates
     getSpace(x: number, y: number): BoardSpace | null {
         if (this.isValidCoordinate(x, y)) {
-            return this.grid[x][y];
+            return this.grid.find(space => space.x == x && space.y == y) ?? null;
         }
         return null;
     }
 
     getGrid<T>(renderFn: GameBoardRenderFn<T>): T[] {
-        const spaces: T[] = [];
+        const spaceRenderOrUpdateResults: T[] = [];
 
-        for (let col = 0; col < this.gridSize; col++) {
-            for (let row = 0; row < this.gridSize; row++) {
-                const space = this.grid[col][row];
-                const renderResult = renderFn(col, row, space);
-                spaces.push(renderResult);
-            }
-        }
+        this.grid.forEach(space => {
+            const renderOrUpdateResult = renderFn(space);
+            spaceRenderOrUpdateResults.push(renderOrUpdateResult);
+        })
 
-        return spaces;
+        return spaceRenderOrUpdateResults;
     } 
 
     toggleSpaceHighlight(x: number, y: number, addHighlight?: boolean): void {
-        if (this.isValidCoordinate(x, y)) {
+        const space = this.getSpace(x, y);
+        
+        if (space) {
             if (addHighlight !== undefined) {
                 // If addHighlight is provided, use its value to set the highlight state
-                this.grid[x][y].isHighlighted = addHighlight;
+                space.isHighlighted = addHighlight;
             } else {
                 // If addHighlight is not provided, toggle the current state
-                this.grid[x][y].isHighlighted = !this.grid[x][y].isHighlighted;
+                space.isHighlighted = !space.isHighlighted;
             }
         }
     }
@@ -110,8 +109,8 @@ export class GameBoard {
         return false;
     }
 
-    executeSpaceUpate(col: number, row: number, update: SpaceUpdate): void {
-        const space = this.getSpace(col, row);
+    executeSpaceUpate(x: number, y: number, update: SpaceUpdate): void {
+        const space = this.getSpace(x, y);
         let tile: Tile | null;
 
         if (!space) return;
@@ -164,42 +163,21 @@ export class GameBoard {
         return x >= 0 && x < this.size && y >= 0 && y < this.size;
     }
 
-    // Method to display the board state
-    displayBoard(): void {
-        for (let row of this.grid) {
-            let rowDisplay = row.map(space => (space.isOccupied() ? "T" : "O")).join(" ");
-            console.log(rowDisplay);
-        }
-    }
+    public countTileTypes(isAdjustedCount = false): Record<string, number> {
+        return this.grid.reduce((counts, space) => {
+            const tile = space.tile;
 
-    countTileTypes(isAdjustedCount = false): Record<string, number> {
-        return this.grid.reduce((counts, row) => {
-            const rowCounts = row.reduce((rowCounts, value) => {
-                const tile = value.tile;
+            if (tile) {
+                const type = tile.type as TileType;
+                const pointValue = isAdjustedCount ? tile.level : 1;
 
-                if (tile) {
-                    const type = tile.type as TileType;
-                    const pointValue = isAdjustedCount ? tile.level : 1;
-
-                    if (rowCounts.hasOwnProperty(type)) {
-                        rowCounts[type] += pointValue;
-                    } else {
-                        rowCounts[type] = pointValue
-                    }
-                }
-
-                return rowCounts;
-            }, {} as Record<TileType, number>);
-
-            Object.entries(rowCounts).forEach(([key, value]) => {
-                const typedKey = key as keyof typeof counts;
-                if (counts.hasOwnProperty(key)) {
-                    counts[typedKey] += value;
+                if (counts.hasOwnProperty(type)) {
+                    counts[type] += pointValue;
                 } else {
-                    counts[typedKey] = value
+                    counts[type] = pointValue
                 }
-            });
-            
+            }
+
             return counts;
         }, {} as Record<TileType, number>);
     }

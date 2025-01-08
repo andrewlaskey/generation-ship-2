@@ -163,17 +163,17 @@ export class GameManager {
 
     // Update the entire board (existing logic)
     updateBoard(): void {
-        const updates: { col: number, row: number, update: SpaceUpdate }[] = [];
+        const updates: { x: number, y: number, update: SpaceUpdate }[] = [];
         const size = this.gameBoard.size;
 
-        for (let col = 0; col < size; col++) {
-            for (let row = 0; row < size; row++) {
-                const result = this.getUpdateSpace(col, row);
+        for (let x = 0; x < size; x++) {
+            for (let y = 0; y < size; y++) {
+                const result = this.getUpdateSpace(x, y);
 
                 if (result) {
                     updates.push({
-                        col,
-                        row,
+                        x,
+                        y,
                         update: result
                     })
                 }
@@ -181,8 +181,8 @@ export class GameManager {
         }
 
         updates.forEach((updateAction) => {
-            this.gameBoard.executeSpaceUpate(updateAction.col, updateAction.row, updateAction.update);
-        })
+            this.gameBoard.executeSpaceUpate(updateAction.x, updateAction.y, updateAction.update);
+        });
     }
 
     // Start a new game

@@ -2,16 +2,28 @@ import { Tile } from "./Tile";
 import { HandItem } from "./PlayerHand";
 import { GameBoard } from "./GameBoard";
 
+export type TileBlockOrientation = 'vertical' | 'horizontal'
+
+export type TileBlockLayout = {
+    tiles: (Tile | null)[];
+    orientation: TileBlockOrientation
+}
+
 
 export class TileBlock implements HandItem {
-    private layout: (Tile | null)[][];  // Layout of the TileBlock
+    // first and second follow reading rules ➡️ ⬇️
+    private firstTile: Tile | null;
+    private secondTile: Tile | null;
     private rotation: number;  // Rotation state (0, 90, 180, 270 degrees)
+    private orientation: TileBlockOrientation;
 
     constructor(tiles: (Tile | null)[]) {
         if (tiles.length !== 2) {
             throw new Error("A TileBlock must have exactly 2 spaces (Tile or empty).");
         }
-        this.layout = [tiles];
+        this.firstTile = tiles[0];
+        this.secondTile = tiles[1];
+        this.orientation = 'horizontal';
         this.rotation = 0;
     }
 
@@ -21,23 +33,15 @@ export class TileBlock implements HandItem {
 
     // Return the two tiles in a 1D array regardless of the rotation
     getTiles(): (Tile | null)[] {
-        switch (this.rotation) {
-            case 0:
-                return [this.layout[0][0], this.layout[0][1]]; // Horizontal layout
-            case 90:
-                return [this.layout[0][0], this.layout[1][0]]; // Vertical layout (rotated 90 degrees)
-            case 180:
-                return [this.layout[0][1], this.layout[0][0]]; // Horizontal layout (flipped)
-            case 270:
-                return [this.layout[1][0], this.layout[0][0]]; // Vertical layout (rotated 270 degrees)
-            default:
-                throw new Error("Invalid rotation value.");
-        }
+        return [this.firstTile, this.secondTile];
     }
 
     // Get the current layout (1x2 or 2x1)
-    getLayout(): (Tile | null)[][] {
-        return this.layout;
+    getLayout(): TileBlockLayout {
+        return {
+            tiles: this.getTiles(),
+            orientation: this.orientation
+        }
     }
 
     // Get the current rotation
@@ -46,31 +50,59 @@ export class TileBlock implements HandItem {
     }
 
     // Rotate the block
+    // Tile Block is initialized at rotation 0
+    // This is horizontal orientation
+    // Example: 
+    // ---------------
+    // | tree | farm |
+    // ---------------
     rotate(): void {
         this.rotation = (this.rotation + 90) % 360;
-    
-        if (this.rotation === 90) {
-            // 90 degrees: Vertical layout with tree on top, house below
-            this.layout = [
-                [this.layout[0][0]],  // Top (tree)
-                [this.layout[0][1]]   // Bottom (house)
-            ];
-        } else if (this.rotation === 180) {
-            // 180 degrees: Reverse horizontal layout with house on left, tree on right
-            this.layout = [
-                [this.layout[1][0], this.layout[0][0]]  // Reverse the tiles horizontally
-            ];
-        } else if (this.rotation === 270) {
-            // 270 degrees: Vertical layout with house on top, tree below
-            this.layout = [
-                [this.layout[0][0]],  // Top (house)
-                [this.layout[0][1]]   // Bottom (tree)
-            ];
-        } else {
-            // 0 degrees: Horizontal layout with tree on left, house on right
-            this.layout = [
-                [this.layout[1][0], this.layout[0][0]]  // Default layout
-            ];
+        let tempTile: Tile | null;
+
+        switch(this.rotation) {
+            case 90:
+                // 90 degrees: Vertical layout with tree on top, house below
+                // first and second tiles do not change
+                // Example: 
+                // --------
+                // | tree |
+                // | farm |
+                // --------
+                this.orientation = 'vertical';
+                break;
+            case 180:
+                // 180 degrees: Reverse horizontal layout with house on left, tree on right
+                // Example: 
+                // ---------------
+                // | farm | tree |
+                // ---------------
+                this.orientation = 'horizontal';
+                tempTile = this.firstTile
+                this.firstTile = this.secondTile;
+                this.secondTile = tempTile;
+                break;
+            case 270:
+                // 270 degrees: Vertical layout with house on top, tree below
+                // first and second tiles do not change
+                // Example: 
+                // --------
+                // | farm |
+                // | tree |
+                // --------
+                this.orientation = 'vertical';
+                break;
+            default:
+                // 0 degrees: Back to starting layout
+                // Horizontal layout with tree on left, house on right
+                // Example: 
+                // ---------------
+                // | tree | farm |
+                // ---------------
+                this.orientation = 'horizontal';
+                tempTile = this.firstTile
+                this.firstTile = this.secondTile;
+                this.secondTile = tempTile;   
         }
     }    
 
@@ -78,20 +110,21 @@ export class TileBlock implements HandItem {
     placeOnGrid(x: number, y: number, gameBoard: GameBoard): void {
         // Ensure valid placement (within bounds of the game board)
         const size = gameBoard.size;  // Assuming GameBoard has a size property
-        if (this.rotation === 0 || this.rotation === 180) {
-            if (x < 0 || x >= size || y + 1 >= size) {
+
+        if (this.orientation == 'horizontal') {
+            if (x < 0 || x + 1 >= size || y >= size) {
                 throw new Error("Invalid placement: out of bounds");
             }
             // Place tiles or remove them horizontally
-            this.placeOrRemoveTile(x, y, gameBoard, this.layout[0][0]);
-            this.placeOrRemoveTile(x, y + 1, gameBoard, this.layout[0][1]);
+            this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
+            this.placeOrRemoveTile(x + 1, y, gameBoard, this.secondTile);
         } else {
-            if (x + 1 >= size || y >= size) {
+            if (x >= size || y >= size || y + 1 >= size) {
                 throw new Error("Invalid placement: out of bounds");
             }
             // Place tiles or remove them vertically
-            this.placeOrRemoveTile(x, y, gameBoard, this.layout[0][0]);
-            this.placeOrRemoveTile(x + 1, y, gameBoard, this.layout[1][0]);
+            this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
+            this.placeOrRemoveTile(x, y + 1, gameBoard, this.secondTile);
         }
     }
 

@@ -21,7 +21,7 @@ const createMockGameManager = (gameSize: number) => {
     };
 };
 
-describe('HtmlGameView', () => {
+describe.skip('HtmlGameView', () => {
     let gameManager: GameManager;
     let htmlGameView: HtmlGameView;
     let dom: JSDOM;

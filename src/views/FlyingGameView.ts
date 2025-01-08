@@ -48,13 +48,13 @@ export class FlyingGameView implements GameView{
         this.renderStarField(500);
     }
 
-    private renderTile(col: number, row: number, space: BoardSpace): string {
+    private renderTile(space: BoardSpace): string {
         const tile = space.tile;
         const tileType = tile ? tile.type : 'empty';
         const tileLevel = tile ? tile.level : 0;
         const tileState = tile ? tile.state : 'neutral';
 
-        return `<div class="tile ${tileType} ${tileState} l${tileLevel} col-${col} row-${row}"></div>`
+        return `<div class="tile ${tileType} ${tileState} l${tileLevel} x-${space.x} y-${space.y}"></div>`
     }
 
     private renderGrid(): void {
