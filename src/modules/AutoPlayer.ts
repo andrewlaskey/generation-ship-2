@@ -30,11 +30,10 @@ export class AutoPlayer {
         let placeTileSuccess = false;
     
         while (!placeTileSuccess) {
-            const row = Math.floor(Math.random() * (gridSize - 1));
-            const col = Math.floor(Math.random() * gridSize);
-
+            const x = Math.floor(Math.random() * (gridSize - 1));
+            const y = Math.floor(Math.random() * gridSize);
             
-            placeTileSuccess = this.gameManager.placeTileBlock(col, row, selectedHandIndex);
+            placeTileSuccess = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
         }
 
         this.gameManager.advanceTurn();

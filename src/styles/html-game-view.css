@@ -16,359 +16,182 @@
 }
 
 .html-game-view-wrapper .grid {
-    display: flex;
-    flex-direction: column;
-    max-width: fit-content;
-    background-color: black;
-    border-bottom: 3px solid var(--tile-edge-color);
-    border-right: 1px dashed #505050;
-  }
+  display: flex;
+  flex-direction: column;
+  max-width: fit-content;
+  background-color: black;
+  border-bottom: 3px solid var(--tile-edge-color);
+  border-right: 1px dashed #505050;
+}
 
-  .grid-wrapper {
-    perspective: 1200px;
-    max-width: fit-content;
-    margin: 0 auto;
-  }
+.grid-wrapper {
+  perspective: 1200px;
+  max-width: fit-content;
+  margin: 0 auto;
+}
 
-  .grid-inner-wrap {
-    transform: rotateX(30deg);
-    max-width: fit-content;
-  }
-  
-  .row {
-    display: flex;
-    max-width: fit-content;
-  }
-  
-  .cell {
-    width: var(--cell-size-desk);
-    height: var(--cell-size-desk);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1rem;
-    color: white; /* Default text color */
-    background-color: black; /* Default background */
-    border-top: 1px dashed #505050;
-    border-left: 1px dashed #505050;
-    border-right: 1px solid black;
-    border-bottom: 1px solid black;
-  }
+.grid-inner-wrap {
+  transform: rotateX(30deg);
+  max-width: fit-content;
+}
 
-  .cell.highlight {
-    box-shadow:
-      inset 0 0 0 2px black,
-      inset 0 0 0 3px var(--tile-hl-color);
-  }
-  
-  /* Tile levels adjust the size of the character */
-  .cell.l1 {
-    font-size: 1.8rem;
-  }
-  
-  .cell.l2 {
-    font-size: 2.2rem;
-  }
-  
-  .cell.l3 {
-    font-size: 2.5rem;
-  }
-  
-  
-  
-  /* Healthy and Unhealthy state styling */
-  .cell.healthy {
-    background-image: radial-gradient(var(--cell-healthy-color) 1px, transparent 0);
-    background-size: 7px 7px;
-  }
-  
-  .cell.unhealthy {
-    background-image: radial-gradient(var(--cell-unhealthy-color) 1px, transparent 0);
-    background-size: 7px 7px;
-  }
-  
-  .cell.tree::before {
-    color: #1b9416; /* Green for tree tiles */
-  }
-  
-  .cell.tree.l1::before {
-    content: "ᚭ";
-  }
-  
-  .cell.tree.l2::before {
-    content: "ᚨ";
-  }
-  
-  .cell.tree.l3::before {
-    content: "ᚫ";
-  }
-  
-  .cell.people::before {
-    color: #7c4e10; /* Adobe color for people tiles */
-  }
-  
-  .cell.people.l1::before {
-    content: "ᨊ";
-  }
-  
-  .cell.people.l2::before {
-    content: "ᨕ";
-  }
-  
-  .cell.people.l3::before {
-    content: "ᨐ";
-  }
-  
-  .cell.farm::before {
-    color: #ffd522; /* Yellow for farm tiles */
-  }
-  
-  .cell.farm.l1::before {
-    content: "፡";
-  }
-  
-  .cell.farm.l2::before {
-    content: "፠";
-  }
-  
-  .cell.farm.l3::before {
-    content: "፨";
-  }
-  
-  .cell.power::before {
-    color: #00f1ff;
-  }
-  
-  .cell.power.l1::before {
-    content: "ᚢ";
-  }
-  
-  .cell.power.l2::before {
-    content: "ᚣ";
-  }
-  
-  .cell.power.l3::before {
-    content: "ᚥ";
-  }
 
-  .grid .cell.power {
-    position: relative;
-  }
+/* Player Hand Styling */
+.hand-grid {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: flex-start; /* Ensure vertical tiles align to the top */
+  height: calc(var(--cell-size-desk) * 2);
+}
 
-  .grid .cell.power.dead::before {
-    color: #9b9e9e;
-  }
+/* Ensure hand-item dynamically adjusts based on tile block size */
+.hand-item {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--cell-size-desk) * 2);
+  width: calc(var(--cell-size-desk) * 2);
+}
 
-  .grid .cell.power:not(.dead):after {
-    content: '⚡';
-    position: absolute;
-    top: 0.2em;
-    right: 0.5em;
-    color: yellow;
-    animation: power-flash 500ms ease-in-out infinite;
-    font-size: 1.3rem;
-  }
+.preview-item {
+  display: flex;
+  flex-direction: column;
+}
 
-  .cell.waste::before {
-    color: #9b9e9e;
-    content: '░'
-  }
-  
-  
-  /* Empty cell (no ASCII character) */
-  .cell.empty::before {
-    content: " ";
-  }
+.preview-item .cell {
+  background-color: rgba(255, 187, 0, 0.15);
+  border: 1px solid var(--tile-hl-color);
+}
 
-  @keyframes power-flash {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
+.hand-row,
+.preview-item-row {
+  display: flex;
+}
 
-  .cell.people span {
-    position: absolute;
-    color: rgb(234, 62, 211);
-    font-size: 2rem;
-    transition: all 2s linear;
-    pointer-events: none;
-  }
+.hand-row:last-child:not(:nth-child(2)) {
+  border-bottom: 2px solid var(--tile-edge-color);
+}
 
-  .cell.people span:nth-child(odd) {
-    filter: hue-rotate(45deg);
-  }
+/* Cell inside the hand-item */
+.hand-item .cell {
+  width: var(--cell-size-desk);
+  height: var(--cell-size-desk);
+  font-size: 1.6rem;
+  border: 1px solid black;
+}
 
-  .cell.people span:nth-child(3n) {
-    filter: hue-rotate(-45deg);
-  }
+.hand-row:nth-child(2) .cell {
+  border-bottom: 2px solid var(--tile-edge-color);
+}
 
-  .cell.people:nth-of-type(even) span {
-    color:rgb(240, 55, 89);
-  }
+.hand-item.selected .hand-row:not(:nth-child(2)) {
+  border-bottom: none;
+}
 
-  .cell.people:nth-child(3n) span {
-    color:rgb(205, 65, 137);
-  }
+.hand-item.selected .hand-row:nth-child(2) .cell {
+  border-bottom: 1px solid var(--tile-hl-color);
+}
 
-  .cell.people:nth-child(5n) span {
-    color:rgb(231, 94, 233);
-  }
-  
-  /* Player Hand Styling */
-  .hand-grid {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    align-items: flex-start; /* Ensure vertical tiles align to the top */
-    height: calc(var(--cell-size-desk) * 2);
-  }
-  
-  /* Ensure hand-item dynamically adjusts based on tile block size */
-  .hand-item {
-    display: flex;
-    flex-direction: column;
-    height: calc(var(--cell-size-desk) * 2);
-    width: calc(var(--cell-size-desk) * 2);
-  }
+/* Only apply the yellow border to the selected cell, not the entire hand item */
+.hand-item.selected .cell {
+  border: 1px solid var(--tile-hl-color);
+}
 
-  .preview-item {
-    display: flex;
-    flex-direction: column;
-  }
+.hand-item .cell.power:not(.dead):after,
+.preview-item .cell.power:not(.dead):after {
+  content: '';
+}
 
-  .preview-item .cell {
-    background-color: rgba(255, 187, 0, 0.15);
-    border: 1px solid var(--tile-hl-color);
-  }
-  
-  .hand-row,
-  .preview-item-row {
-    display: flex;
-  }
+.card-display {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
 
-  .hand-row:last-child:not(:nth-child(2)) {
-    border-bottom: 2px solid var(--tile-edge-color);
-  }
+.deck-counter .deck {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--tile-edge-color);
+  background: black;
+  box-shadow:
+    0 2px 0 black,
+    0 4px 0 var(--tile-edge-color),    
+    0 6px 0 black,
+    0 8px 0 var(--tile-edge-color),
+    0 10px 0 black,    
+    0 12px 0 var(--tile-edge-color);   
+  height: 24px;
+  width: 48px;
+  font-size: 1rem;
+}
 
-  
-  /* Cell inside the hand-item */
-  .hand-item .cell {
-    width: var(--cell-size-desk);
-    height: var(--cell-size-desk);
-    font-size: 1.6rem;
-    border: 1px solid black;
-  }
-  
-  .hand-row:nth-child(2) .cell {
-    border-bottom: 2px solid var(--tile-edge-color);
-  }
+.deck-counter .deck.is-empty {
+  border: 1px dashed var(--tile-edge-color);
+  box-shadow: none;
+}
 
-  .hand-item.selected .hand-row:not(:nth-child(2)) {
-    border-bottom: none;
-  }
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .hand-item.selected .hand-row:nth-child(2) .cell {
-    border-bottom: 1px solid var(--tile-hl-color);
-  }
-  
-  /* Only apply the yellow border to the selected cell, not the entire hand item */
-  .hand-item.selected .cell {
-    border: 1px solid var(--tile-hl-color);
-  }
-  
-  .card-display {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
-  
-  .deck-counter .deck {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid var(--tile-edge-color);
-    background: black;
-    box-shadow:
-      0 2px 0 black,
-      0 4px 0 var(--tile-edge-color),    
-      0 6px 0 black,
-      0 8px 0 var(--tile-edge-color),
-      0 10px 0 black,    
-      0 12px 0 var(--tile-edge-color);   
-    height: 24px;
-    width: 48px;
-    font-size: 1rem;
-  }
-  
-  .deck-counter .deck.is-empty {
-    border: 1px dashed var(--tile-edge-color);
-    box-shadow: none;
-  }
+.info-bar .help {
+  display: flex;
+  align-items: center;
+}
 
-  .info-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.info-bar .button {
+  height: 3em;
+  margin-right: 0.5em;
+}
 
-  .info-bar .help {
-    display: flex;
-    align-items: center;
-  }
+.scoreboard {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 1.5rem;
+}
 
-  .info-bar .button {
-    height: 3em;
-    margin-right: 0.5em;
-  }
-  
-  .scoreboard {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-size: 1.5rem;
-  }
-  
-  .scoreboard .score {
-    padding: 3px 10px;
-  }
+.scoreboard .score {
+  padding: 3px 10px;
+}
 
-  .about {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 2rem;
-    overflow-y: auto;
-  }
+.about {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 2rem;
+  overflow-y: auto;
+}
 
-  .about.is-visible {
-    display: block;
-  }
+.about.is-visible {
+  display: block;
+}
 
-  .tile-preview {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+.tile-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 
-  .player-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.player-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .player-actions .button {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
+.player-actions .button {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
 
-  .btn-player-action {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
+.btn-player-action {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}

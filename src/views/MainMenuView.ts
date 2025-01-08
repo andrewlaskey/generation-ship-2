@@ -1,19 +1,38 @@
+import { VisualAutoPlayerController } from "../controllers/VisualAutoPlayerController";
 import { View } from "../types/ViewInterface";
 import { ABOUT_HTML } from "../utils/constants";
 
 export class MainMenuView implements View {
     public document: Document;
     private appDiv: HTMLDivElement;
+    private backgroundGame: VisualAutoPlayerController;
+    private mainMenuDiv: HTMLDivElement | null;
+    private backgroundGameDiv: HTMLDivElement | null;
 
     constructor(document: Document) {
         this.document = document;
         this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
 
         this.initializeView();
+
+        this.mainMenuDiv = this.appDiv.querySelector<HTMLDivElement>('.main-menu');
+        this.backgroundGameDiv = this.appDiv.querySelector<HTMLDivElement>('.background-player-wrapper');
+
+        this.backgroundGame = new VisualAutoPlayerController(document, '#backgroundPlayer', 30, 20);
+        this.backgroundGame.init(true);
+    }
+
+    public toggleMeditationMode(): void {
+        this.mainMenuDiv?.classList.toggle('hidden');
+        this.backgroundGameDiv?.classList.toggle('enabled');
     }
 
     private initializeView() {
         this.appDiv.innerHTML = `
+            <div class="background-player-wrapper">
+                <div class="background-player" id="backgroundPlayer"></div>
+                <button class="button" id="closeMeditation" data-action="toggleMeditation">⬅</button>
+            </div>
             <div class="main-menu">
                 <h1 class="title">Generation Ship 2</h1>
                 <ul class="main-menu-options">
@@ -45,6 +64,9 @@ export class MainMenuView implements View {
                 <div class="submenu hidden" id="about">
                     ${ABOUT_HTML}
                     <button class="button" id="closeSubmenu">✓</button>
+                </div>
+                <div class="main-menu-footer">
+                    <button class="button small" data-action="toggleMeditation">Meditation Mode</button>
                 </div>
             </div>
         `;

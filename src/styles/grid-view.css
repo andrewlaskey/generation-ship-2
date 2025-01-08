@@ -1,0 +1,181 @@
+.row {
+display: flex;
+max-width: fit-content;
+}
+
+.cell {
+width: var(--cell-size-desk);
+height: var(--cell-size-desk);
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 1rem;
+color: white; /* Default text color */
+background-color: black; /* Default background */
+border-top: 1px dashed #505050;
+border-left: 1px dashed #505050;
+border-right: 1px solid black;
+border-bottom: 1px solid black;
+}
+
+.cell.highlight {
+box-shadow:
+    inset 0 0 0 2px black,
+    inset 0 0 0 3px var(--tile-hl-color);
+}
+
+/* Tile levels adjust the size of the character */
+.cell.l1 {
+font-size: 1.8rem;
+}
+
+.cell.l2 {
+font-size: 2.2rem;
+}
+
+.cell.l3 {
+font-size: 2.5rem;
+}
+
+
+
+/* Healthy and Unhealthy state styling */
+.cell.healthy {
+background-image: radial-gradient(var(--cell-healthy-color) 1px, transparent 0);
+background-size: 7px 7px;
+}
+
+.cell.unhealthy {
+background-image: radial-gradient(var(--cell-unhealthy-color) 1px, transparent 0);
+background-size: 7px 7px;
+}
+
+.cell.tree::before {
+color: #1b9416; /* Green for tree tiles */
+}
+
+.cell.tree.l1::before {
+content: "ᚭ";
+}
+
+.cell.tree.l2::before {
+content: "ᚨ";
+}
+
+.cell.tree.l3::before {
+content: "ᚫ";
+}
+
+.cell.people::before {
+color: #7c4e10; /* Adobe color for people tiles */
+}
+
+.cell.people.l1::before {
+content: "ᨊ";
+}
+
+.cell.people.l2::before {
+content: "ᨕ";
+}
+
+.cell.people.l3::before {
+content: "ᨐ";
+}
+
+.cell.farm::before {
+color: #ffd522; /* Yellow for farm tiles */
+}
+
+.cell.farm.l1::before {
+content: "፡";
+}
+
+.cell.farm.l2::before {
+content: "፠";
+}
+
+.cell.farm.l3::before {
+content: "፨";
+}
+
+.cell.power::before {
+color: #00f1ff;
+}
+
+.cell.power.l1::before {
+content: "ᚢ";
+}
+
+.cell.power.l2::before {
+content: "ᚣ";
+}
+
+.cell.power.l3::before {
+content: "ᚥ";
+}
+
+.cell.power {
+position: relative;
+}
+
+.cell.power.dead::before {
+color: #9b9e9e;
+}
+
+.cell.power:not(.dead):after {
+content: '⚡';
+position: absolute;
+top: 0.2em;
+right: 0.5em;
+color: yellow;
+animation: power-flash 500ms ease-in-out infinite;
+font-size: 1.3rem;
+}
+
+.cell.waste::before {
+color: #9b9e9e;
+content: '░'
+}
+
+
+/* Empty cell (no ASCII character) */
+.cell.empty::before {
+content: " ";
+}
+
+@keyframes power-flash {
+0% {
+    opacity: 0;
+}
+100% {
+    opacity: 1;
+}
+}
+
+.cell.people span {
+position: absolute;
+color: rgb(234, 62, 211);
+font-size: 2rem;
+transition: all 2s linear;
+pointer-events: none;
+}
+
+.cell.people span:nth-child(odd) {
+filter: hue-rotate(45deg);
+}
+
+.cell.people span:nth-child(3n) {
+filter: hue-rotate(-45deg);
+}
+
+.cell.people:nth-of-type(even) span {
+color:rgb(240, 55, 89);
+}
+
+.cell.people:nth-child(3n) span {
+color:rgb(205, 65, 137);
+}
+
+.cell.people:nth-child(5n) span {
+color:rgb(231, 94, 233);
+}

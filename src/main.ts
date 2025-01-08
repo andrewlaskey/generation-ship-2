@@ -9,6 +9,7 @@ import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
 import { SwitchViewFn } from './types/SwitchViewFn';
+import { VisualAutoPlayerController } from './controllers/VisualAutoPlayerController';
 
 
 let gameManager = new GameManager();

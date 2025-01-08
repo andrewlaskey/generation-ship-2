@@ -1,15 +1,15 @@
 import { GameManager } from "../modules/GameManager";
 import { SwitchViewFn } from "../types/SwitchViewFn";
 import { ViewController } from "../types/ViewControllerInterface";
-import { View } from "../types/ViewInterface";
 import { getCurrentDate } from "../utils/getCurrentDate";
+import { MainMenuView } from "../views/MainMenuView";
 
 export class MainMenuController implements ViewController {
      private gameManager: GameManager;
-     private view: View;
+     private view: MainMenuView;
      private switchViewFn: SwitchViewFn
 
-     constructor(view: View, gameManager: GameManager, fn: SwitchViewFn) {
+     constructor(view: MainMenuView, gameManager: GameManager, fn: SwitchViewFn) {
         this.gameManager = gameManager;
         this.view = view;
         this.switchViewFn = fn;       
@@ -18,6 +18,7 @@ export class MainMenuController implements ViewController {
      init() {
         this.initSubMenuButtonListeners();
         this.initStartGameButtonListeners();
+        this.initFooterButtonListeners();
      }
 
      private initSubMenuButtonListeners() {
@@ -89,5 +90,16 @@ export class MainMenuController implements ViewController {
                 }
             });
         })
+    }
+
+    private initFooterButtonListeners() {
+        const toggleMeditationButtons = this.view.document.querySelectorAll<HTMLButtonElement>('.button[data-action="toggleMeditation"]');
+
+        toggleMeditationButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                this.view.toggleMeditationMode();
+                button.blur();
+            });
+        });
     }
 }

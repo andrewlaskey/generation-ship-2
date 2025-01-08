@@ -56,11 +56,13 @@ export class GridView implements GameView {
     }
 
     private updateCell(space: BoardSpace): void {
+        if (!this.div) return;
+        
         const tile = space ? space.tile : undefined;
         const classList = this.getCellClassList(space);
 
         // Find the cell element in the DOM
-        const cell = this.document.querySelector<HTMLDivElement>(`.cell[data-x="${space.x}"][data-y="${space.y}"]`);
+        const cell = this.div.querySelector<HTMLDivElement>(`.cell[data-x="${space.x}"][data-y="${space.y}"]`);
 
         if (cell) {
             // Update the class names based on the current state
