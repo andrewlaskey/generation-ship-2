@@ -94,4 +94,19 @@ describe('GridView', () => {
          expect(cell).not.toBeNull();
          expect(cell?.classList.contains('people'));
     });
+
+    it('should adjust the folk spans by removing extras', () => {
+        // Update the board with a specific tile
+        gameBoard.placeTileAt(0, 0, new Tile(TileType.People, 2, TileState.Healthy));
+        gridView.updateGrid();
+
+        // Replace the tile with a non-people tile
+        gameBoard.placeTileAt(0, 0, new Tile(TileType.People, 1, TileState.Healthy));
+        gridView.updateGrid();
+
+        const cell = document.querySelector('.cell[data-x="0"][data-y="0"]');
+        const spans = cell?.querySelectorAll('.cell span');
+
+         expect(spans?.length).toBe(2);
+    });
 })

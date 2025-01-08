@@ -3,11 +3,13 @@ import { GameManager, GameState } from '../modules/GameManager';  // Import the 
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
 import { TileBlock, TileBlockLayout } from '../modules/TileBlock';
 import { GameView } from '../types/GameViewInterface';
-import * as d3 from 'd3';
 import { ABOUT_HTML } from '../utils/constants';
 import { Tile } from '../modules/Tile';
 import { GridView } from './GridView';
 import { getTileCellClassList } from '../utils/getTileCellClassList';
+import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
+import { GraphsView, ScoreGraphLines } from './GraphsView';
+
 export class HtmlGameView implements GameView {
     private gameManager: GameManager;
     private gridView: GridView;
@@ -19,15 +21,16 @@ export class HtmlGameView implements GameView {
     private playerActions!: HTMLDivElement;
     private aboutScreen!: HTMLDivElement;
     private placePreview!: HTMLDivElement;
-    private histogramDiv!: HTMLDivElement;
     private toolbarDiv!: HTMLDivElement;
     private dynamicDisplayDiv!: HTMLDivElement;
 
     public gameType: 'daily' |'custom';
     private isShowingPlayerAction: boolean;
-    private  inspectModeEnabled = false;
+    private inspectModeEnabled = false;
     private inspectTileDetails: Tile | null = null;
-    private showScoreGraph = false;
+    private isShowingScoreGraph = false;
+
+    private graphs: GraphsView;
 
     constructor(gameManager: GameManager, document: Document, gameType: 'daily' |'custom') {
         this.gameManager = gameManager;
@@ -35,6 +38,7 @@ export class HtmlGameView implements GameView {
         this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
         this.isShowingPlayerAction = false;
         this.gameType = gameType;
+        this.graphs = new GraphsView(this.document);
 
         // Render static elements (like buttons) once during initialization
         this.initializeView();
@@ -61,7 +65,6 @@ export class HtmlGameView implements GameView {
                 </div>
                 <div class="game-updates">
                     <div id="playerNotice"></div>
-                    <div class="histogram" id="histogram"></div>
                     <div id="playerActions" class="player-actions"></div>
                 </div>
                 <div class="dynamic-display" id="dynamicDisplay"></div>
@@ -79,33 +82,255 @@ export class HtmlGameView implements GameView {
         this.playerActions = this.document.querySelector<HTMLDivElement>('#playerActions')!;
         this.aboutScreen = this.document.querySelector<HTMLDivElement>('#about')!;
         this.placePreview = this.document.querySelector<HTMLDivElement>('#placementPreview')!;
-        this.histogramDiv = this.document.querySelector<HTMLDivElement>('#histogram')!;
         this.toolbarDiv = this.document.querySelector<HTMLDivElement>('#toolbar')!;
         this.dynamicDisplayDiv = this.document.querySelector<HTMLDivElement>('#dynamicDisplay')!;
+
+        this.buildToolbar();
+        this.buildDynamicDisplay();
+        this.buildScoreBoard();
     }
 
-    private renderDynamicDisplay(): void {
-        this.dynamicDisplayDiv.innerHTML = '';
-
-        if (this.inspectModeEnabled) {
-            this.dynamicDisplayDiv.innerHTML = `
-<h3>Inspect Mode</h3>
-<div class="cell-details">
-            ${this.renderTileDetails(this.inspectTileDetails)}
-</div>`;
-        } else if (this.showScoreGraph) {
-            this.dynamicDisplayDiv.innerHTML = `<h3>Score History</h3><div class="score-graph" id="scoreGraph"></div>`;
-            this.renderScoreGraph();
-        }else {
-            this.dynamicDisplayDiv.innerHTML = `
-<div class="card-display">
-    ${this.renderHand()}
-    ${this.renderDeckCounter()}
+    /**
+     * Methods to set up the UI components
+     */
+    private buildToolbar(): void {
+        const toolbarHtml = `
+<h3>Tools</h3>
+<div class="tools">
+    <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">🔎</button>
+    <button class="button" id="flying">🚀</button>
+    <button class="button ${this.isShowingScoreGraph ? 'enabled' : '' }" id="openScoreGraph">📈</button>
 </div>
+        `
+
+        insertHtml(toolbarHtml, this.toolbarDiv);
+    }
+
+    private buildDynamicDisplay(): void {
+        const inspectModeHtml = `
+<div class="inspect-window hidden">
+    <h3>Inspect Mode</h3>
+    <div class="cell-details">
+        ${this.getTileDetailsHtml(this.inspectTileDetails)}
+    </div>
+</div>`;
+
+        const scoreHistoryHtml = `
+<div class="score-history-wrapper hidden">
+    <h3>Score History</h3>
+</div>`;
+
+        const playerCardsHtml = `
+<div class="card-display">
+    <div id="handContainer" class="hand"></div>
+    <div id="deckCounterContainer" class="deck-counter">
+        <div class="deck"></div>
+    </div>
+</div>
+`
+
+        const histogramHtml = `
+<div class="histogram-wrapper">
+    <h3>Score Comparison</h3>
+    <p>1000 random games with these settings</p>
+</div>
+`
+        insertHtml(inspectModeHtml, this.dynamicDisplayDiv);
+        insertHtml(scoreHistoryHtml, this.dynamicDisplayDiv);
+        insertHtml(playerCardsHtml, this.dynamicDisplayDiv);
+        insertHtml(histogramHtml, this.dynamicDisplayDiv);
+    }
+
+    private buildScoreBoard(): void {
+        const html = `
+<div class="score">🌲 ${this.gameManager.getPlayerScore('ecology')}</div>
+<div class="score">👤 ${this.gameManager.getPlayerScore('population')}</div>
 `;
+        insertHtml(html, this.scoreBoard);
+    }
+
+    /**
+     * Methods to Update UI Components
+     */
+    public updateGrid(): void {
+        // Only update the dynamic parts, not the entire app container
+        this.gridView.updateGrid();
+        
+        this.placePreview.innerHTML = this.getPreviewTileHtml();
+        this.setPreviewTile();
+
+        this.updateDynamicDisplay();
+        this.updateToolbar();
+        this.updatePlayerHand();
+        this.updateDeckCounter();
+        this.updateScoreBoard();
+        this.updatePlayerNotice();
+        this.updatePlayerActions();
+    }
+
+    private updateToolbar(): void {
+        const inspectButton = this.toolbarDiv.querySelector<HTMLButtonElement>('#inspectMode');
+        const isShowingScoreGraphButton = this.toolbarDiv.querySelector<HTMLButtonElement>('#openScoreGraph');
+
+        inspectButton?.classList.toggle('enabled', this.inspectModeEnabled);
+        isShowingScoreGraphButton?.classList.toggle('enabled', this.isShowingScoreGraph);
+
+        const hideToolbar = (this.gameManager.state == GameState.Complete || this.gameManager.state == GameState.GameOver);
+        this.toolbarDiv.classList.toggle('hidden', hideToolbar);
+    }
+
+    private updateDynamicDisplay(): void {
+        const inspectWrapper = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.inspect-window');
+        const scoreWrapper = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.score-history-wrapper');
+        const playerCardsWrapper = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.card-display');
+
+        inspectWrapper?.classList.toggle('hidden', !this.inspectModeEnabled);
+
+        const showScoreGraph = (
+            scoreWrapper && (
+                this.isShowingScoreGraph ||
+                this.gameManager.state == GameState.Complete ||
+                this.gameManager.state == GameState.GameOver
+            )
+        );
+
+        scoreWrapper?.classList.toggle('hidden', !showScoreGraph);
+        
+        if (showScoreGraph) {
+            this.renderScoreGraph(scoreWrapper);
+        }
+
+        const hideCardsDisplay = (
+            this.gameManager.state == GameState.Complete ||
+            this.gameManager.state == GameState.GameOver ||
+            this.isShowingScoreGraph ||
+            this.inspectModeEnabled
+        ); 
+        playerCardsWrapper?.classList.toggle('hidden', hideCardsDisplay);
+    }
+
+    private updatePlayerHand(): void {
+        const wrapper = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('#handContainer');
+
+        if (!wrapper) return;
+        
+        const handItems: HandItem[] = this.gameManager.getPlayerHand();
+        const selectedIndex = this.gameManager.getSelectedItemIndex();
+
+        clearElementChildren(wrapper);
+
+        if (handItems.length === 0) {
+            wrapper.textContent = '<p>No items in hand</p>';
+        } else {
+            let handHtml = '<div class="hand-grid">';  // Add a container for the hand items
+            handItems.forEach((item, index) => {
+                if (item instanceof TileBlock) {
+                    const selectedClass = index === selectedIndex ? 'selected' : '';
+                    const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
+                    
+                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
+                    handHtml += this.getTileBlockHtml(layout, 'hand');
+                    handHtml += '</div>';  // End of hand-item
+                }
+            });
+            handHtml += '</div>';  // End of hand-grid
+
+            insertHtml(handHtml, wrapper);
         }
     }
 
+    // Method to display the total number of items left in the deck
+    private updateDeckCounter(): void {
+        const wrapper = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('#deckCounterContainer');
+        const deck = wrapper?.querySelector<HTMLDivElement>('.deck');
+
+        if (!wrapper || !deck) return;
+
+        const deckCount = this.gameManager.getDeckItemCount();
+
+        deck.classList.toggle('is-empty', deckCount === 0);
+        deck.textContent = `${deckCount}`;
+    }
+
+    private updateScoreBoard(): void {
+        const scoreDivs = this.scoreBoard.querySelectorAll<HTMLDivElement>('.score');
+        const scores = [
+            `🌲 ${this.gameManager.getPlayerScore('ecology')}`,
+            `👤 ${this.gameManager.getPlayerScore('population')}`
+        ]
+
+        scoreDivs.forEach((div, index) => {
+            div.textContent = scores[index]
+        });
+    }
+
+    private updatePlayerNotice(): void {
+        let html: string;
+
+        switch(this.gameManager.state) {
+            case GameState.GameOver:
+                html = `
+<h3>Game Over</h3>
+<p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
+<p>Final score: ${this.gameManager.getCalculatedPlayerScore()}</p>
+`;
+                
+                break;
+            case GameState.Complete:
+                const ecoScore = this.gameManager.getPlayerScore('ecology');
+                const popScore = this.gameManager.getPlayerScore('population');
+                html = `
+                <h3>Success!</h3>
+                <p>After centuries traveling through space the ship has reached a suitable planet for permanent colonization.</p>
+                <p>The colony will be seeded with ecological score of <strong>${ecoScore}</strong> and a population of <strong>${popScore}</strong>.</p>
+                <p><strong>Total score: ${this.gameManager.getCalculatedPlayerScore()}</strong></p>
+                `;
+                break;
+            default:
+                html = '';
+        }
+
+        clearElementChildren(this.playerNotice);
+        insertHtml(html, this.playerNotice);
+    }
+
+    private updatePlayerActions(): void {
+        let html: string;
+
+        if (this.isShowingPlayerAction) {
+            switch(this.gameManager.state) {
+                case GameState.GameOver:
+                    html = `
+                <button class="button" id="restartGame">Restart</button>
+                `;
+                    break;
+                case GameState.Complete:
+                    html = `
+                <button class="button" id="restartGame">Play Again</button>
+                <button class="button" id="shareScore">Share Score</button>
+                ${this.gameType == 'daily' ? `<button class="button" id="shareScore">Share Score</button>` : ''}
+                `;
+                    break;
+                default:
+                    html = `
+            <div class="prompt">Confirm placement?</div>
+            <button id="player-action-affirmative" class="button small btn-player-action">Yes</button>
+            <span>/</span>
+            <button id="player-action-negative" class="button small btn-player-action">No</button>
+            `
+            }
+            
+        } else {
+            html = '';
+        }
+
+        clearElementChildren(this.playerActions);
+        insertHtml(html, this.playerActions);
+    }
+
+    /**
+     * Misc and unorganized methods
+     */
     private setPreviewTile(): void {
         const cells = this.gridView.div?.querySelectorAll<HTMLDivElement>('.cell');
 
@@ -117,7 +342,7 @@ export class HtmlGameView implements GameView {
         });
     }
 
-    private renderPreviewTile(): string {
+    private getPreviewTileHtml(): string {
         if (!this.isShowingPlayerAction) {
             return '';
         }
@@ -134,11 +359,11 @@ export class HtmlGameView implements GameView {
                     
         return `
         <div class="preview-item">
-        ${this.renderTileBlock(layout, 'preview-item')}
+        ${this.getTileBlockHtml(layout, 'preview-item')}
         </div>`
     }
 
-    private renderTileBlock(layout: TileBlockLayout, className: string): string {
+    private getTileBlockHtml(layout: TileBlockLayout, className: string): string {
         if (layout.orientation == 'horizontal') {
             return `
     <div class="${className}-row">
@@ -157,57 +382,8 @@ export class HtmlGameView implements GameView {
     </div>
 `
     }
-    
 
-    // Method to create the HTML representation of the player's hand
-    private renderHand(): string {
-        if (this.gameManager.state != GameState.Playing) {
-            return '';
-        }
-
-        const handItems: HandItem[] = this.gameManager.getPlayerHand();
-        const selectedIndex = this.gameManager.getSelectedItemIndex();
-        let handHtml = '<div id="handContainer" class="hand">';
-
-        if (handItems.length === 0) {
-            handHtml += '<p>No items in hand</p>';
-        } else {
-            handHtml += '<div class="hand-grid">';  // Add a container for the hand items
-            handItems.forEach((item, index) => {
-                if (item instanceof TileBlock) {
-                    const selectedClass = index === selectedIndex ? 'selected' : '';
-                    const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
-                    
-                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
-                    handHtml += this.renderTileBlock(layout, 'hand');
-                    handHtml += '</div>';  // End of hand-item
-                }
-            });
-            handHtml += '</div>';  // End of hand-grid
-        }
-
-        handHtml += '</div>' // Close parent div
-
-        return handHtml;
-    }
-
-
-    // Method to display the total number of items left in the deck
-    private renderDeckCounter(): string {
-        if (this.gameManager.state != GameState.Playing) {
-            return '';
-        }
-
-        const deckCount = this.gameManager.getDeckItemCount();
-        let classString = 'deck';
-
-        if (deckCount === 0) {
-            classString += ' is-empty';
-        }
-        return `<div id="deckCounterContainer" class="deck-counter"><div class="${classString}">${deckCount}</div></div>`;
-    }
-
-    private renderTileDetails(tile: Tile | null): string {
+    private getTileDetailsHtml(tile: Tile | null): string {
         if (tile) {
             return `
 <ul>
@@ -220,175 +396,27 @@ export class HtmlGameView implements GameView {
         return 'Empty'
     }
 
-    private renderScoreBoard(): string {
-        const ecoScore = `<div class="score">🌲 ${this.gameManager.getPlayerScore('ecology')}</div>`;
-        const popScore = `<div class="score">👤 ${this.gameManager.getPlayerScore('population')}</div>`;
-        return ecoScore + popScore;
-    }
-
-    private renderPlayerUpdates(): void {
-        switch(this.gameManager.state) {
-            case GameState.GameOver:
-                this.playerNotice.innerHTML = `
-<h3>Game Over</h3>
-<p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
-<p>Final score: ${this.gameManager.getCalculatedPlayerScore()}</p>
-`;
-                this.showPlayerActions();
-                break;
-            case GameState.Complete:
-                const ecoScore = this.gameManager.getPlayerScore('ecology');
-                const popScore = this.gameManager.getPlayerScore('population');
-                this.playerNotice.innerHTML = `
-                <h3>Success!</h3>
-                <p>After centuries traveling through space the ship has reached a suitable planet for permanent colonization.</p>
-                <p>The colony will be seeded with ecological score of ${ecoScore} and a population of ${popScore}.</p>
-                <p>Total score: ${this.gameManager.getCalculatedPlayerScore()}</p>
-                `;
-                this.showPlayerActions();
-
-                break;
-            default:
-                this.playerNotice.innerHTML = '';
-        }
-    }
-
-    private renderPlayerActions(): void {
-        if (this.isShowingPlayerAction) {
-            switch(this.gameManager.state) {
-                case GameState.GameOver:
-                    this.playerActions.innerHTML = `
-                <button class="button" id="restartGame">Restart</button>
-                `;
-                    break;
-                case GameState.Complete:
-                    this.playerActions.innerHTML = `
-                <button class="button" id="restartGame">Play Again</button>
-                <button class="button" id="shareScore">Share Score</button>
-                ${this.gameType == 'daily' ? `<button class="button" id="shareScore">Share Score</button>` : ''}
-                `;
-                    break;
-                default:
-                    this.playerActions.innerHTML = `
-            <div class="prompt">Confirm placement?</div>
-            <button id="player-action-affirmative" class="button small btn-player-action">Yes</button>
-            <span>/</span>
-            <button id="player-action-negative" class="button small btn-player-action">No</button>
-            `
-            }
-            
-        } else {
-            this.playerActions.innerHTML = '';
-        }
-    }
-
-    private renderToolbar(): void {
-        this.toolbarDiv.innerHTML = `
-<h3>Tools</h3>
-<div class="tools">
-    <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">🔎</button>
-    <button class="button" id="flying">🚀</button>
-    <button class="button ${this.showScoreGraph ? 'enabled' : '' }" id="openScoreGraph">📈</button>
-</div>
-        `
-    }
-
-    private renderScoreGraph(): void {
+    private renderScoreGraph(el: HTMLDivElement): void {
         const popScore = this.gameManager.getPlayerScoreObj('population');
         const ecoScore = this.gameManager.getPlayerScoreObj('ecology');
-        
-        const popScoreHistory = popScore ? [...popScore.history, popScore.value] : [];
-        const ecoScoreHistory = ecoScore ? [...ecoScore.history, ecoScore.value] : [];
 
-        const minWidth = 320;
-        const maxWidth = 420;
-        const height = 100;
-        const margin = 20;
-    
-        // Reference the parent container
-        const parent = d3.select(`#scoreGraph`)
-            .style('width', '100%')
-            .style('max-width', `${maxWidth}px`)
-            .style('min-width', `${minWidth}px`)
-            .style('margin', '0 auto');
-        
-        const svg = parent.append('svg')
-            .attr('viewBox', `0 0 ${maxWidth} ${height + (margin * 2)}`)
-            .style('width', '100%') // Fully responsive
-            .style('height', `${height + margin}px`) // Adjust height automatically
-    
-        const width = maxWidth - (margin * 2);
+        const lines: ScoreGraphLines[] = []
 
-        const g = svg.append('g')
-            .attr('transform', `translate(${margin}, ${margin})`);
-    
-        // Define scales
-        const xScale = d3.scaleLinear()
-            .domain([0, popScoreHistory.length - 1]) // Index of the array
-            .range([0, width]);
-    
-        const yScale = d3.scaleLinear()
-            .domain([
-                0,
-                d3.max([d3.max(popScoreHistory) as number, d3.max(ecoScoreHistory) as number]) as number ?? 0,
-            ]) // Value of the array items
-            .range([height, 0]);
-    
-        // Define line generators
-        const line1 = d3.line<number>()
-            .x((_, i) => xScale(i))
-            .y((d) => yScale(d));
-    
-        const line2 = d3.line<number>()
-            .x((_, i) => xScale(i))
-            .y((d) => yScale(d));
-    
-        // Draw first line
-        g.append('path')
-            .datum(popScoreHistory)
-            .attr('fill', 'none')
-            .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
-            .attr('d', line1);
-    
-        // Draw second line
-        g.append('path')
-            .datum(ecoScoreHistory)
-            .attr('fill', 'none')
-            .attr('stroke', '#1b9416')
-            .attr('stroke-width', 2)
-            .attr('d', line2);
-    
-        // Add x-axis
-        g.append('g')
-            .attr('transform', `translate(0, ${height})`)
-            .call(d3.axisBottom(xScale).ticks(0))
-            .attr('color', '#fff')
-            .attr('font-size', '10px');
-    
-        // Add y-axis
-        g.append('g')
-            .call(d3.axisLeft(yScale).ticks(5))
-            .attr('color', '#fff')
-            .attr('font-size', '10px')
-            .selectAll('.tick line')
-            .remove(); 
-    }
+        if (popScore) {
+            lines.push({
+                score: popScore,
+                color: 'steelblue'
+            });
+        }
 
-    // Method to update the dynamic parts of the UI (grid, hand, deck counter)
-    public updateGrid(): void {
-        // Only update the dynamic parts, not the entire app container
-        this.gridView.updateGrid();
-        
-        this.scoreBoard.innerHTML = this.renderScoreBoard();
-        this.renderPlayerUpdates();
-        this.renderPlayerActions();
-        
-        this.placePreview.innerHTML = this.renderPreviewTile();
-        this.setPreviewTile();
+        if (ecoScore) {
+            lines.push({
+                score: ecoScore,
+                color: '#1b9416'
+            })
+        }
 
-        this.renderDynamicDisplay();
-        this.renderToolbar();
+        this.graphs.appendScoreGraph(el, lines);
     }
 
     public showHelp(): void {
@@ -408,88 +436,33 @@ export class HtmlGameView implements GameView {
     }
 
     public showHistogram(sampleData: GameResults[], score: number): void {
-        const minWidth = 320;
-        const maxWidth = 800;
-        const aspectRatio = 2; // Width-to-height ratio
-        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-        const numBins = 5;
-    
-        // Reference the parent container
-        const parent = d3.select(`#${this.histogramDiv.id}`)
-            .style('width', '100%') // Full width within the parent
-            .style('max-width', `${maxWidth}px`)
-            .style('min-width', `${minWidth}px`)
-            .style('margin', '0 auto'); // Center on larger screens
-    
-        const svg = parent.append('svg')
-            .attr('viewBox', `0 0 ${maxWidth} ${maxWidth / aspectRatio}`)
-            .attr('preserveAspectRatio', 'xMidYMid meet') // Maintain aspect ratio
-            .style('width', '100%') // Fully responsive
-            .style('height', 'auto'); // Adjust height automatically
-    
-        const width = maxWidth - margin.left - margin.right;
-        const height = maxWidth / aspectRatio - margin.top - margin.bottom;
-    
-        const data = sampleData.map(result => result.score);
-    
-        const g = svg.append('g')
-            .attr('transform', `translate(${margin.left}, ${margin.top})`);
-    
-        const x = d3.scaleLinear()
-            .domain([d3.min([...data, score]) as number, d3.max([...data, score]) as number]) // Input domain
-            .range([0, width]); // Output range
-    
-        const histogram = d3.bin()
-            .domain(x.domain() as [number, number]) // Set the domain of the histogram
-            .thresholds(x.ticks(numBins)); // Number of bins
-    
-        const bins = histogram(data);
-    
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(bins, d => d.length) ?? 0]) // Set y scale domain
-            .range([height, 0]);
-    
-        // Add bars
-        g.selectAll('rect')
-            .data(bins)
-            .enter().append('rect')
-            .attr('x', d => x(d.x0 ?? 0)) // Provide default for x0
-            .attr('y', d => y(d.length ?? 0)) // Provide default for length
-            .attr('width', d => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1) // Adjust for spacing
-            .attr('height', d => height - y(d.length ?? 0)) // Ensure length is valid
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1);
-    
-        // Add x-axis
-        g.append('g')
-            .attr('transform', `translate(0, ${height})`)
-            .call(d3.axisBottom(x))
-            .attr('color', '#fff')
-            .attr('font-size', '10px');
-    
-        // Add y-axis
-        g.append('g')
-            .call(d3.axisLeft(y))
-            .attr('color', '#fff')
-            .attr('font-size', '10px');
-    
-        // Draw a yellow line for the given score
-        g.append('line')
-            .attr('x1', x(score)) // Position at the score on the x-axis
-            .attr('x2', x(score))
-            .attr('y1', 0) // Start at the top of the graph
-            .attr('y2', height) // End at the bottom of the graph
-            .attr('stroke', '#ffbb00')
-            .attr('stroke-width', 2)
-            .attr('stroke-dasharray', '4 2'); // Dashed for better visibility
+        const graph = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.histogram-wrapper');
+
+        if (!graph) return;
+
+        const avg = sampleData.reduce((acc, result) => {
+            return acc + result.score
+        }, 0) / sampleData.length;
+        this.graphs.appendHistogram(graph, sampleData, score, avg);
+        graph.classList.remove('hidden');
     }
 
     public hideHistogram(): void {
-        this.histogramDiv.innerHTML = '';
+        const graph = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.histogram-wrapper');
+        const histogram = graph?.querySelector<HTMLDivElement>('#histogram');
+
+        if (graph && histogram) {
+            graph.removeChild(histogram);
+            graph.classList.add('hidden');
+        }
     }
     
     public toggleInspectMode(optionalValue?: boolean) {
         this.inspectModeEnabled = optionalValue ?? !this.inspectModeEnabled;
+    }
+
+    public getInspectMode(): boolean {
+        return this.inspectModeEnabled;
     }
 
     public setInspectTileDetails(tile: Tile | null): void {
@@ -497,6 +470,10 @@ export class HtmlGameView implements GameView {
     }
 
     public toggleScoreGraph(optionalValue?: boolean) {
-        this.showScoreGraph = optionalValue ?? !this.showScoreGraph;
+        this.isShowingScoreGraph = optionalValue ?? !this.isShowingScoreGraph;
+    }
+
+    public getScoreGraphVisibility(): boolean {
+        return this.isShowingScoreGraph;
     }
 }

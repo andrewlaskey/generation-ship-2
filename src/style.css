@@ -55,6 +55,7 @@ h1 {
   border-radius: 3px;
   font-family: var(--font-family-default);
   text-transform: uppercase;
+  color: var(--button-color);
 }
 
 .button:hover,
@@ -110,6 +111,7 @@ h1 {
   box-shadow: 
       inset 0 0 0 2px var(--button-background-color),
       inset 0 0 0 3px var(--button-warn-color);
+  color: var(--button-warn-color);
 }
 
 .button.warn:active {

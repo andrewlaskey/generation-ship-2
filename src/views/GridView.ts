@@ -57,7 +57,7 @@ export class GridView implements GameView {
 
     private updateCell(space: BoardSpace): void {
         if (!this.div) return;
-        
+
         const tile = space ? space.tile : undefined;
         const classList = this.getCellClassList(space);
 
@@ -92,8 +92,8 @@ export class GridView implements GameView {
                 }
             } else {
                 for (let i = 0; i < Math.abs(adjustment); i++) {
-                    const lastSpan = folkSpans[folkSpans.length - 1];
-                    
+                    const lastSpan = folkSpans.item(folkSpans.length - 1 - i);
+                        
                     if (lastSpan) {
                         cellDiv.removeChild(lastSpan); // Remove the last span
                     }

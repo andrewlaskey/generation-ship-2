@@ -11,8 +11,6 @@ export class HtmlGameController implements ViewController {
     private selectedGridCell: { x: number; y: number};
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
-    private inspectModeEnabled = false;
-    private showScoreGraph = false;
 
     constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
         this.gameManager = gameManager;
@@ -74,20 +72,16 @@ export class HtmlGameController implements ViewController {
         });
 
         inspectModeButton?.addEventListener('click', () => {
-            this.showScoreGraph = false;
-            this.inspectModeEnabled = !this.inspectModeEnabled;
-            this.gameView.toggleInspectMode(this.inspectModeEnabled);
-            this.gameView.toggleScoreGraph(this.showScoreGraph);
+            this.gameView.toggleScoreGraph(false);
+            this.gameView.toggleInspectMode();
             this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
             this.gameView.hidePlayerActions();
             this.updateView();
         });
 
         openScoreGraphButton?.addEventListener('click', () => {
-            this.inspectModeEnabled = false;
-            this.showScoreGraph = !this.showScoreGraph;
-            this.gameView.toggleInspectMode(this.inspectModeEnabled);
-            this.gameView.toggleScoreGraph(this.showScoreGraph);
+            this.gameView.toggleInspectMode(false);
+            this.gameView.toggleScoreGraph();
             this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
             this.gameView.hidePlayerActions();
             this.updateView();
@@ -137,6 +131,9 @@ export class HtmlGameController implements ViewController {
             restartGameButton.addEventListener('click', () => {
                 this.gameManager.resetGame();
                 this.gameManager.startGame();
+                this.gameView.hideHistogram();
+                this.gameView.toggleScoreGraph(false);
+                this.gameView.toggleInspectMode(false);
                 this.updateView();
             })
         }
@@ -147,7 +144,7 @@ export class HtmlGameController implements ViewController {
                 const popScore = this.gameManager.getPlayerScore('population');
                 const totalScore = this.gameManager.getCalculatedPlayerScore();
                 try {
-                    const text = `Generation Ship 2 Daily Challenge ${getCurrentDate()}
+                    const text = `Generation Ship 2 - Daily Challenge ${getCurrentDate()}
 🌲 ${ecoScore}
 👤 ${popScore}
 🧮 ${totalScore}`
@@ -190,7 +187,7 @@ export class HtmlGameController implements ViewController {
     // Handle a click on a grid cell
     private handleCellClick(x: number, y: number): void {
 
-        if (this.inspectModeEnabled) {
+        if (this.gameView.getInspectMode()) {
             this.handleInspectCell(x, y);
         } else {
             this.handleTileBlockPlacementSelect(x, y);
@@ -244,10 +241,8 @@ export class HtmlGameController implements ViewController {
     // Update the view and re-initialize listeners
     private updateView(): void {
         this.gameView.updateGrid();
-        this.gameView.hideHistogram();
         this.initHandItemListeners();
         this.initPlayerActionListeners();
-        this.initToolbarListeners();
     }
 
     // Handle advancing the turn
@@ -257,7 +252,8 @@ export class HtmlGameController implements ViewController {
         this.gameView.hidePlayerActions();
 
         if (this.gameManager.state == GameState.Complete || this.gameManager.state == GameState.GameOver) {
-            const sampleData = this.generateHistogram(10000);
+            this.gameView.showPlayerActions();
+            const sampleData = this.generateHistogram(1000);
             this.gameView.showHistogram(sampleData, this.gameManager.getCalculatedPlayerScore());
         }
         
