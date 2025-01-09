@@ -24,6 +24,9 @@ export class HtmlGameController implements ViewController {
         // Set up any input listeners
         this.initInputListeners();
 
+        // Misc setup
+        this.gameView.hideHistogram();
+
         // Start the game
         if (startGame) {
             this.gameManager.startGame();
@@ -198,8 +201,7 @@ export class HtmlGameController implements ViewController {
 
     private handleTileBlockPlacementSelect(x: number, y: number): void {
         if (x == this.selectedGridCell.x && y == this.selectedGridCell.y) {
-            this.gameManager.removeBoardHighlight(x, y);
-            this.gameView.hidePlayerActions();
+            this.gameManager.rotateSelectedItem();
         } else {
             this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
             this.gameManager.addBoardHighlight(x, y);

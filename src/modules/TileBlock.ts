@@ -111,20 +111,44 @@ export class TileBlock implements HandItem {
         // Ensure valid placement (within bounds of the game board)
         const size = gameBoard.size;  // Assuming GameBoard has a size property
 
-        if (this.orientation == 'horizontal') {
-            if (x < 0 || x + 1 >= size || y >= size) {
-                throw new Error("Invalid placement: out of bounds");
-            }
-            // Place tiles or remove them horizontally
-            this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
-            this.placeOrRemoveTile(x + 1, y, gameBoard, this.secondTile);
-        } else {
-            if (x >= size || y >= size || y + 1 >= size) {
-                throw new Error("Invalid placement: out of bounds");
-            }
-            // Place tiles or remove them vertically
-            this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
-            this.placeOrRemoveTile(x, y + 1, gameBoard, this.secondTile);
+        const right = x + 1;
+        const left = x - 1;
+        const up = y - 1;
+        const down = y + 1;
+
+        switch(this.rotation) {
+            case 90:
+                if (x < 0 || x >= size || y < 0  || down >= size) {
+                    throw new Error("Invalid placement: out of bounds");
+                }
+
+                this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
+                this.placeOrRemoveTile(x, down, gameBoard, this.secondTile);
+                break;
+            case 180:
+                if (left < 0 || x >= size || y < 0  ||  y >= size) {
+                    throw new Error("Invalid placement: out of bounds");
+                }
+
+                this.placeOrRemoveTile(x, y, gameBoard, this.secondTile);
+                this.placeOrRemoveTile(left, y, gameBoard, this.firstTile);
+                break;
+            case 270:
+                if (x < 0 || x >= size || up < 0  ||  y >= size) {
+                    throw new Error("Invalid placement: out of bounds");
+                }
+
+                this.placeOrRemoveTile(x, y, gameBoard, this.secondTile);
+                this.placeOrRemoveTile(x, up, gameBoard, this.firstTile);
+                break;
+            default:
+                if (x < 0 || right >= size || y < 0  || down >= size) {
+                    throw new Error("Invalid placement: out of bounds");
+                }
+
+                this.placeOrRemoveTile(x, y, gameBoard, this.firstTile);
+                this.placeOrRemoveTile(right, y, gameBoard, this.secondTile);
+                break;  
         }
     }
 

@@ -130,7 +130,7 @@ export class HtmlGameView implements GameView {
 `
 
         const histogramHtml = `
-<div class="histogram-wrapper">
+<div class="histogram-wrapper hidden">
     <h3>Score Comparison</h3>
     <p>1000 random games with these settings</p>
 </div>
@@ -355,10 +355,13 @@ export class HtmlGameView implements GameView {
         }
         
         const layout: TileBlockLayout = selectedItem.getLayout();  // Assuming TileBlock has a getLayout() method
+        const rotation: number = selectedItem.getRotation();
                     
         return `
         <div class="preview-item">
-        ${this.getTileBlockHtml(layout, 'preview-item')}
+                <div class="preview-item-inner ${layout.orientation} rotate-${rotation}">
+                    ${this.getTileBlockHtml(layout, 'preview-item')}
+                </div>
         </div>`
     }
 

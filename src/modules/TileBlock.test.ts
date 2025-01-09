@@ -115,41 +115,57 @@ describe('TileBlock', () => {
         const treeTile = new Tile(TileType.Tree, 1, TileState.Neutral);
         const houseTile = new Tile(TileType.People, 1, TileState.Neutral);
         const tileBlock = new TileBlock([treeTile, houseTile]);
+        gameBoard = createMockGameBoard(3);
 
-        // Initial rotation (0 degrees): "🌳🏠"
-        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
-        let space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        let space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+        let x = 1;
+        let y = 1;
 
-        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
-        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
-
-        // First rotation (90 degrees): "🌳🏠" becomes "🌳 🏠"
-        tileBlock.rotate();
-        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
-        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        // Initial rotation (0 degrees)
+        // 0️⃣0️⃣0️⃣
+        // 0️⃣🌳🏠
+        // 0️⃣0️⃣0️⃣
+        tileBlock.placeOnGrid(x, y, gameBoard as GameBoard);
+        let space1 = gameBoard.getSpace!(x, y) as BoardSpace;
+        let space2 = gameBoard.getSpace!(x + 1, y) as BoardSpace;
 
         expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
         expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
 
-        // // Second rotation (180 degrees): "🌳 🏠" becomes "🏠🌳"
+        // First rotation (90 degrees)
+        // 0️⃣0️⃣0️⃣
+        // 0️⃣🌳0️⃣
+        // 0️⃣🏠0️⃣
         tileBlock.rotate();
-        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
-        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(1, 0) as BoardSpace;
+        tileBlock.placeOnGrid(x, y, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(x, y) as BoardSpace;
+        space2 = gameBoard.getSpace!(x, y + 1) as BoardSpace;
 
-        expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
-        expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
 
-        // Third rotation (270 degrees): "🏠🌳" becomes "🏠 🌳"
+        // // Second rotation (180 degrees)
+        // 0️⃣0️⃣0️⃣
+        // 🏠🌳0️⃣
+        // 0️⃣0️⃣0️⃣
         tileBlock.rotate();
-        tileBlock.placeOnGrid(0, 0, gameBoard as GameBoard);
-        space1 = gameBoard.getSpace!(0, 0) as BoardSpace;
-        space2 = gameBoard.getSpace!(0, 1) as BoardSpace;
+        tileBlock.placeOnGrid(x, y, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(x, y) as BoardSpace;
+        space2 = gameBoard.getSpace!(x - 1, y) as BoardSpace;
 
-        expect(space1.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
-        expect(space2.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
+
+        // Third rotation (270 degrees):
+        // 0️⃣🏠0️⃣
+        // 0️⃣🌳0️⃣
+        // 0️⃣0️⃣0️⃣
+        tileBlock.rotate();
+        tileBlock.placeOnGrid(x, y, gameBoard as GameBoard);
+        space1 = gameBoard.getSpace!(x, y) as BoardSpace;
+        space2 = gameBoard.getSpace!(x, y - 1) as BoardSpace;
+
+        expect(space1.placeTile).toHaveBeenCalledWith(treeTile);  // 🌳
+        expect(space2.placeTile).toHaveBeenCalledWith(houseTile);  // 🏠
     });
 
     it('should return the two tiles regardless of orientation', () => {

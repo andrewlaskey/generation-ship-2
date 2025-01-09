@@ -58,6 +58,14 @@
   flex-direction: column;
 }
 
+.preview-item-inner.rotate-180 {
+  transform: translateX(-50%);
+}
+
+.preview-item-inner.rotate-270 {
+  transform: translateY(-50%);
+}
+
 .preview-item .cell {
   background-color: rgba(255, 187, 0, 0.15);
   border: 1px solid var(--tile-hl-color);
@@ -178,6 +186,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  pointer-events: none;
 }
 
 .player-actions {
