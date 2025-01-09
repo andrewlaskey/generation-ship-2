@@ -5,17 +5,6 @@
 @import url('styles/grid-view.css');
 
 :root {
-  font-family: "VT323", monospace;
-  font-weight: 400;
-  font-style: normal;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: rgba(11, 11, 11, 1);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
   /* Variables */
   --button-active-color: #ffbb00;
   --button-color: white;
@@ -24,6 +13,20 @@
   --button-enabled-color: #175314;
 
   --font-family-default: "VT323", monospace;
+
+  --global-bg-color: rgba(11, 11, 11, 1);
+
+  /* global styles */
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  font-style: normal;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: var(--global-bg-color);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {

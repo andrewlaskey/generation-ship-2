@@ -40,6 +40,12 @@
     opacity: 1;
 }
 
+.background-player .cell {
+    background-color: var(--global-bg-color);
+    border-bottom-color: var(--global-bg-color);
+    border-right-color: var(--global-bg-color);
+}
+
 .main-menu {
     opacity: 1;
     position: relative;
