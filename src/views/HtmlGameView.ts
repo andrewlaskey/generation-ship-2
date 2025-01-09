@@ -186,6 +186,15 @@ export class HtmlGameView implements GameView {
 
         inspectWrapper?.classList.toggle('hidden', !this.inspectModeEnabled);
 
+        if (this.inspectModeEnabled) {
+            const details = inspectWrapper?.querySelector<HTMLDivElement>('.cell-details');
+
+            if (details) {
+                clearElementChildren(details);
+                insertHtml(this.getTileDetailsHtml(this.inspectTileDetails), details);
+            }
+        }
+
         const showScoreGraph = (
             scoreWrapper && (
                 this.isShowingScoreGraph ||
@@ -469,6 +478,7 @@ export class HtmlGameView implements GameView {
 
     public setInspectTileDetails(tile: Tile | null): void {
         this.inspectTileDetails = tile;
+        this.updateDynamicDisplay();
     }
 
     public toggleScoreGraph(optionalValue?: boolean) {

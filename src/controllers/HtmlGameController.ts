@@ -219,6 +219,7 @@ export class HtmlGameController implements ViewController {
     }
 
     private handleInspectCell(x: number, y: number): void {
+        console.log('clicked');
         this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
         this.selectedGridCell.x = x;
         this.selectedGridCell.y = y;
