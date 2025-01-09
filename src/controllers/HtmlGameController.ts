@@ -167,9 +167,14 @@ export class HtmlGameController implements ViewController {
                     this.selectedGridCell.y,
                     selectedHandIndex
                 );
+
+                console.log(success);
                 
                 if (!success) {
                     console.error(`Failed to place tile block at (${this.selectedGridCell.x}, ${this.selectedGridCell.y}). Invalid placement or non-tile item.`);
+                    this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+                    this.gameView.hidePlayerActions();
+                    this.updateView();
                 } else {
                     this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
                     // Advance the players turn after making a placement
@@ -180,6 +185,7 @@ export class HtmlGameController implements ViewController {
 
         if (playerActionNegative) {
             playerActionNegative.addEventListener('click', () => {
+                this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
                 this.gameView.hidePlayerActions();
                 this.updateView();
             })

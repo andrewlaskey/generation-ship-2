@@ -177,7 +177,36 @@ describe('TileBlock', () => {
         const tiles: (Tile | null)[] = tileBlock.getTiles()
 
         expect(tiles).toStrictEqual([treeTile, houseTile])
+    });
+
+    it('should be able to place horizontal tile on last grid row', () => {
+        const treeTile = new Tile(TileType.Tree, 1, TileState.Neutral);
+        const houseTile = new Tile(TileType.People, 1, TileState.Neutral);
+        const tileBlock = new TileBlock([treeTile, houseTile]);
+        gameBoard = createMockGameBoard(3);
+
+        let x = 1;
+        let y = gameBoard.size as number - 1;
+
+        expect(() => {
+            tileBlock.placeOnGrid(x, y, gameBoard as GameBoard)
+        }).not.toThrow()
     })
+
+    it('should not be able to place a downward facing tile block on last grid row', () => {
+        const treeTile = new Tile(TileType.Tree, 1, TileState.Neutral);
+        const houseTile = new Tile(TileType.People, 1, TileState.Neutral);
+        const tileBlock = new TileBlock([treeTile, houseTile]);
+        gameBoard = createMockGameBoard(3);
+
+        let x = 1;
+        let y = gameBoard.size as number - 1;
+
+        tileBlock.rotate();
+        expect(() => {
+            tileBlock.placeOnGrid(x, y, gameBoard as GameBoard)
+        }).toThrowError("Invalid placement: out of bounds")
+    });
 });
 
 

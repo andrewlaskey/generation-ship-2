@@ -142,7 +142,7 @@ export class TileBlock implements HandItem {
                 this.placeOrRemoveTile(x, up, gameBoard, this.firstTile);
                 break;
             default:
-                if (x < 0 || right >= size || y < 0  || down >= size) {
+                if (x < 0 || right >= size || y < 0  || y >= size) {
                     throw new Error("Invalid placement: out of bounds");
                 }
 
