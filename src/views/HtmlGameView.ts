@@ -307,7 +307,6 @@ export class HtmlGameView implements GameView {
                 case GameState.Complete:
                     html = `
                 <button class="button" id="restartGame">Play Again</button>
-                <button class="button" id="shareScore">Share Score</button>
                 ${this.gameType == 'daily' ? `<button class="button" id="shareScore">Share Score</button>` : ''}
                 `;
                     break;
