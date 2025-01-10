@@ -162,195 +162,107 @@
 }
 
 .tile {
-    width: 48px; /* Smaller width for a compact grid */
-    height: 48px; /* Smaller height for a compact grid */
-    display: flex;
-    justify-content: center;
-    align-items: end;
-    font-size: 3rem;
-    color: white; /* Default text color */
-    animation: object-move 3s linear infinite;
-  }
-  
-  /* Tile levels adjust the size of the character */
-  .tile.l1 {
-    font-size: 2.2rem;
-  }
-  
-  .tile.l2 {
-    font-size: 2.8rem;
-  }
-  
-  .tile.l3 {
-    font-size: 3rem;
-  }
+  position: absolute;
+  left: calc(50% - 24px);
+  top: 0;
+  width: 48px; /* Smaller width for a compact grid */
+  height: 48px; /* Smaller height for a compact grid */
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  font-size: 3rem;
+  color: white; /* Default text color */
+  animation: object-move 3s linear infinite;
+  animation-fill-mode: backwards;
+}
 
-  .tile.healthy {
-    filter: saturate(300%);
-  }
-  
-  .tile.unhealthy {
-    filter: saturate(175%);
-  }
-  
-  .tile.tree::before {
-    color: #1b9416; /* Green for tree tiles */
-  }
-  
-  .tile.tree.l1::before {
-    content: "ᚭ";
-  }
-  
-  .tile.tree.l2::before {
-    content: "ᚨ";
-  }
-  
-  .tile.tree.l3::before {
-    content: "ᚫ";
-  }
-  
-  .tile.people::before {
-    color: #7c4e10; /* Adobe color for people tiles */
-  }
-  
-  .tile.people.l1::before {
-    content: "ᨊ";
-  }
-  
-  .tile.people.l2::before {
-    content: "ᨕ";
-  }
-  
-  .tile.people.l3::before {
-    content: "ᨐ";
-  }
-  
-  .tile.farm::before {
-    color: #ffd522; /* Yellow for farm tiles */
-    transform: rotateX(70deg) translateY(40px);
-  }
-  
-  .tile.farm.l1::before {
-    content: "፡";
-  }
-  
-  .tile.farm.l2::before {
-    content: "፠";
-  }
-  
-  .tile.farm.l3::before {
-    content: "፨";
-  }
-  
-  .tile.power::before {
-    color: #3800ff;
-  }
-  
-  .tile.power.l1::before {
-    content: "ᚢ";
-  }
-  
-  .tile.power.l2::before {
-    content: "ᚣ";
-  }
-  
-  .tile.power.l3::before {
-    content: "ᚥ";
-  }
+.tile.x-0 {
+  left: 0;
+}
 
-  .tile.power.l1.healthy {
-    animation-delay: 300ms;
-  }
 
-  .tile.power.l2.healthy {
-    animation-delay: 250ms;
-  }
+/* Tile levels adjust the size of the character */
+.tile.l1 {
+  font-size: 2.2rem;
+}
 
-  .tile.power.l3.healthy {
-    animation-delay: 1547ms;
-  }
+.tile.l2 {
+  font-size: 2.8rem;
+}
 
-  .tile.tree.l1.healthy {
-    animation-delay: 275ms;
-  }
+.tile.l3 {
+  font-size: 3rem;
+}
 
-  .tile.tree.l2.healthy {
-    animation-delay: 1460ms;
-  }
+.tile.healthy {
+  filter: saturate(300%);
+}
 
-  .tile.tree.l3.healthy {
-    animation-delay: 120ms;
-  }
+.tile.unhealthy {
+  filter: saturate(175%);
+}
 
-  .tile.people.l1.healthy {
-    animation-delay: 800ms;
-  }
+.tile.tree::before {
+  color: #1b9416; /* Green for tree tiles */
+}
 
-  .tile.people.l2.healthy {
-    animation-delay: 1400ms;
-  }
+.tile.tree.l1::before {
+  content: "ᚭ";
+}
 
-  .tile.people.l3.healthy {
-    animation-delay: 230ms;
-  }
+.tile.tree.l2::before {
+  content: "ᚨ";
+}
 
-  .tile.farm.l1.healthy {
-    animation-delay: 1800ms;
-  }
+.tile.tree.l3::before {
+  content: "ᚫ";
+}
 
-  .tile.farm.l2.healthy {
-    animation-delay: 970ms;
-  }
+.tile.people::before {
+  color: #7c4e10; /* Adobe color for people tiles */
+}
 
-  .tile.farm.l3.healthy {
-    animation-delay: 230ms;
-  }
+.tile.people.l1::before {
+  content: "ᨊ";
+}
 
-  /* unhealth */
-  .tile.power.l1.unhealthy {
-    animation-delay: 1300ms;
-  }
+.tile.people.l2::before {
+  content: "ᨕ";
+}
 
-  .tile.power.l2un.healthy {
-    animation-delay: 650ms;
-  }
+.tile.people.l3::before {
+  content: "ᨐ";
+}
 
-  .tile.power.l3.unhealthy {
-    animation-delay: 547ms;
-  }
+.tile.farm::before {
+  color: #ffd522; /* Yellow for farm tiles */
+  transform: rotateX(70deg) translateY(40px);
+}
 
-  .tile.tree.l1.unhealthy {
-    animation-delay: 1275ms;
-  }
+.tile.farm.l1::before {
+  content: "፡";
+}
 
-  .tile.tree.l2.unhealthy {
-    animation-delay: 630ms;
-  }
+.tile.farm.l2::before {
+  content: "፠";
+}
 
-  .tile.tree.l3.unhealthy {
-    animation-delay: 1280ms;
-  }
+.tile.farm.l3::before {
+  content: "፨";
+}
 
-  .tile.people.l1.unhealthy {
-    animation-delay: 650ms;
-  }
+.tile.power::before {
+  color: #3800ff;
+}
 
-  .tile.people.l2.unhealthy {
-    animation-delay: 1100ms;
-  }
+.tile.power.l1::before {
+  content: "ᚢ";
+}
 
-  .tile.people.l3.unhealthy {
-    animation-delay: 930ms;
-  }
+.tile.power.l2::before {
+  content: "ᚣ";
+}
 
-  .tile.farm.l1.unhealthy {
-    animation-delay: 300ms;
-  }
-
-  .tile.farm.l2.unhealthy {
-    animation-delay: 670ms;
-  }
-
-  .tile.farm.l3.unhealthy {
-    animation-delay: 1030ms;
-  }
+.tile.power.l3::before {
+  content: "ᚥ";
+}

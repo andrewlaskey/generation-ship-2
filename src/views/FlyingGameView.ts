@@ -34,7 +34,7 @@ export class FlyingGameView implements GameView{
                         <div class="grid-fade"></div>
                         <div class="grid-lines"></div>
                     </div>
-                    <div id="objects" class="grid-objects">
+                    <div id="objects" class="grid-objects" data-size="${this.gameManager.gameBoard.size}">
                     </div>
                     <button class="button" id="exit">⬅</button>
                 </div>
@@ -50,15 +50,34 @@ export class FlyingGameView implements GameView{
 
     private renderTile(space: BoardSpace): string {
         const tile = space.tile;
-        const tileType = tile ? tile.type : 'empty';
-        const tileLevel = tile ? tile.level : 0;
-        const tileState = tile ? tile.state : 'neutral';
+        if (!tile) return '';
+        
+        const tileType = tile.type;
+        const tileLevel = tile.level;
+        const tileState = tile.state;
 
-        return `<div class="tile ${tileType} ${tileState} l${tileLevel} x-${space.x} y-${space.y}"></div>`
+        const className = `tile ${tileType} ${tileState} l${tileLevel} x-${space.x} y-${space.y}`;
+        
+        const minLeftPos = 25;
+        const maxLeftPos = 75;
+        const leftPosLerp = minLeftPos + (maxLeftPos - minLeftPos) * (space.x / this.gameManager.gameBoard.size);
+
+        const leftStyle = `${leftPosLerp}%`;
+
+        const minDelay = 0;
+        const maxDelay = 3;
+        const delayLerp = minDelay + (maxDelay - minDelay) * (1 - (space.y/ this.gameManager.gameBoard.size));
+        const delayStyle = `${delayLerp}s`
+
+        const styles = `left: ${leftStyle}; animation-delay: ${delayStyle}`;
+
+        return `<div class="${className}" style="${styles}"></div>`
     }
 
     private renderGrid(): void {
-       const htmlArr = this.gameManager.gameBoard.getGrid(this.renderTile);
+       const htmlArr = this.gameManager.gameBoard.getGrid((space: BoardSpace) => {
+            return this.renderTile(space)
+        });
        this.tiles.innerHTML = htmlArr.join('');
     }
 
