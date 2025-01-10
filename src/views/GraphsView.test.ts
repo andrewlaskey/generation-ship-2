@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { JSDOM } from 'jsdom';
-import { GameResults } from "../modules/AutoPlayer";
-import { GameState } from "../modules/GameManager";
 import { GraphsView } from "./GraphsView";
 
 describe('GraphsView', () => {
@@ -21,28 +19,25 @@ describe('GraphsView', () => {
         it('should append the histogram elements to div', () => {
             const el = document.createElement('div');
 
-            const sampleData: GameResults[] = [
-                {
-                    score: 10,
-                    result: GameState.Complete
-                },
-                {
-                    score: 50,
-                    result: GameState.Complete
-                },
-                {
-                    score: 100,
-                    result: GameState.Complete
-                }
-            ];
-
+            const sampleData: number[] = [10, 50, 100];
             const view = new GraphsView(document);
 
-            view.appendHistogram(el, sampleData, 50, 100);
+            view.appendHistogram(el, sampleData, 50);
 
             const graph = el.querySelector('#histogram');
 
             expect(graph).not.toBeNull();
+        });
+
+        it.skip('should not throw an error', () => {
+            const el = document.createElement('div');
+
+            const sampleData: number[] = [1800, 800, 1800];
+            const view = new GraphsView(document);
+
+            expect(() => {
+                view.appendHistogram(el, sampleData, 600);
+            }).not.toThrow();
         })
     })
 })

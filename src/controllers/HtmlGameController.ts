@@ -1,5 +1,6 @@
 import { AutoPlayer, GameResults } from '../modules/AutoPlayer';
 import { GameManager, GameState } from '../modules/GameManager';
+import { UserScoreHistory } from '../modules/UserScoreHistory';
 import { SwitchViewFn } from '../types/SwitchViewFn';
 import { ViewController } from '../types/ViewControllerInterface';
 import { getCurrentDate } from '../utils/getCurrentDate';
@@ -11,13 +12,15 @@ export class HtmlGameController implements ViewController {
     private selectedGridCell: { x: number; y: number};
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
+    private userScoreHistory: UserScoreHistory | undefined | null;
 
-    constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn) {
+    constructor(gameManager: GameManager, gameView: HtmlGameView, fn?: SwitchViewFn, userScoreHistory?: UserScoreHistory) {
         this.gameManager = gameManager;
         this.gameView = gameView;
         this.selectedGridCell = { x: 0, y: 0 };
         this.switchViewFn = fn;
         this.autoPlayer = new AutoPlayer(gameManager);
+        this.userScoreHistory = userScoreHistory;
     }
 
     init(startGame?: boolean) {
@@ -137,6 +140,7 @@ export class HtmlGameController implements ViewController {
                 this.gameView.hideHistogram();
                 this.gameView.toggleScoreGraph(false);
                 this.gameView.toggleInspectMode(false);
+                this.gameView.hidePlayerActions();
                 this.updateView();
             })
         }
@@ -167,8 +171,6 @@ export class HtmlGameController implements ViewController {
                     this.selectedGridCell.y,
                     selectedHandIndex
                 );
-
-                console.log(success);
                 
                 if (!success) {
                     console.error(`Failed to place tile block at (${this.selectedGridCell.x}, ${this.selectedGridCell.y}). Invalid placement or non-tile item.`);
@@ -219,7 +221,6 @@ export class HtmlGameController implements ViewController {
     }
 
     private handleInspectCell(x: number, y: number): void {
-        console.log('clicked');
         this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
         this.selectedGridCell.x = x;
         this.selectedGridCell.y = y;
@@ -262,8 +263,21 @@ export class HtmlGameController implements ViewController {
 
         if (this.gameManager.state == GameState.Complete || this.gameManager.state == GameState.GameOver) {
             this.gameView.showPlayerActions();
-            const sampleData = this.generateHistogram(1000);
-            this.gameView.showHistogram(sampleData, this.gameManager.getCalculatedPlayerScore());
+            let finalScore = this.gameManager.getCalculatedPlayerScore();
+            let allScores = [];
+
+            if (this.gameView.gameType == 'daily') {
+                allScores = this.userScoreHistory?.getFinalScoreHistory() ?? [];
+                this.userScoreHistory?.saveGameResult({
+                    score: finalScore,
+                    result: this.gameManager.state
+                });
+            } else {
+                const sampleData = this.generateHistogram(1000);
+                allScores = sampleData.map(sample => sample.score);
+            }
+
+            this.gameView.showHistogram(allScores, finalScore);
         }
         
         // Notify the view to re-render the updated game state

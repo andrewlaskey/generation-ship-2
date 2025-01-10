@@ -9,10 +9,15 @@ import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
 import { SwitchViewFn } from './types/SwitchViewFn';
+import { LocalStorage } from './modules/LocalStorage';
+import { UserScoreHistory } from './modules/UserScoreHistory';
 
 
 let gameManager = new GameManager();
 let gameType: 'daily' | 'custom' = 'daily';
+
+const localStorage = new LocalStorage(window.localStorage);
+const userScoreHistory = new UserScoreHistory(localStorage);
 
 const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
     switch(viewName) {
@@ -43,7 +48,7 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
             let htmlView = new HtmlGameView(gameManager, document, gameType);
             htmlView.updateGrid();
 
-            const htmlGameController = new HtmlGameController(gameManager, htmlView, switchView);
+            const htmlGameController = new HtmlGameController(gameManager, htmlView, switchView, userScoreHistory);
             htmlGameController.init(gameTypeUpdated);
     }
 }

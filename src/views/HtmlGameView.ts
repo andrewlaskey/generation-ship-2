@@ -1,4 +1,3 @@
-import { GameResults } from '../modules/AutoPlayer';
 import { GameManager, GameState } from '../modules/GameManager';  // Import the GameManager class
 import { HandItem } from '../modules/PlayerHand';  // Assuming HandItem is the base interface for items in the hand
 import { TileBlock, TileBlockLayout } from '../modules/TileBlock';
@@ -132,7 +131,6 @@ export class HtmlGameView implements GameView {
         const histogramHtml = `
 <div class="histogram-wrapper hidden">
     <h3>Score Comparison</h3>
-    <p>1000 random games with these settings</p>
 </div>
 `
         insertHtml(inspectModeHtml, this.dynamicDisplayDiv);
@@ -446,15 +444,24 @@ export class HtmlGameView implements GameView {
         this.isShowingPlayerAction = false;
     }
 
-    public showHistogram(sampleData: GameResults[], score: number): void {
+    public showHistogram(allScores: number[], score: number): void {
         const graph = this.dynamicDisplayDiv.querySelector<HTMLDivElement>('.histogram-wrapper');
+        const caption = this.document.createElement('p');
 
         if (!graph) return;
 
-        const avg = sampleData.reduce((acc, result) => {
-            return acc + result.score
-        }, 0) / sampleData.length;
-        this.graphs.appendHistogram(graph, sampleData, score, avg);
+        if (this.gameType == 'daily') {
+            if (allScores.length === 0) {
+                caption.textContent = 'Not enough data to display graph.<br>Keep playing the daily challenge to see how you compare to past games.'
+            } else {
+                caption.textContent = `Today\'s score compared to your ${allScores.length} previous games.`
+            }
+        } else {
+            caption.textContent = `${allScores.length} random games with these settings.`
+        }
+
+        this.graphs.appendHistogram(graph, allScores, score);
+        graph.appendChild(caption);
         graph.classList.remove('hidden');
     }
 
