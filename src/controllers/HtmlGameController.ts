@@ -72,8 +72,9 @@ export class HtmlGameController implements ViewController {
         const openScoreGraphButton = this.gameView.document.querySelector<HTMLButtonElement>('#openScoreGraph');
 
         flyingButton?.addEventListener('click', () => {
+            console.log('click flying');
             if (this.switchViewFn) {
-                this.switchViewFn('flying')
+                this.switchViewFn('three');
             }
         });
 

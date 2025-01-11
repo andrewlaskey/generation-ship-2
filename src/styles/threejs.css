@@ -1,0 +1,15 @@
+.threejs-wrapper {
+    position: relative;
+}
+
+.threejs-wrapper .button {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+  }
+
+.threejs {
+    width: 100vw;
+    height: 100vh;
+    background-color: #5a5652;
+}

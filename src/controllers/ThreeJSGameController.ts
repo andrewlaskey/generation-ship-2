@@ -1,6 +1,7 @@
 // @ts-nocheck
 // Currently not in use
 import { GameManager } from '../modules/GameManager';
+import { SwitchViewFn } from '../types/SwitchViewFn';
 import { ThreeJSGameView } from '../views/ThreeJSGameView';
 
 export class ThreeJSGameController {
@@ -8,101 +9,41 @@ export class ThreeJSGameController {
     private gameView: ThreeJSGameView;
     private isDragging: boolean = false;
     private previousMousePosition: { x: number; y: number } = { x: 0, y: 0 };
+    private switchViewFn: SwitchViewFn;
 
-    constructor(gameManager: GameManager, gameView: ThreeJSGameView) {
+    constructor(gameManager: GameManager, gameView: ThreeJSGameView, fn: SwitchViewFn) {
         this.gameManager = gameManager;
         this.gameView = gameView;
+        this.switchViewFn = fn;
+    }
 
-        // Set up input listeners
+    init(startGame?: boolean) {
+        console.log('Init', startGame);
+        // Set up any input listeners
         this.initInputListeners();
 
         // Start the game
-        this.gameManager.startGame();
-        this.updateView();
+        if (startGame) {
+            this.gameManager.startGame();
+        }
 
-        // Enable camera controls
-        // this.initCameraControls();
+        this.updateView();
     }
 
     // Initialize event listeners for user input
     private initInputListeners(): void {
-        const rotateItemButton = this.gameView.document.querySelector<HTMLButtonElement>('#rotateItem');
+        this.initCameraControls();
 
-        // Add an event listener for the "Rotate" button
-        rotateItemButton?.addEventListener('click', () => this.rotateItem());
+        const exitButton = this.gameView.document.querySelector<HTMLButtonElement>('#exit');
 
-        // Initialize 3D grid and hand item listeners
-        this.initGridListeners();
-        this.initHandItemListeners();
-    }
-
-    // Initialize listeners for 3D grid interactions
-    private initGridListeners(): void {
-        const gameSize = this.gameManager.gameBoard.size;
-
-        // Add click listeners for each mesh in the grid
-        for (let x = 0; x < gameSize; x++) {
-            for (let y = 0; y < gameSize; y++) {
-                const meshes = this.gameView.getMeshes();
-                const mesh = meshes[x][y];
-                mesh.userData = { x, y };  // Store grid coordinates in the mesh's userData
-
-                mesh.addEventListener('click', (event: MouseEvent) => {
-                    const { x, y } = mesh.userData;
-                    this.handleCellClick(x, y);
-                });
-                mesh.addEventListener('mouseover', (event: MouseEvent) => {
-                    const { x, y } = mesh.userData;
-                    this.handleCellHover(true, x, y);
-                });
-                mesh.addEventListener('mouseout', (event: MouseEvent) => {
-                    const { x, y } = mesh.userData;
-                    this.handleCellHover(false, x, y);
-                });
-            }
-        }
-    }
-
-    // Initialize listeners for hand item clicks
-    private initHandItemListeners(): void {
-        const handItems = this.gameView.document.querySelectorAll<HTMLDivElement>('.hand-item');
-        handItems.forEach((item, index) => {
-            item.addEventListener('click', () => this.handleHandItemClick(index));
-        });
-    }
-
-    // Handle a click on a grid cell
-    private handleCellClick(x: number, y: number): void {
-        const selectedHandIndex = this.gameManager.getSelectedItemIndex();
-        const success = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
-
-        if (!success) {
-            console.error(`Failed to place tile block at (${x}, ${y}). Invalid placement or non-tile item.`);
-        }
-
-        this.advanceTurn();
-    }
-
-    // Handle hovering over a cell
-    private handleCellHover(enter: boolean, x: number, y: number): void {
-        if (enter) {
-            this.gameManager.addBoardHighlight(x, y);
-        } else {
-            this.gameManager.removeBoardHighlight(x, y);
-        }
-        this.updateView();
-    }
-
-    // Handle a click on a hand item
-    private handleHandItemClick(index: number): void {
-        this.gameManager.selectItemFromHand(index);
-        this.updateView();
+        exitButton?.addEventListener('click', () => {
+            this.switchViewFn('prevHtmlGameView');
+        })
     }
 
     // Update the view and re-initialize listeners
     private updateView(): void {
         this.gameView.updateGrid();
-        this.initHandItemListeners();
     }
 
     // Handle advancing the turn
