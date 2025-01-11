@@ -1,5 +1,4 @@
-// @ts-nocheck
-// Currently not in use
+import * as THREE from 'three';
 import { GameManager } from '../modules/GameManager';
 import { SwitchViewFn } from '../types/SwitchViewFn';
 import { ThreeJSGameView } from '../views/ThreeJSGameView';
@@ -8,8 +7,16 @@ export class ThreeJSGameController {
     private gameManager: GameManager;
     private gameView: ThreeJSGameView;
     private isDragging: boolean = false;
-    private previousMousePosition: { x: number; y: number } = { x: 0, y: 0 };
     private switchViewFn: SwitchViewFn;
+    private mouseSensitivity = 0.002;
+    private moveForward = false;
+    private moveBackward = false;
+    private moveLeft = false;
+    private moveRight = false;
+    private clock = new THREE.Clock();
+    private movementSpeed = 5;
+    private mouseMoveDeltaX = 0;
+    private mouseMoveDeltaY = 0;
 
     constructor(gameManager: GameManager, gameView: ThreeJSGameView, fn: SwitchViewFn) {
         this.gameManager = gameManager;
@@ -28,6 +35,7 @@ export class ThreeJSGameController {
         }
 
         this.updateView();
+        this.loop();
     }
 
     // Initialize event listeners for user input
@@ -62,22 +70,20 @@ export class ThreeJSGameController {
     // Initialize camera controls for mouse dragging
     private initCameraControls(): void {
         const canvas = this.gameView.getCanvas();
+        const document = this.gameView.document;
 
-        canvas.addEventListener('mousedown', (event) => {
+        canvas.addEventListener('mousedown', () => {
             this.isDragging = true;
-            this.previousMousePosition = { x: event.clientX, y: event.clientY };
         });
 
-        canvas.addEventListener('mousemove', (event) => {
-            if (!this.isDragging) return;
-
-            const deltaX = event.clientX - this.previousMousePosition.x;
-            const deltaY = event.clientY - this.previousMousePosition.y;
-
-            this.previousMousePosition = { x: event.clientX, y: event.clientY };
-
-            // Rotate the camera based on mouse movement
-            this.gameView.moveCamera(deltaX, deltaY);
+        document.addEventListener('mousemove', (event) => {
+            if (this.isDragging) {
+                this.mouseMoveDeltaX = event.movementX * this.mouseSensitivity;
+                this.mouseMoveDeltaY = event.movementY * this.mouseSensitivity;
+            } else {
+                this.mouseMoveDeltaX = 0;
+                this.mouseMoveDeltaY = 0;
+            }
         });
 
         canvas.addEventListener('mouseup', () => {
@@ -87,5 +93,69 @@ export class ThreeJSGameController {
         canvas.addEventListener('mouseleave', () => {
             this.isDragging = false;
         });
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    this.moveForward = true;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    this.moveBackward = true;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    this.moveLeft = true;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    this.moveRight = true;
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    this.moveForward = false;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    this.moveBackward = false;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    this.moveLeft = false;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    this.moveRight = false;
+                    break;
+            }
+        });
+    }
+
+    private loop = () => {
+        const delta = this.clock.getDelta();
+        const direction = new THREE.Vector3();
+
+        // Forward/Backward movement
+        if (this.moveForward) direction.z += 1;
+        if (this.moveBackward) direction.z -= 1;
+
+        // Left/Right movement
+        if (this.moveLeft) direction.x += 1;
+        if (this.moveRight) direction.x -= 1;
+
+        this.gameView.moveCamera(
+            direction,
+            this.movementSpeed * delta,
+            this.mouseMoveDeltaX,
+            this.mouseMoveDeltaY
+        );
+
+        requestAnimationFrame(this.loop);
     }
 }

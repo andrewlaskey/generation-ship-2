@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GameManager } from '../modules/GameManager';  // Import the GameManager class
 import { Tile } from '../modules/Tile';
 import { GameView } from '../types/GameViewInterface';
@@ -11,13 +10,14 @@ export type ThreeJSGameViewOptions = {
 export class ThreeJSGameView implements GameView {
     private gameManager: GameManager;
     private scene: THREE.Scene;
-    private camera: THREE.PerspectiveCamera;
+    public camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private tileMeshes: THREE.Mesh[][] = [];
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
-    private controls: OrbitControls;
+    private pitch = 0;
+    private yaw = 0;
 
     constructor(gameManager: GameManager, document: Document, options?: ThreeJSGameViewOptions) {
         this.gameManager = gameManager;
@@ -34,16 +34,16 @@ export class ThreeJSGameView implements GameView {
         this.gridContainer.appendChild(this.renderer.domElement);
 
         // Set up camera position
-        this.camera.position.set(10, 20, 30);
+        this.camera.position.set(0, 1.6, 5);
 
         // Set up orbit controls
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.target.set(0, 0, 0); // Point the controls at the center of the grid
-        this.controls.enableDamping = true; // Optional: adds a smooth effect to the orbiting
-        this.controls.dampingFactor = 0.25; // Controls the amount of damping
-        this.controls.enableZoom = true; // Allows zooming in and out
-        this.controls.autoRotate = false; // If true, the camera will rotate automatically
-        this.controls.maxPolarAngle = Math.PI / 2; // Limits the vertical angle
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // this.controls.target.set(0, 0, 0); // Point the controls at the center of the grid
+        // this.controls.enableDamping = true; // Optional: adds a smooth effect to the orbiting
+        // this.controls.dampingFactor = 0.25; // Controls the amount of damping
+        // this.controls.enableZoom = true; // Allows zooming in and out
+        // this.controls.autoRotate = false; // If true, the camera will rotate automatically
+        // this.controls.maxPolarAngle = Math.PI / 2; // Limits the vertical angle
 
         // Set up basic lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -112,7 +112,8 @@ export class ThreeJSGameView implements GameView {
         const material = new THREE.MeshStandardMaterial({
             color: 0x5a5652,
             roughness: 0.8,
-            metalness: 0
+            metalness: 0,
+            side: THREE.DoubleSide
         });
         const mesh = new THREE.Mesh(geometry, material);
 
@@ -145,7 +146,8 @@ export class ThreeJSGameView implements GameView {
                 material = new THREE.MeshStandardMaterial({
                     color: 0xffd522,
                     roughness: 0.4, 
-                    metalness: 0.2
+                    metalness: 0.2,
+                    side: THREE.DoubleSide
                 });
                 mesh = new THREE.Mesh(geometry, material);
                 mesh.rotation.x = -Math.PI / 2;
@@ -213,18 +215,61 @@ export class ThreeJSGameView implements GameView {
     //     }
     // }
 
-    public moveCamera(deltaX: number, deltaY: number): void {
-        // Rotate the camera based on mouse movement
-        this.camera.rotation.y += deltaX * 0.005;
-        this.camera.rotation.x += deltaY * 0.005;
+    public moveCamera(direction: THREE.Vector3, distance: number, yawDelta: number, pitchDelta: number) {
+        // Update yaw and pitch
+        this.yaw -= yawDelta;
+        this.pitch -= pitchDelta;
+    
+        // Clamp pitch to avoid flipping upside down
+        this.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.pitch));
+    
+        // Create a quaternion for the rotation
+        const quaternion = new THREE.Quaternion();
+        quaternion.setFromEuler(new THREE.Euler(this.pitch, this.yaw, 0, "YXZ")); // "YXZ" ensures proper yaw-pitch order
+    
+        // Apply rotation to the camera
+        this.camera.quaternion.copy(quaternion);
+    
+        // Calculate forward movement direction
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+        const strafe = new THREE.Vector3(-1, 0, 0).applyQuaternion(this.camera.quaternion);
+    
+        // Combine movement directions
+        const combinedDirection = new THREE.Vector3();
+        combinedDirection.addScaledVector(forward, direction.z); // Forward/backward
+        combinedDirection.addScaledVector(strafe, direction.x); // Left/right
+        combinedDirection.normalize();
+    
+        // Calculate the new position while locking the y-position to 1.6
+        const newPosition = this.camera.position.clone();
+        newPosition.addScaledVector(combinedDirection, distance);
+        newPosition.y = 1.6; // Lock y-position
 
-        // Limit the vertical rotation to prevent flipping
-        this.camera.rotation.x = Math.max(
-            Math.min(this.camera.rotation.x, Math.PI / 2),
-            -Math.PI / 2
-        );
+        // Update the camera position
+        this.camera.position.copy(newPosition);
+    
+        // Render the scene
+        this.render();
+    }
+
+    public moveCameraRotation(deltaX: number, deltaY: number): void {
+        this.yaw -= deltaX;
+        this.pitch -= deltaY;
+
+        // Clamp pitch to avoid flipping upside down
+        this.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.pitch));
+        
+        this.camera.rotation.set(this.pitch, this.yaw, 0);
 
         this.render(); // Update the rendering
+    }
+
+    public moveCameraPosition(direction: THREE.Vector3, distance: number): void {
+        direction.normalize().applyEuler(this.camera.rotation);
+
+        this.camera.position.addScaledVector(direction, distance);
+
+        this.render();
     }
 
     public getCanvas(): HTMLCanvasElement {
@@ -237,7 +282,7 @@ export class ThreeJSGameView implements GameView {
 
     // Render the three.js scene
     public render(): void {
-        this.controls.update(); // Update the orbit controls
+        // this.controls.update(); // Update the orbit controls
         this.renderer.render(this.scene, this.camera);
     }
 
