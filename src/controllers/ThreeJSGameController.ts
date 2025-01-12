@@ -8,7 +8,7 @@ export class ThreeJSGameController {
     private gameView: ThreeJSGameView;
     private isDragging: boolean = false;
     private switchViewFn: SwitchViewFn;
-    private mouseSensitivity = 0.002;
+    private mouseSensitivity = 0.01;
     private moveForward = false;
     private moveBackward = false;
     private moveLeft = false;
@@ -76,6 +76,10 @@ export class ThreeJSGameController {
             this.isDragging = true;
         });
 
+        canvas.addEventListener('mouseup', () => {
+            this.isDragging = false;
+        });
+
         document.addEventListener('mousemove', (event) => {
             if (this.isDragging) {
                 this.mouseMoveDeltaX = event.movementX * this.mouseSensitivity;
@@ -84,14 +88,6 @@ export class ThreeJSGameController {
                 this.mouseMoveDeltaX = 0;
                 this.mouseMoveDeltaY = 0;
             }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            this.isDragging = false;
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            this.isDragging = false;
         });
 
         document.addEventListener('keydown', (event) => {
