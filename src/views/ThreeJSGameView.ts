@@ -95,7 +95,7 @@ export class ThreeJSGameView implements GameView {
     private createWorld(): void {
         // Add directional light
         const directionalLight = new THREE.DirectionalLight(0xffee00, 1.0);
-        directionalLight.position.set(-50, 20, -50);
+        directionalLight.position.set(-50, 20, 50);
         directionalLight.castShadow = true;
 
         directionalLight.shadow.mapSize.width = 1024;
@@ -141,15 +141,39 @@ export class ThreeJSGameView implements GameView {
             // Determine the geometry and material based on the tile type
             switch (tile?.type) {                
                 case 'people':
-                    mesh = await loader.loadAsync('/generation-ship-2/public/models/Small_House.obj');
+                    mesh = await loader.loadAsync('/generation-ship-2/public/models/SmallHouse1.obj');
                     mesh.position.set(position.x, position.y, position.z);
-
                     material = new THREE.MeshStandardMaterial({
-                        color: 0x7c4e10,
+                        color: 0xf1efe7,
                         roughness: 0.8, 
-                        metalness: 0.0
+                        metalness: 0.0,
+                        flatShading: true
                     });
-                    this.applyMaterialToChildren(mesh, material);
+                    const woodMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x741518,
+                        roughness: 0.8, 
+                        metalness: 0.0,
+                        flatShading: true
+                    });
+                    const altMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x5a54a3,
+                        roughness: 0.8, 
+                        metalness: 0.0,
+                        flatShading: true
+                    });
+                    mesh.traverse((child) => {
+                        if (child instanceof THREE.Mesh) {
+                            if (child.name == 'Wood') {
+                                child.material = woodMaterial;    
+                            } else if (child.name == 'Glass') {
+                                child.material = altMaterial;
+                            } else {
+                                child.material = material;
+                            }
+                            child.receiveShadow = true;
+                            child.castShadow = true;
+                        }
+                    });
                     break;
                 case 'farm':
                     mesh = await loader.loadAsync('/generation-ship-2/public/models/Farm.obj');
@@ -159,7 +183,6 @@ export class ThreeJSGameView implements GameView {
                         color: 0xffd522,
                         roughness: 0.9, 
                         metalness: 0.0,
-                        side: THREE.DoubleSide
                     });
                     this.applyMaterialToChildren(mesh, material);
                     break;
@@ -170,7 +193,8 @@ export class ThreeJSGameView implements GameView {
                     material = new THREE.MeshStandardMaterial({
                         color: 0x555451,
                         roughness: 0.7, 
-                        metalness: 0.2 
+                        metalness: 0.2,
+                        flatShading: true
                     });
                     this.applyMaterialToChildren(mesh, material);
                     break;
