@@ -1,20 +1,48 @@
 :root {
     --tile-edge-color: #c3afaf;
     --tile-hl-color: #ffbb00;
-    --cell-size-desk: 3rem;
+    --cell-size-desk: 3em;
     --cell-healthy-color: #175314;
     --cell-unhealthy-color: #741518;
+
+    --hand-tile-size: 4rem;
 }
 
 .html-game-view-wrapper {
     display: flex;
     flex-direction: column;
-    min-width: max-content;
-    max-width: min-content;
+    align-items: center;
+    min-width: 100%;
+    max-width: 36em;
     position: relative;
     padding: 3rem;
 }
 
+/* Top Level Containers */
+.info-bar,
+.game-updates,
+.dynamic-display,
+.toolbar {
+  width: 100%;
+  max-width: 36em;
+}
+
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dynamic-display .hidden {
+  display: none;
+}
+
+.toolbar.hidden {
+  display: none;
+}
+
+/* Grid */
 .html-game-view-wrapper .grid {
   display: flex;
   flex-direction: column;
@@ -22,6 +50,18 @@
   background-color: black;
   border-bottom: 3px solid var(--tile-edge-color);
   border-right: 1px dashed #505050;
+}
+
+.html-game-view-wrapper .grid[data-size="10"],
+.html-game-view-wrapper .grid[data-size="11"],
+.html-game-view-wrapper .grid[data-size="12"] {
+  font-size: 0.8em;
+}
+
+.html-game-view-wrapper .grid[data-size="13"],
+.html-game-view-wrapper .grid[data-size="14"],
+.html-game-view-wrapper .grid[data-size="15"]{
+  font-size: 0.5em;
 }
 
 .grid-wrapper {
@@ -42,15 +82,14 @@
   gap: 8px;
   margin-top: 10px;
   align-items: flex-start; /* Ensure vertical tiles align to the top */
-  height: calc(var(--cell-size-desk) * 2);
+  height: calc(var(--hand-tile-size) * 2);
 }
 
-/* Ensure hand-item dynamically adjusts based on tile block size */
 .hand-item {
   display: flex;
   flex-direction: column;
-  height: calc(var(--cell-size-desk) * 2);
-  width: calc(var(--cell-size-desk) * 2);
+  height: calc(var(--hand-tile-size) * 2);
+  width: calc(var(--hand-tile-size) * 2);
 }
 
 .preview-item {
@@ -71,6 +110,18 @@
   border: 1px solid var(--tile-hl-color);
 }
 
+.html-game-view-wrapper .grid[data-size="10"] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size="11"] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size="12"] + .tile-preview .cell{
+  font-size: 0.8em;
+}
+
+.html-game-view-wrapper .grid[data-size="13"] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size="14"] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size="15"] + .tile-preview .cell{
+  font-size: 0.5em;
+}
+
 .hand-row,
 .preview-item-row {
   display: flex;
@@ -82,8 +133,8 @@
 
 /* Cell inside the hand-item */
 .hand-item .cell {
-  width: var(--cell-size-desk);
-  height: var(--cell-size-desk);
+  width: var(--hand-tile-size);
+  height: var(--hand-tile-size);
   font-size: 1.6rem;
   border: 1px solid black;
 }
@@ -139,11 +190,7 @@
   box-shadow: none;
 }
 
-.info-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* Info Bar */
 
 .info-bar .help {
   display: flex;
@@ -205,10 +252,5 @@
   margin-right: 0.5rem;
 }
 
-.dynamic-display .hidden {
-  display: none;
-}
 
-.toolbar.hidden {
-  display: none;
-}
+

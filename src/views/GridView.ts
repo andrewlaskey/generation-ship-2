@@ -14,6 +14,10 @@ export class GridView implements GameView {
         this.div = document.querySelector<HTMLDivElement>(selector);
         this.gameBoard = gameBoard;
 
+        if (this.div) {
+            this.div.dataset.size = `${this.gameBoard.size}`;
+        }
+
         this.initializeGridView();
 
         this.animateFolksWalking();

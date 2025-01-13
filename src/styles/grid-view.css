@@ -9,7 +9,7 @@ height: var(--cell-size-desk);
 display: flex;
 justify-content: center;
 align-items: center;
-font-size: 1rem;
+font-size: inherit;
 color: white; /* Default text color */
 background-color: black; /* Default background */
 border-top: 1px dashed #505050;
@@ -25,15 +25,15 @@ box-shadow:
 }
 
 /* Tile levels adjust the size of the character */
-.cell.l1 {
+.cell.l1::before {
 font-size: 1.8rem;
 }
 
-.cell.l2 {
+.cell.l2::before {
 font-size: 2.2rem;
 }
 
-.cell.l3 {
+.cell.l3::before {
 font-size: 2.5rem;
 }
 

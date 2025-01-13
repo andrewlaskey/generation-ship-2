@@ -6,7 +6,7 @@ import { ABOUT_HTML } from '../utils/constants';
 import { Tile } from '../modules/Tile';
 import { GridView } from './GridView';
 import { getTileCellClassList } from '../utils/getTileCellClassList';
-import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
+import { clearElementChildren, getRelativePosition, insertHtml } from '../utils/htmlUtils';
 import { GraphsView, ScoreGraphLines } from './GraphsView';
 
 export class HtmlGameView implements GameView {
@@ -341,9 +341,14 @@ export class HtmlGameView implements GameView {
         const cells = this.gridView.div?.querySelectorAll<HTMLDivElement>('.cell');
 
         cells?.forEach(cellDiv => {
-            if (cellDiv.classList.contains('highlight')) {
-                this.placePreview.style.top = `calc(${cellDiv.dataset.y} * (3rem + 2px))`;
-                this.placePreview.style.left = `calc(${cellDiv.dataset.x} * (3rem + 2px))`;        
+            if (this.gridView.div && cellDiv.classList.contains('highlight')) {
+                const parent = this.gridView.div.parentElement;
+                
+                if (parent) {
+                    const position = getRelativePosition(cellDiv, parent);
+                    this.placePreview.style.top =  `${position.top}px`;
+                    this.placePreview.style.left =  `${position.left}px`;
+                }        
             }
         });
     }
