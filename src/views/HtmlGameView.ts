@@ -49,28 +49,32 @@ export class HtmlGameView implements GameView {
     private initializeView(): void {
         this.appDiv.innerHTML = `
             <div class="html-game-view-wrapper">
-                <div class="info-bar">
-                    <div class="help">
-                        <button class="button warn" id="quitButton">⬅</button>
-                        <button class="button" id="helpButton">⚙️</button>
+                <div class="html-game-view-inner">
+                    <div class="info-bar">
+                        <div class="help">
+                            <button class="button warn" id="quitButton">⬅</button>
+                            <button class="button" id="helpButton">⚙️</button>
+                        </div>
+                        <div id="scoreboard" class="scoreboard"></div>
                     </div>
-                    <div id="scoreboard" class="scoreboard"></div>
-                </div>
-                <div class="grid-wrapper">
-                    <div class="grid-inner-wrap">
-                        <div id="gridContainer" class="grid"></div>
-                        <div id="placementPreview" class="tile-preview"></div>
+                    <div class="grid-container">
+                        <div class="grid-border">
+                            <div class="grid-inner-wrap">
+                                <div id="gridContainer" class="grid"></div>
+                                <div id="placementPreview" class="tile-preview"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="game-updates">
-                    <div id="playerNotice"></div>
-                    <div id="playerActions" class="player-actions"></div>
-                </div>
-                <div class="dynamic-display" id="dynamicDisplay"></div>
-                <div class="toolbar" id="toolbar"></div>
-                <div id="about" class="about">
-                    ${ABOUT_HTML}
-                    <button class="button"  id="closeHelp">✓</button>
+                    <div class="game-updates">
+                        <div id="playerNotice"></div>
+                        <div id="playerActions" class="player-actions"></div>
+                    </div>
+                    <div class="dynamic-display" id="dynamicDisplay"></div>
+                    <div class="toolbar" id="toolbar"></div>
+                    <div id="about" class="about">
+                        ${ABOUT_HTML}
+                        <button class="button"  id="closeHelp">✓</button>
+                    </div>
                 </div>
             </div>
         `;

@@ -1,6 +1,5 @@
 .row {
-display: flex;
-max-width: fit-content;
+    display: flex;
 }
 
 .cell {
@@ -9,6 +8,7 @@ height: var(--cell-size-desk);
 display: flex;
 justify-content: center;
 align-items: center;
+flex-shrink: 0;
 font-size: inherit;
 color: white; /* Default text color */
 background-color: black; /* Default background */

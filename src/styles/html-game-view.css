@@ -5,26 +5,44 @@
     --cell-healthy-color: #175314;
     --cell-unhealthy-color: #741518;
 
-    --hand-tile-size: 4rem;
+    --hand-tile-size-mobile: 2.5rem;
+    --hand-tile-size-desk: 4rem;
 }
 
 .html-game-view-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 100%;
-    max-width: 36em;
-    position: relative;
-    padding: 3rem;
+  margin: 0 auto;
+  max-width: 100%;
+  width: 40em;
 }
 
 /* Top Level Containers */
+.html-game-view-inner {
+  display: flex;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.grid-container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  width: 100%;
+}
+
 .info-bar,
 .game-updates,
 .dynamic-display,
-.toolbar {
-  width: 100%;
-  max-width: 36em;
+.toolbar,
+.grid-container {
+  width: 100%;  
+}
+
+.grid-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .info-bar {
@@ -46,7 +64,7 @@
 .html-game-view-wrapper .grid {
   display: flex;
   flex-direction: column;
-  max-width: fit-content;
+  width: fit-content;
   background-color: black;
   border-bottom: 3px solid var(--tile-edge-color);
   border-right: 1px dashed #505050;
@@ -64,15 +82,29 @@
   font-size: 0.5em;
 }
 
-.grid-wrapper {
+.grid-border {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   perspective: 1200px;
-  max-width: fit-content;
-  margin: 0 auto;
+  overflow: auto;
+  border: 2px solid white;
 }
 
 .grid-inner-wrap {
-  transform: rotateX(30deg);
-  max-width: fit-content;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  transform: rotateX(30deg) scale(0.8);
+}
+
+@media (min-width: 500px) {
+  .grid-inner-wrap {
+    transform: rotateX(30deg);
+  }
 }
 
 
@@ -82,14 +114,59 @@
   gap: 8px;
   margin-top: 10px;
   align-items: flex-start; /* Ensure vertical tiles align to the top */
-  height: calc(var(--hand-tile-size) * 2);
+  height: calc(var(--hand-tile-size-mobile) * 2);
 }
 
 .hand-item {
   display: flex;
   flex-direction: column;
-  height: calc(var(--hand-tile-size) * 2);
-  width: calc(var(--hand-tile-size) * 2);
+  height: calc(var(--hand-tile-size-mobile) * 2);
+  width: calc(var(--hand-tile-size-mobile) * 2);
+}
+
+.card-display {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.deck-counter .deck {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--tile-edge-color);
+  background: black;
+  box-shadow:
+    0 2px 0 black,
+    0 4px 0 var(--tile-edge-color),    
+    0 6px 0 black,
+    0 8px 0 var(--tile-edge-color),
+    0 10px 0 black,    
+    0 12px 0 var(--tile-edge-color);   
+  height: 24px;
+  width: 48px;
+  font-size: 1rem;
+}
+
+.deck-counter .deck.is-empty {
+  border: 1px dashed var(--tile-edge-color);
+  box-shadow: none;
+}
+
+@media (min-width: 500px) {
+  .card-display {
+    flex-direction: row;
+  }
+
+  .hand-grid {
+    height: calc(var(--hand-tile-size-desk) * 2);
+  }
+
+  .hand-item {
+    height: calc(var(--hand-tile-size-desk) * 2);
+    width: calc(var(--hand-tile-size-desk) * 2);
+  }
 }
 
 .preview-item {
@@ -133,10 +210,17 @@
 
 /* Cell inside the hand-item */
 .hand-item .cell {
-  width: var(--hand-tile-size);
-  height: var(--hand-tile-size);
+  width: var(--hand-tile-size-mobile);
+  height: var(--hand-tile-size-mobile);
   font-size: 1.6rem;
   border: 1px solid black;
+}
+
+@media (min-width: 500px) {
+  .hand-item .cell {
+    width: var(--hand-tile-size-desk);
+    height: var(--hand-tile-size-desk);
+  }
 }
 
 .hand-row:nth-child(2) .cell {
@@ -159,35 +243,6 @@
 .hand-item .cell.power:not(.dead):after,
 .preview-item .cell.power:not(.dead):after {
   content: '';
-}
-
-.card-display {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.deck-counter .deck {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--tile-edge-color);
-  background: black;
-  box-shadow:
-    0 2px 0 black,
-    0 4px 0 var(--tile-edge-color),    
-    0 6px 0 black,
-    0 8px 0 var(--tile-edge-color),
-    0 10px 0 black,    
-    0 12px 0 var(--tile-edge-color);   
-  height: 24px;
-  width: 48px;
-  font-size: 1rem;
-}
-
-.deck-counter .deck.is-empty {
-  border: 1px dashed var(--tile-edge-color);
-  box-shadow: none;
 }
 
 /* Info Bar */
