@@ -64,6 +64,7 @@ export class MainMenuView implements View {
                 <div class="submenu hidden" id="about">
                     ${ABOUT_HTML}
                     <button class="button" id="closeSubmenu">✓</button>
+                    <p>vALPHA<br>Support the development of this game on <a href="https://ko-fi.com/timbertales" target="_blank">ko-fi</a></p>
                 </div>
                 <div class="main-menu-footer">
                     <button class="button small" data-action="toggleMeditation">Meditation Mode</button>
