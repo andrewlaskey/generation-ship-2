@@ -60,6 +60,10 @@
   display: none;
 }
 
+.game-updates {
+  padding-bottom: 2rem;
+}
+
 /* Grid */
 .html-game-view-wrapper .grid {
   display: flex;
@@ -89,7 +93,7 @@
   padding: 1rem;
   perspective: 1200px;
   overflow: auto;
-  border: 2px solid white;
+  /* border: 2px solid white; */
 }
 
 .grid-inner-wrap {
@@ -112,7 +116,6 @@
 .hand-grid {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
   align-items: flex-start; /* Ensure vertical tiles align to the top */
   height: calc(var(--hand-tile-size-mobile) * 2);
 }
@@ -122,6 +125,10 @@
   flex-direction: column;
   height: calc(var(--hand-tile-size-mobile) * 2);
   width: calc(var(--hand-tile-size-mobile) * 2);
+}
+
+.hand-item:active {
+  transform: scale(0.95);
 }
 
 .card-display {
@@ -144,9 +151,9 @@
     0 8px 0 var(--tile-edge-color),
     0 10px 0 black,    
     0 12px 0 var(--tile-edge-color);   
-  height: 24px;
-  width: 48px;
-  font-size: 1rem;
+  height: var(--hand-tile-size-mobile);
+  width: calc(var(--hand-tile-size-mobile) * 2);
+  font-size: 2rem;
 }
 
 .deck-counter .deck.is-empty {
@@ -167,11 +174,33 @@
     height: calc(var(--hand-tile-size-desk) * 2);
     width: calc(var(--hand-tile-size-desk) * 2);
   }
+
+  .deck-counter .deck {
+    height: var(--hand-tile-size-desk);
+    width: calc(var(--hand-tile-size-desk) * 2);
+  }
 }
 
 .preview-item {
   display: flex;
   flex-direction: column;
+  animation-name: pop-in;
+  animation-timing-function: ease-out;
+  animation-duration: 150ms;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.85);
+  }
+
+  60% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .preview-item-inner.rotate-180 {
@@ -204,7 +233,7 @@
   display: flex;
 }
 
-.hand-row:last-child:not(:nth-child(2)) {
+.hand-row {
   border-bottom: 2px solid var(--tile-edge-color);
 }
 
@@ -223,15 +252,11 @@
   }
 }
 
-.hand-row:nth-child(2) .cell {
-  border-bottom: 2px solid var(--tile-edge-color);
+.hand-item.selected .hand-row {
+  border-bottom: 2px solid var(--tile-hl-color);
 }
 
-.hand-item.selected .hand-row:not(:nth-child(2)) {
-  border-bottom: none;
-}
-
-.hand-item.selected .hand-row:nth-child(2) .cell {
+.hand-item.selected .hand-row .cell {
   border-bottom: 1px solid var(--tile-hl-color);
 }
 

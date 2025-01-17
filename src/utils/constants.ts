@@ -6,6 +6,7 @@ export const ABOUT_HTML = `
 <h3>Goal</h3>
 <p>Your goal is to sustain a viable population and ecology that will be able to colonize the planet.</p>
 <p>Place tiles on the grid to build the generation ship's resources. Maximize the ship's population and ecosystem until there are no more tiles in the deck. If the ship's population drops to zero, that is game over.<p>
+<p>Tap a grid cell to place the tile. Tap the cell again to rotate the tile.</p>
 <h3>Tiles</h3>
 <dl>
     <dt><span style="color: #1b9416; ">ᚫ</span><dt>

@@ -239,9 +239,14 @@ export class HtmlGameView implements GameView {
                     const selectedClass = index === selectedIndex ? 'selected' : '';
                     const layout = item.getLayout();  // Assuming TileBlock has a getLayout() method
                     
-                    handHtml += `<div class="hand-item ${selectedClass}" data-index="${index}">`;  // Wrap each hand item
-                    handHtml += this.getTileBlockHtml(layout, 'hand');
-                    handHtml += '</div>';  // End of hand-item
+                    handHtml += `
+<div class="hand-item ${selectedClass}" data-index="${index}">
+    <div class="hand-row">
+        <div class="${getTileCellClassList(layout.tiles[0])}"></div>
+        <div class="${getTileCellClassList(layout.tiles[1])}"></div>
+    </div>
+</div>
+`;  // End of hand-item
                 }
             });
             handHtml += '</div>';  // End of hand-grid
