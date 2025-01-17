@@ -4,6 +4,7 @@ import { GameManager } from '../modules/GameManager';  // Import the GameManager
 import { Tile } from '../modules/Tile';
 import { GameView } from '../types/GameViewInterface';
 import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
+import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegistry';
 
 export type ThreeJSGameViewOptions = {
     showAxes?: boolean;
@@ -13,7 +14,7 @@ export class ThreeJSGameView implements GameView {
     private scene: THREE.Scene;
     public camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
-    private tileMeshes: (THREE.Mesh | THREE.Object3D)[][] = [];
+    private tileHandlerRegistry: ThreeTileHandlerRegistry;
     public document: Document;  // Make document public for the controller to access
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
@@ -34,6 +35,7 @@ export class ThreeJSGameView implements GameView {
         this.renderer.setSize(this.gridContainer.clientWidth, this.gridContainer.clientHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.tileHandlerRegistry = new ThreeTileHandlerRegistry();
 
         this.gridContainer.appendChild(this.renderer.domElement);
 
@@ -69,9 +71,9 @@ export class ThreeJSGameView implements GameView {
     private initializeGrid(): void {
         const gameSize = this.gameManager.gameBoard.size;
         const tileSize = 5;  // Size of each tile
+        const updatePromises: Promise<void>[] = []
 
         for (let x = 0; x < gameSize; x++) {
-            this.tileMeshes[x] = [];
             for (let y = 0; y < gameSize; y++) {
                 const space = this.gameManager.gameBoard.getSpace(x, y);
                 const tile = space?.tile;
@@ -80,16 +82,18 @@ export class ThreeJSGameView implements GameView {
                     const meshX = x * tileSize - (gameSize * tileSize) / 2;
                     const meshZ = y * tileSize - (gameSize * tileSize) / 2; // grid plane is on z axis
                     const meshPos = new THREE.Vector3(meshX, 0, meshZ);
-                    this.createTileMesh(tile, meshPos).then((mesh) => {
-                        this.scene.add(mesh);
-                        this.tileMeshes[x][y] = mesh;
-                    })
+                    const handler = this.tileHandlerRegistry.getHandler(tile.type);
+
+                    if (handler) {
+                        updatePromises.push(handler.updateScene(this.scene, meshPos));
+                    }
                 }
             }
         }
 
-        // Render the scene initially
-        this.render();
+        Promise.allSettled(updatePromises).then(() => {
+            this.render();
+        });
     }
 
     private createWorld(): void {
@@ -326,10 +330,6 @@ export class ThreeJSGameView implements GameView {
 
     public getCanvas(): HTMLCanvasElement {
         return this.renderer.domElement;
-    }
-
-    public getMeshes(): (THREE.Mesh | THREE.Object3D)[][] {
-        return this.tileMeshes;
     }
 
     // Render the three.js scene
