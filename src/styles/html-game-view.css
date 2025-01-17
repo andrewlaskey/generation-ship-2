@@ -6,7 +6,7 @@
     --cell-unhealthy-color: #741518;
 
     --hand-tile-size-mobile: 2.5rem;
-    --hand-tile-size-desk: 4rem;
+    --hand-tile-size-desk: 3rem;
 }
 
 .html-game-view-wrapper {
@@ -117,7 +117,6 @@
   display: flex;
   gap: 8px;
   align-items: flex-start; /* Ensure vertical tiles align to the top */
-  height: calc(var(--hand-tile-size-mobile) * 2);
 }
 
 .hand-item {
@@ -135,7 +134,8 @@
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  margin-top: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .deck-counter .deck {
@@ -154,11 +154,13 @@
   height: var(--hand-tile-size-mobile);
   width: calc(var(--hand-tile-size-mobile) * 2);
   font-size: 2rem;
+  transform: translateY(-12px);
 }
 
 .deck-counter .deck.is-empty {
   border: 1px dashed var(--tile-edge-color);
   box-shadow: none;
+  transform: translateY(0)
 }
 
 @media (min-width: 500px) {
@@ -166,12 +168,8 @@
     flex-direction: row;
   }
 
-  .hand-grid {
-    height: calc(var(--hand-tile-size-desk) * 2);
-  }
-
   .hand-item {
-    height: calc(var(--hand-tile-size-desk) * 2);
+    height: var(--hand-tile-size-desk);
     width: calc(var(--hand-tile-size-desk) * 2);
   }
 
