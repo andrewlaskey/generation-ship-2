@@ -11,6 +11,7 @@ import { MainMenuController } from './controllers/MainMenuController';
 import { SwitchViewFn } from './types/SwitchViewFn';
 import { LocalStorage } from './modules/LocalStorage';
 import { UserScoreHistory } from './modules/UserScoreHistory';
+import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
 
 
 let gameManager = new GameManager();
@@ -18,6 +19,8 @@ let gameType: 'daily' | 'custom' = 'daily';
 
 const localStorage = new LocalStorage(window.localStorage);
 const userScoreHistory = new UserScoreHistory(localStorage);
+
+const modelLibrary = new ThreeModelLibrary();
 
 const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
     switch(viewName) {
@@ -27,7 +30,7 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
             mainMenuController.init();
             break;
         case 'three':
-            const threeJSView = new ThreeJSGameView(gameManager, document);    
+            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary);    
             const threeJSController = new ThreeJSGameController(gameManager, threeJSView, switchView);
             threeJSController.init();
             break;
@@ -53,4 +56,16 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
     }
 }
 
-switchView('menu');
+async function start() {
+    try {
+        await modelLibrary.loadModels();
+        console.log(modelLibrary);
+        switchView('menu');
+    } catch (e) {
+        console.error('Failed to start app', e);
+    }
+}
+
+start().then(() => {
+    console.log('Game Loaded')
+})

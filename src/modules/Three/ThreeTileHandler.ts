@@ -1,16 +1,27 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/Addons.js';
+import { ThreeModelLibrary } from './ThreeModelLibrary';
 
 export interface ThreeTileHandler {
-    updateScene(scene: THREE.Scene, position: THREE.Vector3): Promise<void>;
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void;
 }
 
 export class ThreePowerTileHandler implements ThreeTileHandler {
-    async updateScene(scene: THREE.Scene, position: THREE.Vector3 ): Promise<void> {
+    private tileSize: number;
+
+    constructor(tileSize: number) {
+        this.tileSize = tileSize;
+    }
+
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
         try {
-            const loader = new OBJLoader();
-            const obj = await loader.loadAsync('/generation-ship-2/public/models/Power2.obj');
-            obj.position.set(position.x, position.y, position.z);
+            const obj = library.get('Power2.obj');
+            const tileMid = this.tileSize * 0.5;
+
+            if (!obj) {
+                throw new Error('Model library failed to load');
+            }
+
+            obj.position.set(position.x + tileMid, position.y, position.z + tileMid);
 
             const material = new THREE.MeshStandardMaterial({
                 color: 0x555451,
@@ -27,16 +38,28 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
             scene.add(obj);
         } catch (e) {
             console.error('Failed to load power tile', e);
+            throw e;
         }
     }
 }
 
 export class ThreeFarmTileHandler implements ThreeTileHandler {
-    async updateScene(scene: THREE.Scene, position: THREE.Vector3): Promise<void> {
+    private tileSize: number;
+
+    constructor(tileSize: number) {
+        this.tileSize = tileSize;
+    }
+
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
         try {
-            const loader = new OBJLoader();
-            const obj = await loader.loadAsync('/generation-ship-2/public/models/Farm.obj');
-            obj.position.set(position.x, position.y, position.z);
+            const obj = library.get('Farm.obj');
+            const tileMid = this.tileSize * 0.5;
+
+            if (!obj) {
+                throw new Error('Model library failed to load');
+            }
+
+            obj.position.set(position.x + tileMid, position.y, position.z + tileMid);
 
             const material = new THREE.MeshStandardMaterial({
                 color: 0xffd522,
@@ -51,16 +74,21 @@ export class ThreeFarmTileHandler implements ThreeTileHandler {
 
             scene.add(obj);
         } catch (e) {
-            console.error('Failed to load power tile', e);
+            console.error('Failed to load farm tile', e);
+            throw e;
         }
     }
 }
 
 export class ThreeTreeTileHandler implements ThreeTileHandler {
-    async updateScene(scene: THREE.Scene, position: THREE.Vector3): Promise<void> {
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
         try {
-            const loader = new OBJLoader();
-            const obj = await loader.loadAsync('/generation-ship-2/public/models/Tree1.obj');
+            const obj = library.get('Tree1.obj');
+
+            if (!obj) {
+                throw new Error('Model library failed to load');
+            }
+
             obj.position.set(position.x, position.y, position.z);
 
             const material = new THREE.MeshStandardMaterial({
@@ -75,18 +103,36 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
             obj.castShadow = true;
 
             scene.add(obj);
+
+            const newTree = obj.clone();
+
+            newTree.position.set(position.x + 5, position.y, position.z + 5);
+
+            scene.add(newTree);
         } catch (e) {
-            console.error('Failed to load power tile', e);
+            console.error('Failed to load tree tile', e);
+            throw e;
         }
     }
 }
 
 export class ThreePeopleTileHandler implements ThreeTileHandler {
-    async updateScene(scene: THREE.Scene, position: THREE.Vector3): Promise<void> {
+    private tileSize: number;
+
+    constructor(tileSize: number) {
+        this.tileSize = tileSize;
+    }
+
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
         try {
-            const loader = new OBJLoader();
-            const obj = await loader.loadAsync('/generation-ship-2/public/models/SmallHouse1.obj');
-            obj.position.set(position.x, position.y, position.z);
+            const obj = library.get('SmallHouse1.obj');
+            const tileMid = this.tileSize * 0.5;
+
+            if (!obj) {
+                throw new Error('Model library failed to load');
+            }
+
+            obj.position.set(position.x + tileMid, position.y, position.z + tileMid);
 
             const material = new THREE.MeshStandardMaterial({
                 color: 0xf1efe7,
@@ -126,7 +172,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
 
             scene.add(obj);
         } catch (e) {
-            console.error('Failed to load power tile', e);
+            console.error('Failed to load people tile', e);
         }
     }
 }

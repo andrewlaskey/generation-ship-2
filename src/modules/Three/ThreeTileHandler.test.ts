@@ -1,23 +1,12 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 import * as THREE from 'three';
 import { ThreeFarmTileHandler, ThreePeopleTileHandler, ThreePowerTileHandler, ThreeTreeTileHandler } from "./ThreeTileHandler";
-
-vi.mock('three/examples/jsm/Addons.js', async () => {
-    return {
-        OBJLoader: class {
-            async loadAsync() {
-                return {
-                    position: { set: vi.fn() },
-                    traverse: vi.fn(),
-                };
-            }
-        },
-    };
-});
+import { ThreeModelLibrary } from "./ThreeModelLibrary";
 
 describe('ThreeTileHandler', () => {
     describe('ThreePowerTileHandler', () => {
         let mockScene: THREE.Scene;
+        let mockLibrary: ThreeModelLibrary;
         let handler: ThreePowerTileHandler;
         
         beforeEach(() => {
@@ -28,29 +17,37 @@ describe('ThreeTileHandler', () => {
                 remove: vi.fn(),
                 traverse: vi.fn(),
             } as unknown as THREE.Scene;
+
+            mockLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeModelLibrary;
     
-            handler = new ThreePowerTileHandler();
+            handler = new ThreePowerTileHandler(6);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
+            const mockObj = new THREE.Object3D();
+            (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary);
     
             // Assert that scene.add was called
             expect(mockScene.add).toHaveBeenCalledOnce();
-            const addedObject = (mockScene.add as Mock).mock.calls[0][0];
+            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
     
-            expect(addedObject).toBeDefined();
-            expect(addedObject.position.set).toHaveBeenCalledWith(10, 20, 30);
+            expect(mockObj.position.x).toBe(mockPosition.x + 3);
+            expect(mockObj.position.z).toBe(mockPosition.z + 3);
+            expect(mockObj.position.y).toBe(mockPosition.y);
         });
     });
 
     describe('ThreeFarmTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreeFarmTileHandler;
+        let mockLibrary: ThreeModelLibrary;
         
         beforeEach(() => {
 
@@ -60,29 +57,37 @@ describe('ThreeTileHandler', () => {
                 remove: vi.fn(),
                 traverse: vi.fn(),
             } as unknown as THREE.Scene;
+
+            mockLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeModelLibrary;
     
-            handler = new ThreeFarmTileHandler();
+            handler = new ThreeFarmTileHandler(6);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
+            const mockObj = new THREE.Object3D();
+            (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary);
     
             // Assert that scene.add was called
             expect(mockScene.add).toHaveBeenCalledOnce();
-            const addedObject = (mockScene.add as Mock).mock.calls[0][0];
+            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
     
-            expect(addedObject).toBeDefined();
-            expect(addedObject.position.set).toHaveBeenCalledWith(10, 20, 30);
+            expect(mockObj.position.x).toBe(mockPosition.x + 3);
+            expect(mockObj.position.z).toBe(mockPosition.z + 3);
+            expect(mockObj.position.y).toBe(mockPosition.y);
         });
     });
 
     describe('ThreeTreeTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreeTreeTileHandler;
+        let mockLibrary: ThreeModelLibrary;
         
         beforeEach(() => {
 
@@ -92,6 +97,10 @@ describe('ThreeTileHandler', () => {
                 remove: vi.fn(),
                 traverse: vi.fn(),
             } as unknown as THREE.Scene;
+
+            mockLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeModelLibrary;
     
             handler = new ThreeTreeTileHandler();
         });
@@ -99,22 +108,24 @@ describe('ThreeTileHandler', () => {
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
+            const mockObj = new THREE.Object3D();
+            (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary);
     
             // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledOnce();
-            const addedObject = (mockScene.add as Mock).mock.calls[0][0];
+            expect(mockScene.add).toHaveBeenCalledTimes(2);
+            expect(mockScene.add).toHaveBeenNthCalledWith(1, mockObj);
     
-            expect(addedObject).toBeDefined();
-            expect(addedObject.position.set).toHaveBeenCalledWith(10, 20, 30);
+            expect(mockObj.position).toEqual(mockPosition);
         });
     });
 
     describe('ThreePeopleTileHandler', () => {
         let mockScene: THREE.Scene;
-        let handler: ThreePeopleTileHandler
+        let handler: ThreeTreeTileHandler;
+        let mockLibrary: ThreeModelLibrary;
         
         beforeEach(() => {
 
@@ -124,23 +135,30 @@ describe('ThreeTileHandler', () => {
                 remove: vi.fn(),
                 traverse: vi.fn(),
             } as unknown as THREE.Scene;
+
+            mockLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeModelLibrary;
     
-            handler = new ThreePeopleTileHandler();
+            handler = new ThreePeopleTileHandler(6);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
+            const mockObj = new THREE.Object3D();
+            (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary);
     
             // Assert that scene.add was called
             expect(mockScene.add).toHaveBeenCalledOnce();
-            const addedObject = (mockScene.add as Mock).mock.calls[0][0];
+            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
     
-            expect(addedObject).toBeDefined();
-            expect(addedObject.position.set).toHaveBeenCalledWith(10, 20, 30);
+            expect(mockObj.position.x).toBe(mockPosition.x + 3);
+            expect(mockObj.position.z).toBe(mockPosition.z + 3);
+            expect(mockObj.position.y).toBe(mockPosition.y);
         });
     });
 })

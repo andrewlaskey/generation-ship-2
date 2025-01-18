@@ -1,13 +1,12 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/Addons.js';
-import { GameManager } from '../modules/GameManager';  // Import the GameManager class
-import { Tile } from '../modules/Tile';
+import { GameManager } from '../modules/GameManager';
 import { GameView } from '../types/GameViewInterface';
 import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
 import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegistry';
+import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
 
 export type ThreeJSGameViewOptions = {
-    showAxes?: boolean;
+    debug?: boolean;
 }
 export class ThreeJSGameView implements GameView {
     private gameManager: GameManager;
@@ -15,13 +14,17 @@ export class ThreeJSGameView implements GameView {
     public camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private tileHandlerRegistry: ThreeTileHandlerRegistry;
-    public document: Document;  // Make document public for the controller to access
+    private modelLibrary: ThreeModelLibrary;
+    public document: Document;
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
     private pitch = 0;
     private yaw = 0;
+    private tileSize = 5;
+    private debugOn = false;
 
-    constructor(gameManager: GameManager, document: Document, options?: ThreeJSGameViewOptions) {
+    constructor(gameManager: GameManager, document: Document, modelLibrary: ThreeModelLibrary, options?: ThreeJSGameViewOptions) {
+        this.debugOn = options?.debug ?? false;
         this.gameManager = gameManager;
         this.document = document;
         this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
@@ -35,14 +38,15 @@ export class ThreeJSGameView implements GameView {
         this.renderer.setSize(this.gridContainer.clientWidth, this.gridContainer.clientHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.tileHandlerRegistry = new ThreeTileHandlerRegistry();
+        this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize);
+        this.modelLibrary = modelLibrary;
 
         this.gridContainer.appendChild(this.renderer.domElement);
 
         // Set up camera position
         this.camera.position.set(0, 1.6, 5);
 
-        if (options?.showAxes) {
+        if (this.debugOn) {
             const axesHelper = new THREE.AxesHelper(50);
             this.scene.add(axesHelper);
         }
@@ -70,30 +74,29 @@ export class ThreeJSGameView implements GameView {
     // Initialize the grid of 3D objects
     private initializeGrid(): void {
         const gameSize = this.gameManager.gameBoard.size;
-        const tileSize = 5;  // Size of each tile
-        const updatePromises: Promise<void>[] = []
 
         for (let x = 0; x < gameSize; x++) {
             for (let y = 0; y < gameSize; y++) {
                 const space = this.gameManager.gameBoard.getSpace(x, y);
                 const tile = space?.tile;
 
+                const meshX = x * this.tileSize - (gameSize * this.tileSize) / 2;
+                const meshZ = y * this.tileSize - (gameSize * this.tileSize) / 2; // grid plane is on z axis
+                const meshPos = new THREE.Vector3(meshX, 0, meshZ);
+
+                if (this.debugOn) {
+                    this.addDebugSphere(this.scene, meshPos);
+                }
+
                 if (tile) {
-                    const meshX = x * tileSize - (gameSize * tileSize) / 2;
-                    const meshZ = y * tileSize - (gameSize * tileSize) / 2; // grid plane is on z axis
-                    const meshPos = new THREE.Vector3(meshX, 0, meshZ);
                     const handler = this.tileHandlerRegistry.getHandler(tile.type);
 
                     if (handler) {
-                        updatePromises.push(handler.updateScene(this.scene, meshPos));
+                        handler.updateScene(this.scene, meshPos, this.modelLibrary);
                     }
                 }
             }
         }
-
-        Promise.allSettled(updatePromises).then(() => {
-            this.render();
-        });
     }
 
     private createWorld(): void {
@@ -123,7 +126,7 @@ export class ThreeJSGameView implements GameView {
         
         // Add world plane
         const size = this.gameManager.gameBoard.size;
-        const geometry = new THREE.PlaneGeometry(size * 5, size * 5);
+        const geometry = new THREE.PlaneGeometry(size * this.tileSize, size * this.tileSize);
         const material = new THREE.MeshStandardMaterial({ color: 0xa5d66e });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.receiveShadow = true;
@@ -134,142 +137,11 @@ export class ThreeJSGameView implements GameView {
         this.scene.add(mesh);
     }
 
-    // Create a mesh for a tile based on its type
-    private async createTileMesh(tile: Tile, position: THREE.Vector3 ): Promise<THREE.Mesh | THREE.Object3D> {
-        const loader = new OBJLoader();
-        let material: THREE.MeshStandardMaterial;
-        let mesh: THREE.Mesh | THREE.Object3D;
-
-        try {
-
-            // Determine the geometry and material based on the tile type
-            switch (tile?.type) {                
-                case 'people':
-                    mesh = await loader.loadAsync('/generation-ship-2/public/models/SmallHouse1.obj');
-                    mesh.position.set(position.x, position.y, position.z);
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0xf1efe7,
-                        roughness: 0.8, 
-                        metalness: 0.0,
-                        flatShading: true
-                    });
-                    const woodMaterial = new THREE.MeshStandardMaterial({
-                        color: 0x741518,
-                        roughness: 0.8, 
-                        metalness: 0.0,
-                        flatShading: true
-                    });
-                    const altMaterial = new THREE.MeshStandardMaterial({
-                        color: 0x5a54a3,
-                        roughness: 0.8, 
-                        metalness: 0.0,
-                        flatShading: true
-                    });
-                    mesh.traverse((child) => {
-                        if (child instanceof THREE.Mesh) {
-                            if (child.name == 'Wood') {
-                                child.material = woodMaterial;    
-                            } else if (child.name == 'Glass') {
-                                child.material = altMaterial;
-                            } else {
-                                child.material = material;
-                            }
-                            child.receiveShadow = true;
-                            child.castShadow = true;
-                        }
-                    });
-                    break;
-                case 'farm':
-                    mesh = await loader.loadAsync('/generation-ship-2/public/models/Farm.obj');
-                    mesh.position.set(position.x, position.y, position.z);
-
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0xffd522,
-                        roughness: 0.9, 
-                        metalness: 0.0,
-                    });
-                    this.applyMaterialToChildren(mesh, material);
-                    break;
-                case 'power':
-                    mesh = await loader.loadAsync('/generation-ship-2/public/models/Power2.obj');
-                    mesh.position.set(position.x, position.y, position.z);
-
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0x555451,
-                        roughness: 0.7, 
-                        metalness: 0.2,
-                        flatShading: true
-                    });
-                    this.applyMaterialToChildren(mesh, material);
-                    break;
-                default:
-                    mesh = await loader.loadAsync('/generation-ship-2/public/models/Tree1.obj');
-                    mesh.position.set(position.x, position.y, position.z);
-
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0x1b9416,
-                        roughness: 0.9, 
-                        metalness: 0.0
-                    });
-                    this.applyMaterialToChildren(mesh, material);
-                    break;
-            }
-
-            mesh.receiveShadow = true;
-            mesh.castShadow = true;
-
-            return mesh;
-        } catch(e) {
-            console.error('Create Tile Mesh Error', e);
-            throw e;
-        }
-    }
-
-    private applyMaterialToChildren(obj: THREE.Object3D, material: THREE.MeshStandardMaterial): void {
-        obj.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                child.material = material;
-                child.receiveShadow = true;
-                child.castShadow = true;
-            }
-        });
-    }
-
     // Update the grid's appearance based on the current game state
     public updateGrid(): void {
-
-        // for (let x = 0; x < gameSize; x++) {
-        //     for (let y = 0; y < gameSize; y++) {
-        //         const space = this.gameManager.gameBoard.getSpace(x, y);
-        //         const tile = space?.tile;
-
-        //         if (tile) {
-        //             // Update the mesh based on the current tile type and state
-        //             const mesh = this.tileMeshes[x][y];
-        //             this.updateTileMesh(mesh, tile);
-        //         }
-        //     }
-        // }
-
         // Re-render the scene after updates
         this.render();
     }
-
-    // Update the properties of a tile's mesh
-    // private updateTileMesh(mesh: THREE.Mesh, tile: Tile): void {
-    //     // Update the color based on tile state
-    //     switch (tile.state) {
-    //         case 'healthy':
-    //             (mesh.material as THREE.MeshStandardMaterial).color.set(0x00ff00);
-    //             break;
-    //         case 'unhealthy':
-    //             (mesh.material as THREE.MeshStandardMaterial).color.set(0xff0000);
-    //             break;
-    //         default:
-    //             (mesh.material as THREE.MeshStandardMaterial).color.set(0xffffff);
-    //             break;
-    //     }
-    // }
 
     public moveCamera(direction: THREE.Vector3, distance: number, yawDelta: number, pitchDelta: number) {
         // Update yaw and pitch
@@ -343,5 +215,22 @@ export class ThreeJSGameView implements GameView {
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+    }
+
+    private addDebugSphere(scene: THREE.Scene, pos: THREE.Vector3): void {
+        // Create a sphere geometry
+        const debugSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16); // Small sphere with 0.2 radius
+
+        // Create a material for the sphere
+        const debugSphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color for visibility
+
+        // Create the sphere mesh
+        const debugSphere = new THREE.Mesh(debugSphereGeometry, debugSphereMaterial);
+
+        // Set the position of the sphere (for example, where your light is)
+        debugSphere.position.set(pos.x, pos.y, pos.z);
+
+        // Add the debug sphere to the scene
+        scene.add(debugSphere);
     }
 }

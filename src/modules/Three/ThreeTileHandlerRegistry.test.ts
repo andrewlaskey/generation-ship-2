@@ -14,7 +14,7 @@ describe('ThreeTileHandlerRegistry', () => {
 
     beforeEach(() => {
         // Initialize a new registry for each test
-        registry = new ThreeTileHandlerRegistry();
+        registry = new ThreeTileHandlerRegistry(6);
     });
 
     it('should return the correct handler for "tree" tile type', () => {

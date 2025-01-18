@@ -9,12 +9,12 @@ import {
 export class ThreeTileHandlerRegistry {
     private handlers: Map<string, ThreeTileHandler> = new Map();
 
-    constructor() {
+    constructor(tileSize: number) {
         // Register default handlers
         this.handlers.set('tree', new ThreeTreeTileHandler());
-        this.handlers.set('farm', new ThreeFarmTileHandler());
-        this.handlers.set('people', new ThreePeopleTileHandler());
-        this.handlers.set('power', new ThreePowerTileHandler());
+        this.handlers.set('farm', new ThreeFarmTileHandler(tileSize));
+        this.handlers.set('people', new ThreePeopleTileHandler(tileSize));
+        this.handlers.set('power', new ThreePowerTileHandler(tileSize));
     }
 
     // Get the appropriate handler for the given tile type
