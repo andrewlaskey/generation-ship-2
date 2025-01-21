@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { ThreeModelLibrary } from './ThreeModelLibrary';
+import { Tile } from '../Tile';
 
 export interface ThreeTileHandler {
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void;
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void;
 }
 
 export class ThreePowerTileHandler implements ThreeTileHandler {
@@ -12,7 +13,7 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
         this.tileSize = tileSize;
     }
 
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
         try {
             const obj = library.get('Power2.obj');
             const tileMid = this.tileSize * 0.5;
@@ -36,6 +37,16 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
             obj.castShadow = true;
 
             scene.add(obj);
+
+            // TODO: need to clone lights I think
+            // Add a light
+            // const light = new THREE.SpotLight(0xadd8e6, 20); // Light blue color
+            // light.angle = THREE.MathUtils.degToRad(30);
+            // light.position.set(position.x + tileMid, position.y + 8, position.z + tileMid); // Place in the room
+            // light.target.position.set(position.x + tileMid, position.y, position.z + tileMid);
+            // light.castShadow = true; // Enable shadows
+
+            // scene.add(light);
         } catch (e) {
             console.error('Failed to load power tile', e);
             throw e;
@@ -50,69 +61,118 @@ export class ThreeFarmTileHandler implements ThreeTileHandler {
         this.tileSize = tileSize;
     }
 
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
             const obj = library.get('Farm.obj');
-            const tileMid = this.tileSize * 0.5;
+            let farmCount = tile.level;
 
             if (!obj) {
                 throw new Error('Model library failed to load');
             }
 
-            obj.position.set(position.x + tileMid, position.y, position.z + tileMid);
-
-            const material = new THREE.MeshStandardMaterial({
-                color: 0xffd522,
-                roughness: 0.9, 
-                metalness: 0.0,
-            });
-
-            applyMaterialToChildren(obj, material);
-
-            obj.receiveShadow = true;
-            obj.castShadow = true;
-
-            scene.add(obj);
+            for (let i = 0; i < farmCount; i++) {
+                const newFarm = obj.clone();
+                this.addFarm(scene, position, newFarm);
+            }
         } catch (e) {
             console.error('Failed to load farm tile', e);
             throw e;
         }
     }
+
+    private addFarm(scene: THREE.Scene, position: THREE.Vector3, obj: THREE.Object3D) {
+        const placementPadding = 1;
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffd522,
+            roughness: 0.9, 
+            metalness: 0.0,
+        });
+        
+        obj.receiveShadow = true;
+        obj.castShadow = true;
+
+        applyMaterialToChildren(obj, material);
+        
+
+        const minX = position.x + placementPadding;
+        const maxX = position.x + this.tileSize - placementPadding;
+        const minZ = position.z + placementPadding;
+        const maxZ = position.z + this.tileSize - placementPadding;
+        const newX = Math.floor(Math.random() * (maxX - minX + 1)) + minX; 
+        const newZ = Math.floor(Math.random() * (maxZ - minZ + 1)) + minZ; 
+
+        obj.position.set(newX, position.y, newZ);
+
+        obj.rotateY(Math.random() * Math.PI * 2);
+
+        const randomScale = Math.random() + 0.6;
+        obj.scale.set(randomScale, randomScale, randomScale);
+
+        scene.add(obj);
+    }
 }
 
 export class ThreeTreeTileHandler implements ThreeTileHandler {
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
+    private tileSize: number;
+
+    constructor(tileSize: number) {
+        this.tileSize = tileSize;
+    }
+
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
             const obj = library.get('Tree1.obj');
+            let treeCount = 1;
 
             if (!obj) {
                 throw new Error('Model library failed to load');
             }
 
-            obj.position.set(position.x, position.y, position.z);
+            if (tile.level === 2) {
+                treeCount = 3;    
+            } else if (tile.level === 3) {
+                treeCount = 5;
+            }
 
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x1b9416,
-                roughness: 0.9, 
-                metalness: 0.0
-            });
-
-            applyMaterialToChildren(obj, material);
-
-            obj.receiveShadow = true;
-            obj.castShadow = true;
-
-            scene.add(obj);
-
-            const newTree = obj.clone();
-
-            newTree.position.set(position.x + 5, position.y, position.z + 5);
-
-            scene.add(newTree);
+            for (let i = 0; i < treeCount; i++) {
+                const newTree = obj.clone();
+                this.addTree(scene, position, newTree);
+            }
         } catch (e) {
             console.error('Failed to load tree tile', e);
             throw e;
         }
+    }
+
+    private addTree(scene: THREE.Scene, position: THREE.Vector3, obj: THREE.Object3D) {
+        const placementPadding = 1;
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x1b9416,
+            roughness: 0.9, 
+            metalness: 0.0
+        });
+        
+        obj.receiveShadow = true;
+        obj.castShadow = true;
+
+        applyMaterialToChildren(obj, material);
+        
+
+        const minX = position.x + placementPadding;
+        const maxX = position.x + this.tileSize - placementPadding;
+        const minZ = position.z + placementPadding;
+        const maxZ = position.z + this.tileSize - placementPadding;
+        const newX = Math.floor(Math.random() * (maxX - minX + 1)) + minX; 
+        const newZ = Math.floor(Math.random() * (maxZ - minZ + 1)) + minZ; 
+
+        obj.position.set(newX, position.y, newZ);
+
+        obj.rotateY(Math.random() * Math.PI * 2);
+
+        const randomScale = Math.random() + 0.6;
+        obj.scale.set(randomScale, randomScale, randomScale);
+
+        scene.add(obj);
     }
 }
 
@@ -123,7 +183,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
         this.tileSize = tileSize;
     }
 
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary): void {
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
         try {
             const obj = library.get('SmallHouse1.obj');
             const tileMid = this.tileSize * 0.5;

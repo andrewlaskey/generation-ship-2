@@ -71,25 +71,24 @@ export class ThreeJSGameController {
     private initCameraControls(): void {
         const canvas = this.gameView.getCanvas();
         const document = this.gameView.document;
-
+    
         canvas.addEventListener('mousedown', () => {
             this.isDragging = true;
         });
-
+    
         canvas.addEventListener('mouseup', () => {
             this.isDragging = false;
+            this.mouseMoveDeltaX = 0; // Reset X movement
+            this.mouseMoveDeltaY = 0; // Reset Y movement
         });
-
+    
         document.addEventListener('mousemove', (event) => {
             if (this.isDragging) {
                 this.mouseMoveDeltaX = event.movementX * this.mouseSensitivity;
                 this.mouseMoveDeltaY = event.movementY * this.mouseSensitivity;
-            } else {
-                this.mouseMoveDeltaX = 0;
-                this.mouseMoveDeltaY = 0;
             }
         });
-
+    
         document.addEventListener('keydown', (event) => {
             switch (event.code) {
                 case 'ArrowUp':
@@ -110,7 +109,7 @@ export class ThreeJSGameController {
                     break;
             }
         });
-
+    
         document.addEventListener('keyup', (event) => {
             switch (event.code) {
                 case 'ArrowUp':
@@ -132,26 +131,32 @@ export class ThreeJSGameController {
             }
         });
     }
-
+    
     private loop = () => {
         const delta = this.clock.getDelta();
         const direction = new THREE.Vector3();
-
+    
         // Forward/Backward movement
         if (this.moveForward) direction.z += 1;
         if (this.moveBackward) direction.z -= 1;
-
+    
         // Left/Right movement
         if (this.moveLeft) direction.x += 1;
         if (this.moveRight) direction.x -= 1;
-
+    
+        // Apply camera movement
         this.gameView.moveCamera(
             direction,
             this.movementSpeed * delta,
             this.mouseMoveDeltaX,
             this.mouseMoveDeltaY
         );
-
+    
+        // Reset mouse movement deltas after each frame
+        this.mouseMoveDeltaX = 0;
+        this.mouseMoveDeltaY = 0;
+    
         requestAnimationFrame(this.loop);
-    }
+    };
+    
 }

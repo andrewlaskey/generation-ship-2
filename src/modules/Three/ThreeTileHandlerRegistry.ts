@@ -11,7 +11,7 @@ export class ThreeTileHandlerRegistry {
 
     constructor(tileSize: number) {
         // Register default handlers
-        this.handlers.set('tree', new ThreeTreeTileHandler());
+        this.handlers.set('tree', new ThreeTreeTileHandler(tileSize));
         this.handlers.set('farm', new ThreeFarmTileHandler(tileSize));
         this.handlers.set('people', new ThreePeopleTileHandler(tileSize));
         this.handlers.set('power', new ThreePowerTileHandler(tileSize));

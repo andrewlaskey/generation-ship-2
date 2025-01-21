@@ -20,7 +20,7 @@ export class ThreeJSGameView implements GameView {
     private gridContainer!: HTMLDivElement;
     private pitch = 0;
     private yaw = 0;
-    private tileSize = 5;
+    private tileSize = 8;
     private debugOn = false;
 
     constructor(gameManager: GameManager, document: Document, modelLibrary: ThreeModelLibrary, options?: ThreeJSGameViewOptions) {
@@ -33,7 +33,7 @@ export class ThreeJSGameView implements GameView {
 
         // Initialize the three.js scene
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, this.gridContainer.clientWidth / this.gridContainer.clientHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(60, this.gridContainer.clientWidth / this.gridContainer.clientHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(this.gridContainer.clientWidth, this.gridContainer.clientHeight);
         this.renderer.shadowMap.enabled = true;
@@ -92,7 +92,7 @@ export class ThreeJSGameView implements GameView {
                     const handler = this.tileHandlerRegistry.getHandler(tile.type);
 
                     if (handler) {
-                        handler.updateScene(this.scene, meshPos, this.modelLibrary);
+                        handler.updateScene(this.scene, meshPos, this.modelLibrary, tile);
                     }
                 }
             }
@@ -101,8 +101,8 @@ export class ThreeJSGameView implements GameView {
 
     private createWorld(): void {
         // Add directional light
-        const directionalLight = new THREE.DirectionalLight(0xffee00, 1.0);
-        directionalLight.position.set(-50, 20, 50);
+        const directionalLight = new THREE.DirectionalLight(0xebbb73, 1.0);
+        directionalLight.position.set(-50, 28, 50);
         directionalLight.castShadow = true;
 
         directionalLight.shadow.mapSize.width = 1024;
@@ -116,25 +116,51 @@ export class ThreeJSGameView implements GameView {
 
         this.scene.add(directionalLight);
 
+        if (this.debugOn) {
+            const sunHelper = new THREE.DirectionalLightHelper(directionalLight);
+            this.scene.add(sunHelper);
+        }
+
         // Dim ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
         // Add background and fog
-        this.scene.background = new THREE.Color(0x000000); // Sunset color
+        const loader = new THREE.CubeTextureLoader();
+        const skyboxTexture = loader.load([
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +X (right)
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // -X (left)
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +Y (top)
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // -Y (bottom)
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +Z (front)
+            '/generation-ship-2/public/textures/skybox/nightskycolor.png'  // -Z (back)
+        ]);
+        // this.scene.background = new THREE.Color(0x000000); // Sunset color
+        this.scene.background = skyboxTexture;
         this.scene.fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
         
         // Add world plane
         const size = this.gameManager.gameBoard.size;
-        const geometry = new THREE.PlaneGeometry(size * this.tileSize, size * this.tileSize);
-        const material = new THREE.MeshStandardMaterial({ color: 0xa5d66e });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.receiveShadow = true;
+        const geometry = new THREE.PlaneGeometry(size * this.tileSize, size * this.tileSize, 100, 100);
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load('/generation-ship-2/public/textures/grass.png', (texture) => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(10, 10); // Adjust for more/less tiling
+            
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                color: 0xa5d66e, // Adjust base color for the grass
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.receiveShadow = true;
 
-        mesh.position.set(0, 0, 0);
-        mesh.rotation.x = -Math.PI / 2;
+            mesh.position.set(0, 0, 0);
+            mesh.rotation.x = -Math.PI / 2;
 
-        this.scene.add(mesh);
+            this.scene.add(mesh);
+        });
     }
 
     // Update the grid's appearance based on the current game state

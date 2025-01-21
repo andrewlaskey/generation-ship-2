@@ -30,7 +30,7 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
             mainMenuController.init();
             break;
         case 'three':
-            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary);    
+            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary, { debug: true });    
             const threeJSController = new ThreeJSGameController(gameManager, threeJSView, switchView);
             threeJSController.init();
             break;
