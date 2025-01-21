@@ -16,7 +16,11 @@ export class ThreeModelLibrary {
                 '/generation-ship-2/public/models/Power2.obj',
                 '/generation-ship-2/public/models/Farm.obj',
                 '/generation-ship-2/public/models/Tree1.obj',
-                '/generation-ship-2/public/models/SmallHouse1.obj'
+                '/generation-ship-2/public/models/SmallHouse1.obj',
+                '/generation-ship-2/public/models/Broken wall.obj',
+                '/generation-ship-2/public/models/Rock 2.obj',
+                '/generation-ship-2/public/models/Rock.obj',
+                '/generation-ship-2/public/models/World Ring.obj'
             ];
 
             for(const path of modelsToLoad) {

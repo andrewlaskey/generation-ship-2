@@ -1,4 +1,4 @@
-import { Tile, TileType } from "./Tile";
+import { Tile, TileState, TileType } from "./Tile";
 import { BoardSpace } from "./BoardSpace";
 import { SpaceChange, SpaceUpdate } from "./TileHandler";
 
@@ -42,16 +42,16 @@ export class GameBoard {
         this.clearBoard();
     
         // Place a tree tile at the center
-        this.placeTileAt(centerX, centerY, new Tile('tree', 1, 'neutral'));
+        this.placeTileAt(centerX, centerY, new Tile(TileType.Tree, 1, TileState.Neutral));
     
         // Place a farm tile one cell north, if within bounds
         if (this.isValidCoordinate(centerX, centerY - 1)) {
-            this.placeTileAt(centerX, centerY - 1, new Tile('farm', 1, 'neutral'));
+            this.placeTileAt(centerX, centerY - 1, new Tile(TileType.Farm, 1, TileState.Neutral));
         }
     
         // Place a people tile one cell west, if within bounds
         if (this.isValidCoordinate(centerX - 1, centerY)) {
-            this.placeTileAt(centerX - 1, centerY, new Tile('people', 1, 'neutral'));
+            this.placeTileAt(centerX - 1, centerY, new Tile(TileType.People, 1, TileState.Neutral));
         }
     }
 

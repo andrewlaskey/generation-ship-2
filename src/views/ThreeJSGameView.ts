@@ -100,9 +100,12 @@ export class ThreeJSGameView implements GameView {
     }
 
     private createWorld(): void {
+        const gameSize = this.gameManager.gameBoard.size;
+        const worldSize = gameSize * this.tileSize;
+        const outerWorldSize = worldSize * Math.SQRT2;
         // Add directional light
         const directionalLight = new THREE.DirectionalLight(0xebbb73, 1.0);
-        directionalLight.position.set(-50, 28, 50);
+        directionalLight.position.set(-30, 30, 30);
         directionalLight.castShadow = true;
 
         directionalLight.shadow.mapSize.width = 1024;
@@ -140,8 +143,7 @@ export class ThreeJSGameView implements GameView {
         this.scene.fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
         
         // Add world plane
-        const size = this.gameManager.gameBoard.size;
-        const geometry = new THREE.PlaneGeometry(size * this.tileSize, size * this.tileSize, 100, 100);
+        const geometry = new THREE.PlaneGeometry(outerWorldSize, outerWorldSize, 10, 10);
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load('/generation-ship-2/public/textures/grass.png', (texture) => {
             texture.wrapS = THREE.RepeatWrapping;
@@ -161,6 +163,42 @@ export class ThreeJSGameView implements GameView {
 
             this.scene.add(mesh);
         });
+
+        // Add World Ring
+        const worldRing = this.modelLibrary.get('World Ring.obj');
+
+        if (worldRing) {
+            worldRing?.position.set(0, -1, 0);
+            worldRing.scale.set(outerWorldSize, outerWorldSize, outerWorldSize);
+
+            const ringMaterial = new THREE.MeshStandardMaterial({
+                color: 0xccd0db,
+                roughness: 0.8, 
+                metalness: 0.2,
+            });
+
+            const sunMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffe345,
+                roughness: 0.8,
+                metalness: 0
+            });
+
+            worldRing.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    if (child.name == 'Sun') {
+                        child.material = sunMaterial
+                    }  else {
+                        child.material = ringMaterial;
+                    }
+                    child.receiveShadow = true;
+                    child.castShadow = true;
+                }
+            });
+
+            this.scene.add(worldRing);
+
+            // const sunLight = new THREE.PointLight(0x)
+        }
     }
 
     // Update the grid's appearance based on the current game state

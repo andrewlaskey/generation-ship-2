@@ -3,7 +3,8 @@ import {
     ThreePeopleTileHandler,
     ThreePowerTileHandler,
     ThreeTileHandler,
-    ThreeTreeTileHandler
+    ThreeTreeTileHandler,
+    ThreeWasteTileHandler
 } from "./ThreeTileHandler";
 
 export class ThreeTileHandlerRegistry {
@@ -15,6 +16,7 @@ export class ThreeTileHandlerRegistry {
         this.handlers.set('farm', new ThreeFarmTileHandler(tileSize));
         this.handlers.set('people', new ThreePeopleTileHandler(tileSize));
         this.handlers.set('power', new ThreePowerTileHandler(tileSize));
+        this.handlers.set('waste', new ThreeWasteTileHandler(tileSize));
     }
 
     // Get the appropriate handler for the given tile type
