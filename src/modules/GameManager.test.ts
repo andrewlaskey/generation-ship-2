@@ -344,19 +344,17 @@ describe('GameManager', () => {
 
     });
 
-    it('should return the correct calculated player score', () => {
+    it('should return the correct calculated base player score', () => {
         (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
             tree: 1,
             people: 2
         });
-        vi.spyOn(gameManager, 'getGameDurationMs').mockImplementation(() => { return 60000; });
 
         gameManager.updatePlayerScore();
-        const result = gameManager.getCalculatedPlayerScore();
+        const result = gameManager.getFinalPlayerScoreElements();
 
-        // result = (100 * (1 + (2 * 5)) - 10
-        expect(result).toBe(1090);
-    })
+        expect(result.get('Base')).toBe(1100);
+    });
 
     it('should correctly subtract deckSize from calculated player score', () => {
         // One ecology and 2 people = 1 + (2 * 5)
@@ -367,15 +365,24 @@ describe('GameManager', () => {
         // 5 Cards remaining in deck
         (deck.getItemCount as Mock).mockReturnValue(5);
 
-        // 10 minute game duration
-        vi.spyOn(gameManager, 'getGameDurationMs').mockImplementation(() => { return 60000 * 10; });
-
         gameManager.updatePlayerScore();
 
-        const result = gameManager.getCalculatedPlayerScore();
+        const result = gameManager.getFinalPlayerScoreElements();
 
         // result = (100 * (1 + (2 * 5)) - 5
-        expect(result).toBe(1095);
+        expect(result.get('Remaining deck modifier')).toBe(-5);
+    });
+
+    it('should return the correct eco ratio score', () => {
+        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+            tree: 1,
+            people: 2
+        });
+
+        gameManager.updatePlayerScore();
+        const result = gameManager.getFinalPlayerScoreElements();
+
+        expect(result.get('Ecology ratio bonus')).toBe(10);
     });
 
     it.skip('should correctly multiply calculated player score by the time factor', () => {

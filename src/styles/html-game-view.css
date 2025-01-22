@@ -330,5 +330,28 @@
   margin-right: 0.5rem;
 }
 
+.final-score-table {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem 1rem;
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+  width: 14em;
+  max-width: 100%;
+}
 
+.final-score-table dt {
+  grid-column: 1;
+  font-weight: bold;
+}
 
+.final-score-table dd {
+  grid-column: 2;
+  margin: 0;
+  text-align: right;
+}
+
+.final-score-table dt:last-of-type,
+.final-score-table dd:last-of-type {
+  font-size: 1.5em;
+}

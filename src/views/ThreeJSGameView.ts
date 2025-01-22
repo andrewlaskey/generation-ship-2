@@ -125,7 +125,7 @@ export class ThreeJSGameView implements GameView {
         }
 
         // Dim ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
         this.scene.add(ambientLight);
 
         // Add background and fog
@@ -178,9 +178,12 @@ export class ThreeJSGameView implements GameView {
             });
 
             const sunMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffe345,
-                roughness: 0.8,
-                metalness: 0
+                // color: 0xffe345,
+                color: 0xffffff,
+                roughness: 0.2,
+                metalness: 0.6,
+                emissive: 0xffe345,
+                fog: false,
             });
 
             worldRing.traverse((child) => {

@@ -257,6 +257,7 @@ export class GameManager {
 
     updatePlayerScore(): void {
         const tileTypeCounts = this.gameBoard.countTileTypes(true);
+        const peopleScoreMultiplier = 5;
 
         if (tileTypeCounts.hasOwnProperty('tree')) {
             this.playerScore.ecology.update(tileTypeCounts['tree'])
@@ -265,7 +266,7 @@ export class GameManager {
         }
 
         if (tileTypeCounts.hasOwnProperty('people')) {
-            this.playerScore.population.update(tileTypeCounts['people'] * 5)
+            this.playerScore.population.update(tileTypeCounts['people'] * peopleScoreMultiplier)
         } else {
             this.playerScore.population.update(0);
         }
@@ -341,22 +342,27 @@ export class GameManager {
         this.playerHand.rotateSelected();
     }
 
+    getFinalPlayerScoreElements(): Map<string, number> {
+        const scoreElements = new Map<string, number>();
+        const eco = this.getPlayerScore('ecology');
+        const pop = this.getPlayerScore('population');
+
+        scoreElements.set('Base', 100 * (eco + pop));
+
+        scoreElements.set('Ecology ratio bonus', pop > 0 ? 100 * (eco / pop) : 100);
+
+        scoreElements.set('Remaining deck modifier', this.getDeckItemCount() * -1);
+
+        return scoreElements;
+    }
+
     getCalculatedPlayerScore(): number {
-        // Base score is (ecology + pop) * 100
-        let score = 100 * (this.getPlayerScore('ecology') + this.getPlayerScore('population'));
-
-        // Subtract number of cards remaining in deck
-        score -= this.getDeckItemCount();
-
-        // Reward faster play times
-        // let gameTimeInMinutes = this.getGameDurationMs() / 60000;
-
-        // if (gameTimeInMinutes <= 1) {
-        //     gameTimeInMinutes = 1;
-        // }
-
-        // const timeMultiplier = 1 + this.timeScoreFactor / gameTimeInMinutes;
-        // score = Math.round(score * timeMultiplier);
+        let score = 0;
+        const elements = this.getFinalPlayerScoreElements();
+        
+        for (const num of elements.values()) {
+            score += num;
+        }
 
         return score;
     }

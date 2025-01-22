@@ -288,18 +288,16 @@ export class HtmlGameView implements GameView {
                 html = `
 <h3>Game Over</h3>
 <p>The ship's population has died.<br>It will continue to drift through space empty for eons.</p>
-<p>Final score: ${this.gameManager.getCalculatedPlayerScore()}</p>
+${this.finalPlayerScoreHtml()}
 `;
                 
                 break;
             case GameState.Complete:
-                const ecoScore = this.gameManager.getPlayerScore('ecology');
-                const popScore = this.gameManager.getPlayerScore('population');
+                
                 html = `
                 <h3>Success!</h3>
                 <p>After centuries traveling through space the ship has reached a suitable planet for permanent colonization.</p>
-                <p>The colony will be seeded with ecological score of <strong>${ecoScore}</strong> and a population of <strong>${popScore}</strong>.</p>
-                <p><strong>Total score: ${this.gameManager.getCalculatedPlayerScore()}</strong></p>
+                ${this.finalPlayerScoreHtml()}
                 `;
                 break;
             default:
@@ -308,6 +306,21 @@ export class HtmlGameView implements GameView {
 
         clearElementChildren(this.playerNotice);
         insertHtml(html, this.playerNotice);
+    }
+
+    private finalPlayerScoreHtml(): string {
+        const scoreElements = this.gameManager.getFinalPlayerScoreElements();
+        let html = `<dl class="final-score-table">`;
+        
+        scoreElements.forEach((val, key) => {
+            html += `<dt>${key}</dt><dd>${val}</dd>`
+        });
+        
+        html += `
+        <dt>Total</dt><dd>${this.gameManager.getCalculatedPlayerScore()}
+        </dl>`;
+
+        return html;
     }
 
     private updatePlayerActions(): void {
