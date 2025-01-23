@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { draw } from 'radash';
 import { ThreeModelLibrary } from './ThreeModelLibrary';
 import { Tile } from '../Tile';
 
@@ -149,11 +150,18 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
 
     updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            const obj = library.get('Tree2.obj');
+            const tree1 = library.get('Tree1.obj');
+            const tree2 = library.get('Tree2.obj');
+            const tree3 = library.get('Tree3.obj');
             let treeCount = 1;
+            const treeModels = [
+                ...(tree1 ? [tree1] : []),
+                ...(tree2 ? [tree2] : []),
+                ...(tree3 ? [tree3] : [])
+            ];
 
-            if (!obj) {
-                throw new Error('Model library failed to load');
+            if (treeModels.length === 0) {
+                throw new Error('Tree models library failed to load');
             }
 
             if (tile.level === 2) {
@@ -163,8 +171,12 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
             }
 
             for (let i = 0; i < treeCount; i++) {
-                const newTree = obj.clone();
-                this.addTree(scene, position, newTree, tile.level);
+                const randomTreeModel = draw(treeModels);
+
+                if (randomTreeModel) {
+                    const newTree = randomTreeModel.clone();
+                    this.addTree(scene, position, newTree, tile.level);
+                }
             }
         } catch (e) {
             console.error('Failed to load tree tile', e);
