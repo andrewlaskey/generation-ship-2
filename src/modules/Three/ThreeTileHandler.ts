@@ -149,7 +149,7 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
 
     updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            const obj = library.get('Tree1.obj');
+            const obj = library.get('Tree2.obj');
             let treeCount = 1;
 
             if (!obj) {
@@ -227,7 +227,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
 
     updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
         try {
-            const obj = library.get('SmallHouse1.obj');
+            const obj = library.get('Yurt.obj');
             const tileMid = this.tileSize * 0.5;
 
             if (!obj) {

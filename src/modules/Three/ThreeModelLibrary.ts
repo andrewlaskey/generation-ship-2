@@ -20,7 +20,11 @@ export class ThreeModelLibrary {
                 '/generation-ship-2/public/models/Broken wall.obj',
                 '/generation-ship-2/public/models/Rock 2.obj',
                 '/generation-ship-2/public/models/Rock.obj',
-                '/generation-ship-2/public/models/World Ring.obj'
+                '/generation-ship-2/public/models/World Ring.obj',
+                '/generation-ship-2/public/models/BigHouse.obj',
+                '/generation-ship-2/public/models/Yurt.obj',
+                '/generation-ship-2/public/models/Tree2.obj',
+                '/generation-ship-2/public/models/Tree3.obj'
             ];
 
             for(const path of modelsToLoad) {

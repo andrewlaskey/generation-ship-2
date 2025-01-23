@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'stats.js';
 import { GameManager } from '../modules/GameManager';
 import { GameView } from '../types/GameViewInterface';
 import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
@@ -22,6 +23,7 @@ export class ThreeJSGameView implements GameView {
     private yaw = 0;
     private tileSize = 8;
     private debugOn = false;
+    private stats = new Stats();
 
     constructor(gameManager: GameManager, document: Document, modelLibrary: ThreeModelLibrary, options?: ThreeJSGameViewOptions) {
         this.debugOn = options?.debug ?? false;
@@ -49,12 +51,36 @@ export class ThreeJSGameView implements GameView {
         if (this.debugOn) {
             const axesHelper = new THREE.AxesHelper(50);
             this.scene.add(axesHelper);
+
+            this.stats.showPanel(0) // 0 = FPS, 1 = ms/frame, 2 = memory
+            this.document.body.appendChild(this.stats.dom);
         }
 
         this.createWorld();
 
         // Initialize the grid with 3D objects
         this.initializeGrid();
+
+        // Begin animation loop
+        this.animate();
+    }
+
+    public updateGrid(): void {
+        // Does nothing for now. The view is updating automatically with the animation loop and doesn't
+        // need to be commanded to update by the controller
+    }
+
+    public render(): void {
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    public animate(): void {
+        this.stats.begin();
+        this.render();
+        this.stats.end();
+        requestAnimationFrame(() => {
+            this.animate()
+        });
     }
 
     // Method to initialize the static parts of the UI (buttons, containers, etc.)
@@ -204,12 +230,6 @@ export class ThreeJSGameView implements GameView {
         }
     }
 
-    // Update the grid's appearance based on the current game state
-    public updateGrid(): void {
-        // Re-render the scene after updates
-        this.render();
-    }
-
     public moveCamera(direction: THREE.Vector3, distance: number, yawDelta: number, pitchDelta: number) {
         // Update yaw and pitch
         this.yaw -= yawDelta;
@@ -269,12 +289,6 @@ export class ThreeJSGameView implements GameView {
 
     public getCanvas(): HTMLCanvasElement {
         return this.renderer.domElement;
-    }
-
-    // Render the three.js scene
-    public render(): void {
-        // this.controls.update(); // Update the orbit controls
-        this.renderer.render(this.scene, this.camera);
     }
 
     // Handle window resizing
