@@ -64,80 +64,62 @@ export class ThreeFarmTileHandler implements ThreeTileHandler {
 
     updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            const obj = library.get('Farm.obj');
+            // Geometry and Material
+            const obj = library.get('Farm.glb');
+
+            if (!obj) {
+                throw new Error('Model library failed to load Farm');
+            }
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xffd522,
+                roughness: 0.9, 
+                metalness: 0.0,
+            });
+            let geometry;
+            obj.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    geometry = child.geometry; // Get the geometry from the first mesh
+                }
+            });
+            
+            
+            // Placement position helpers
             const tileMid = this.tileSize * 0.5;
             const midPosition = new THREE.Vector3(position.x + tileMid, position.y, position.z + tileMid);
 
-            if (!obj) {
-                throw new Error('Model library failed to load');
-            }
+            // Instancing
+            let farmInstanceCount = 1;
 
-            // 2, 4, 7 based on unicode characters
             if (tile.level === 2) {
-                const position1 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z + 2);
-                const position2 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z - 2);
-                const position3 = new THREE.Vector3(midPosition.x + 2, midPosition.y, midPosition.z);
-                const position4 = new THREE.Vector3(midPosition.x - 2, midPosition.y, midPosition.z);
-                const secondFarm = obj.clone();
-                const thirdFarm = obj.clone();
-                const fourthFarm = obj.clone();
-
-                this.addFarm(scene, position1, obj);
-                this.addFarm(scene, position2, secondFarm);
-                this.addFarm(scene, position3, thirdFarm);
-                this.addFarm(scene, position4, fourthFarm);
+                farmInstanceCount = 3;
             } else if (tile.level === 3) {
-                const position1 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z + 2.5);
-                const position2 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z - 2.5);
-                const position3 = new THREE.Vector3(midPosition.x + 2.3, midPosition.y, midPosition.z + 1.7);
-                const position4 = new THREE.Vector3(midPosition.x - 2.3, midPosition.y, midPosition.z - 1.7);
-                const position5 = new THREE.Vector3(midPosition.x + 2.3, midPosition.y, midPosition.z - 1.7);
-                const position6 = new THREE.Vector3(midPosition.x - 2.3, midPosition.y, midPosition.z + 1.7);
-                const secondFarm = obj.clone();
-                const thirdFarm = obj.clone();
-                const fourthFarm = obj.clone();
-                const fifthFarm = obj.clone();
-                const sixthFarm = obj.clone();
-                const seventhFarm = obj.clone();
-
-                this.addFarm(scene, midPosition, obj);
-                this.addFarm(scene, position1, secondFarm);
-                this.addFarm(scene, position2, thirdFarm);
-                this.addFarm(scene, position3, fourthFarm);
-                this.addFarm(scene, position4, fifthFarm);
-                this.addFarm(scene, position5, sixthFarm);
-                this.addFarm(scene, position6, seventhFarm);
-            } else {
-                const position1 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z + 2);
-                const position2 = new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z - 2);
-                const secondFarm = obj.clone();
-
-                this.addFarm(scene, position1, obj);
-                this.addFarm(scene, position2, secondFarm);
+                farmInstanceCount = 5;
             }
+
+            const farmInstancedMesh = new THREE.InstancedMesh(geometry, material, farmInstanceCount);
+
+            const farmPositions: THREE.Vector3[] = [
+                new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z + 2.5),
+                new THREE.Vector3(midPosition.x, midPosition.y, midPosition.z - 2.5),
+                new THREE.Vector3(midPosition.x + 2.5, midPosition.y, midPosition.z),
+                new THREE.Vector3(midPosition.x - 2.5, midPosition.y, midPosition.z),
+                midPosition
+            ]
+
+            const dummy = new THREE.Object3D();
+            for (let i = 0; i < farmInstanceCount; i++) {
+                dummy.position.set(farmPositions[i].x, farmPositions[i].y, farmPositions[i].z);
+                dummy.rotateY(Math.random() * Math.PI * 2);
+                dummy.updateMatrix();
+                farmInstancedMesh.setMatrixAt(i, dummy.matrix);
+            }
+
+            scene.add(farmInstancedMesh);
         } catch (e) {
             console.error('Failed to load farm tile', e);
             throw e;
         }
-    }
-
-    private addFarm(scene: THREE.Scene, position: THREE.Vector3, obj: THREE.Object3D) {
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xffd522,
-            roughness: 0.9, 
-            metalness: 0.0,
-        });
-        
-        obj.receiveShadow = true;
-        obj.castShadow = true;
-
-        applyMaterialToChildren(obj, material);
-
-        obj.position.set(position.x, position.y, position.z);
-
-        obj.rotateY(Math.random() * Math.PI * 2);
-
-        scene.add(obj);
     }
 }
 
@@ -150,10 +132,9 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
 
     updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            const tree1 = library.get('Tree1.obj');
-            const tree2 = library.get('Tree2.obj');
-            const tree3 = library.get('Tree3.obj');
-            let treeCount = 1;
+            const tree1 = library.get('Tree1.glb');
+            const tree2 = library.get('Tree2.glb');
+            const tree3 = library.get('Tree3.glb');
             const treeModels = [
                 ...(tree1 ? [tree1] : []),
                 ...(tree2 ? [tree2] : []),
@@ -164,38 +145,63 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
                 throw new Error('Tree models library failed to load');
             }
 
+            const treeMap: { geometry: THREE.BufferGeometry, count: number }[] = []; 
+            treeModels.forEach(obj => {
+                obj.traverse((child) => {
+                    if (child instanceof THREE.Mesh) {
+                        treeMap.push({
+                            geometry: child.geometry,
+                            count: 0
+                        })
+                    }
+                });
+            });
+
+            let totalTreeCount = 1;
+
             if (tile.level === 2) {
-                treeCount = 3;    
+                totalTreeCount = 3;    
             } else if (tile.level === 3) {
-                treeCount = 5;
+                totalTreeCount = 5;
             }
 
-            for (let i = 0; i < treeCount; i++) {
-                const randomTreeModel = draw(treeModels);
+            for (let i = 0; i < totalTreeCount; i++) {
+                const randomTreeSelect = draw(treeMap);
 
-                if (randomTreeModel) {
-                    const newTree = randomTreeModel.clone();
-                    this.addTree(scene, position, newTree, tile.level);
+                if (randomTreeSelect) {
+                    randomTreeSelect.count++;
                 }
             }
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x1b9416,
+                roughness: 0.9, 
+                metalness: 0.0
+            });
+
+            console.log(treeMap);
+
+            treeMap.forEach(treeType => {
+                const instanceMesh = new THREE.InstancedMesh(treeType.geometry, material, treeType.count);
+
+                for (let i = 0; i < treeType.count; i++) {
+                    const dummy = this.addTree(position, tile.level);
+                    dummy.updateMatrix();
+                    instanceMesh.setMatrixAt(i, dummy.matrix);
+                }
+
+                scene.add(instanceMesh);
+            })
+
         } catch (e) {
             console.error('Failed to load tree tile', e);
             throw e;
         }
     }
 
-    private addTree(scene: THREE.Scene, position: THREE.Vector3, obj: THREE.Object3D, level: number) {
+    private addTree(position: THREE.Vector3, level: number): THREE.Object3D {
+        const dummy = new THREE.Object3D;
         const placementPadding = 1;
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x1b9416,
-            roughness: 0.9, 
-            metalness: 0.0
-        });
-        
-        obj.receiveShadow = true;
-        obj.castShadow = true;
-
-        applyMaterialToChildren(obj, material);
         
 
         const minX = position.x + placementPadding;
@@ -205,9 +211,9 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
         const newX = Math.floor(Math.random() * (maxX - minX + 1)) + minX; 
         const newZ = Math.floor(Math.random() * (maxZ - minZ + 1)) + minZ; 
 
-        obj.position.set(newX, position.y, newZ);
+        dummy.position.set(newX, position.y, newZ);
 
-        obj.rotateY(Math.random() * Math.PI * 2);
+        dummy.rotateY(Math.random() * Math.PI * 2);
 
         let minScale;
         let maxScale;
@@ -224,9 +230,9 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
         }
 
         const randomScale = Math.floor(Math.random() * (maxScale - minScale + 1)) + minScale; 
-        obj.scale.set(randomScale, randomScale, randomScale);
+        dummy.scale.set(randomScale, randomScale, randomScale);
 
-        scene.add(obj);
+        return dummy
     }
 }
 

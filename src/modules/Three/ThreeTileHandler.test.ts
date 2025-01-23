@@ -79,7 +79,7 @@ describe('ThreeTileHandler', () => {
     
             // Assert that scene.add was called
             expect(mockScene.add).toHaveBeenCalled();
-            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
+            expect(mockScene.add).toHaveBeenCalledWith(expect.any(THREE.InstancedMesh));
         });
     });
 
@@ -104,10 +104,14 @@ describe('ThreeTileHandler', () => {
             handler = new ThreeTreeTileHandler(6);
         });
 
-        it('should add a single tree if tile is level 1', async () => {
+        it('should add an instanced mesh', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
             const mockObj = new THREE.Object3D();
+            const mockMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+            mockObj.traverse = vi.fn((callback) => {
+                callback(mockMesh); // Simulate traversal of a mesh
+            });
             const tile = new Tile(TileType.Tree, 1, TileState.Neutral);
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
@@ -115,42 +119,9 @@ describe('ThreeTileHandler', () => {
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
             // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledTimes(1);
-            expect(mockScene.add).toHaveBeenNthCalledWith(1, expect.any(THREE.Object3D));
-    
-            expect((mockScene.add as Mock).mock.calls[0][0].position.x).toBeLessThanOrEqual(15);
-            expect((mockScene.add as Mock).mock.calls[0][0].position.x).toBeGreaterThanOrEqual(10);
-            expect((mockScene.add as Mock).mock.calls[0][0].position.z).toBeLessThanOrEqual(35);
-            expect((mockScene.add as Mock).mock.calls[0][0].position.z).toBeGreaterThanOrEqual(30);
-        });
-
-        it('should add 3 trees if tile is level 2', async () => {
-            // Mock the position
-            const mockPosition = new THREE.Vector3(10, 20, 30);
-            const mockObj = new THREE.Object3D();
-            const tile = new Tile(TileType.Tree, 2, TileState.Neutral);
-            (mockLibrary.get as Mock).mockReturnValue(mockObj)
-    
-            // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
-    
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledTimes(3);
-        });
-
-        it('should add 5 trees if tile is level 3', async () => {
-            // Mock the position
-            const mockPosition = new THREE.Vector3(10, 20, 30);
-            const mockObj = new THREE.Object3D();
-            const tile = new Tile(TileType.Tree, 3, TileState.Neutral);
-            (mockLibrary.get as Mock).mockReturnValue(mockObj)
-    
-            // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
-    
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledTimes(5);
-        });
+            expect(mockScene.add).toHaveBeenCalled();
+            expect(mockScene.add).toHaveBeenCalledWith(expect.any(THREE.InstancedMesh));
+        });        
     });
 
     describe('ThreePeopleTileHandler', () => {
