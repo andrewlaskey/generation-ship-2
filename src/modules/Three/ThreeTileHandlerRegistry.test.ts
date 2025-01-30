@@ -7,14 +7,16 @@ import {
     ThreeTileHandler,
     ThreeTreeTileHandler
 } from "./ThreeTileHandler";
+import { ThreeInstanceManager } from './ThreeInstanceManager';
 
 
 describe('ThreeTileHandlerRegistry', () => {
     let registry: ThreeTileHandlerRegistry;
+    const manager = new ThreeInstanceManager();
 
     beforeEach(() => {
         // Initialize a new registry for each test
-        registry = new ThreeTileHandlerRegistry(6);
+        registry = new ThreeTileHandlerRegistry(6, manager);
     });
 
     it('should return the correct handler for "tree" tile type', () => {

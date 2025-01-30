@@ -5,9 +5,11 @@ import { GameView } from '../types/GameViewInterface';
 import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
 import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegistry';
 import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
+import { ThreeInstanceManager } from '../modules/Three/ThreeInstanceManager';
 
 export type ThreeJSGameViewOptions = {
     debug?: boolean;
+    fpsOn?: boolean;
 }
 export class ThreeJSGameView implements GameView {
     private gameManager: GameManager;
@@ -16,6 +18,7 @@ export class ThreeJSGameView implements GameView {
     private renderer: THREE.WebGLRenderer;
     private tileHandlerRegistry: ThreeTileHandlerRegistry;
     private modelLibrary: ThreeModelLibrary;
+    private instanceManager = new ThreeInstanceManager()
     public document: Document;
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
@@ -40,7 +43,7 @@ export class ThreeJSGameView implements GameView {
         this.renderer.setSize(this.gridContainer.clientWidth, this.gridContainer.clientHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize);
+        this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize, this.instanceManager);
         this.modelLibrary = modelLibrary;
 
         this.gridContainer.appendChild(this.renderer.domElement);
@@ -51,7 +54,9 @@ export class ThreeJSGameView implements GameView {
         if (this.debugOn) {
             const axesHelper = new THREE.AxesHelper(50);
             this.scene.add(axesHelper);
+        }
 
+        if (options?.fpsOn) {
             this.stats.showPanel(0) // 0 = FPS, 1 = ms/frame, 2 = memory
             this.document.body.appendChild(this.stats.dom);
         }
@@ -123,6 +128,8 @@ export class ThreeJSGameView implements GameView {
                 }
             }
         }
+
+        this.instanceManager.updateScene(this.scene);
     }
 
     private createWorld(): void {

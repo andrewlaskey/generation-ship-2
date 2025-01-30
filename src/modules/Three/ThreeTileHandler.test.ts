@@ -3,12 +3,14 @@ import * as THREE from 'three';
 import { ThreeFarmTileHandler, ThreePeopleTileHandler, ThreePowerTileHandler, ThreeTreeTileHandler, ThreeWasteTileHandler } from "./ThreeTileHandler";
 import { ThreeModelLibrary } from "./ThreeModelLibrary";
 import { TileState, TileType, Tile } from "../Tile";
+import { ThreeInstanceManager } from "./ThreeInstanceManager";
 
 describe('ThreeTileHandler', () => {
     describe('ThreePowerTileHandler', () => {
         let mockScene: THREE.Scene;
         let mockLibrary: ThreeModelLibrary;
         let handler: ThreePowerTileHandler;
+        let mockInstanceManager: ThreeInstanceManager;
         
         beforeEach(() => {
 
@@ -22,27 +24,30 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockInstanceManager = {
+                addInstance: vi.fn(),
+                addInstanceKind: vi.fn(),
+            } as unknown as ThreeInstanceManager;
     
-            handler = new ThreePowerTileHandler(6);
+            handler = new ThreePowerTileHandler(6, mockInstanceManager);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
             const mockObj = new THREE.Object3D();
+            const geo = new THREE.BoxGeometry(1, 1, 1,);
+            const mesh = new THREE.Mesh(geo);
+            mockObj.add(mesh);
             const tile = new Tile(TileType.Power, 1, TileState.Neutral);
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledOnce();
-            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
-    
-            expect(mockObj.position.x).toBe(mockPosition.x + 3);
-            expect(mockObj.position.z).toBe(mockPosition.z + 3);
-            expect(mockObj.position.y).toBe(mockPosition.y);
+            expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledOnce();
+            expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -50,6 +55,7 @@ describe('ThreeTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreeFarmTileHandler;
         let mockLibrary: ThreeModelLibrary;
+        let mockInstanceManager: ThreeInstanceManager;
         
         beforeEach(() => {
 
@@ -63,23 +69,30 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockInstanceManager = {
+                addInstance: vi.fn(),
+                addInstanceKind: vi.fn(),
+            } as unknown as ThreeInstanceManager;
     
-            handler = new ThreeFarmTileHandler(6);
+            handler = new ThreeFarmTileHandler(6, mockInstanceManager);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
             const mockObj = new THREE.Object3D();
+            const geo = new THREE.BoxGeometry(1, 1, 1,);
+            const mesh = new THREE.Mesh(geo);
+            mockObj.add(mesh);
             const tile = new Tile(TileType.Farm, 1, TileState.Neutral);
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalled();
-            expect(mockScene.add).toHaveBeenCalledWith(expect.any(THREE.InstancedMesh));
+            expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledOnce();
+            expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -87,6 +100,7 @@ describe('ThreeTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreeTreeTileHandler;
         let mockLibrary: ThreeModelLibrary;
+        let mockInstanceManager: ThreeInstanceManager;
         
         beforeEach(() => {
 
@@ -100,8 +114,13 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockInstanceManager = {
+                addInstance: vi.fn(),
+                addInstanceKind: vi.fn(),
+            } as unknown as ThreeInstanceManager;
     
-            handler = new ThreeTreeTileHandler(6);
+            handler = new ThreeTreeTileHandler(6, mockInstanceManager);
         });
 
         it('should add an instanced mesh', async () => {
@@ -118,9 +137,8 @@ describe('ThreeTileHandler', () => {
             // Call the updateScene method
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalled();
-            expect(mockScene.add).toHaveBeenCalledWith(expect.any(THREE.InstancedMesh));
+            expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(3); // 3 tree models currently
+            expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
         });        
     });
 
@@ -128,6 +146,7 @@ describe('ThreeTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreePeopleTileHandler;
         let mockLibrary: ThreeModelLibrary;
+        let mockInstanceManager: ThreeInstanceManager;
         
         beforeEach(() => {
 
@@ -141,27 +160,31 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+            
+            mockInstanceManager = {
+                addInstance: vi.fn(),
+                addInstanceKind: vi.fn(),
+            } as unknown as ThreeInstanceManager;
     
-            handler = new ThreePeopleTileHandler(6);
+            handler = new ThreePeopleTileHandler(6, mockInstanceManager);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
             const mockObj = new THREE.Object3D();
+            const mockMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+            mockObj.traverse = vi.fn((callback) => {
+                callback(mockMesh); // Simulate traversal of a mesh
+            });
             const tile = new Tile(TileType.People, 1, TileState.Neutral);
             (mockLibrary.get as Mock).mockReturnValue(mockObj);
     
             // Call the updateScene method
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledOnce();
-            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
-    
-            expect(mockObj.position.x).toBe(mockPosition.x + 3);
-            expect(mockObj.position.z).toBe(mockPosition.z + 3);
-            expect(mockObj.position.y).toBe(mockPosition.y);
+            expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(1);
+            expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -169,6 +192,7 @@ describe('ThreeTileHandler', () => {
         let mockScene: THREE.Scene;
         let handler: ThreeWasteTileHandler
         let mockLibrary: ThreeModelLibrary;
+        let mockInstanceManager: ThreeInstanceManager;
         
         beforeEach(() => {
 
@@ -182,23 +206,31 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockInstanceManager = {
+                addInstance: vi.fn(),
+                addInstanceKind: vi.fn(),
+            } as unknown as ThreeInstanceManager;
     
-            handler = new ThreeWasteTileHandler(6);
+            handler = new ThreeWasteTileHandler(6, mockInstanceManager);
         });
 
         it('should call scene.add with the correct object', async () => {
             // Mock the position
             const mockPosition = new THREE.Vector3(10, 20, 30);
             const mockObj = new THREE.Object3D();
-            const tile = new Tile(TileType.Farm, 1, TileState.Neutral);
-            (mockLibrary.get as Mock).mockReturnValue(mockObj)
+            const mockMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+            mockObj.traverse = vi.fn((callback) => {
+                callback(mockMesh); // Simulate traversal of a mesh
+            });
+            const tile = new Tile(TileType.Waste, 1, TileState.Neutral);
+            (mockLibrary.get as Mock).mockReturnValue(mockObj);
     
             // Call the updateScene method
             await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
     
-            // Assert that scene.add was called
-            expect(mockScene.add).toHaveBeenCalledTimes(3);
-            expect(mockScene.add).toHaveBeenCalledWith(mockObj);
+            expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(3);
+            expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(3);
         });
     });
 })

@@ -18,9 +18,14 @@ export class ThreeModelLibrary {
         }
     }
 
-    get(name: string): THREE.Object3D | undefined {
+    get(name: string): THREE.Object3D {
         const obj = this.modelMap.get(name);
-        return obj?.clone();
+
+        if (!obj) {
+            throw new Error(`No model of ${name} exists in map.`);
+        }
+
+        return obj.clone();
     }
 
     private async loadObj(): Promise<void> {
@@ -66,8 +71,6 @@ export class ThreeModelLibrary {
             if (fileName) {
                 const gltf = await loader.loadAsync(path);
                 const model = gltf.scene;
-
-                console.log(gltf.scene);
 
                 this.modelMap.set(fileName, model);
             }

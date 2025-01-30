@@ -1,3 +1,4 @@
+import { ThreeInstanceManager } from "./ThreeInstanceManager";
 import {
     ThreeFarmTileHandler,
     ThreePeopleTileHandler,
@@ -10,13 +11,13 @@ import {
 export class ThreeTileHandlerRegistry {
     private handlers: Map<string, ThreeTileHandler> = new Map();
 
-    constructor(tileSize: number) {
+    constructor(tileSize: number, manager: ThreeInstanceManager) {
         // Register default handlers
-        this.handlers.set('tree', new ThreeTreeTileHandler(tileSize));
-        this.handlers.set('farm', new ThreeFarmTileHandler(tileSize));
-        this.handlers.set('people', new ThreePeopleTileHandler(tileSize));
-        this.handlers.set('power', new ThreePowerTileHandler(tileSize));
-        this.handlers.set('waste', new ThreeWasteTileHandler(tileSize));
+        this.handlers.set('tree', new ThreeTreeTileHandler(tileSize, manager));
+        this.handlers.set('farm', new ThreeFarmTileHandler(tileSize, manager));
+        this.handlers.set('people', new ThreePeopleTileHandler(tileSize, manager));
+        this.handlers.set('power', new ThreePowerTileHandler(tileSize, manager));
+        this.handlers.set('waste', new ThreeWasteTileHandler(tileSize, manager));
     }
 
     // Get the appropriate handler for the given tile type
