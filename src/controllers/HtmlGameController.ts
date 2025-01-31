@@ -151,13 +151,21 @@ export class HtmlGameController implements ViewController {
                 const ecoScore = this.gameManager.getPlayerScore('ecology');
                 const popScore = this.gameManager.getPlayerScore('population');
                 const totalScore = this.gameManager.getCalculatedPlayerScore();
+                const popup = shareScoreButton.children.namedItem('clipboardCopy');
+                const popupDisplayDurationMs = 3 * 1000;
+
                 try {
                     const text = `Generation Ship 2 - Daily Challenge ${getCurrentDate()}
 🌲 ${ecoScore}
 👤 ${popScore}
 🧮 ${totalScore}`
                     await navigator.clipboard.writeText(text);
-                    alert('Text copied to clipboard!');
+                    
+                    popup?.classList.add('active');
+                    
+                    setTimeout(() => {
+                        popup?.classList.remove('active');
+                    }, popupDisplayDurationMs);
                 } catch (err) {
                     console.error('Failed to copy text: ', err);
                 }

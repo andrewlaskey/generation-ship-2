@@ -334,10 +334,15 @@ ${this.finalPlayerScoreHtml()}
                 `;
                     break;
                 case GameState.Complete:
-                    html = `
-                <button class="button" id="restartGame">Play Again</button>
-                ${this.gameType == 'daily' ? `<button class="button" id="shareScore">Share Score</button>` : ''}
-                `;
+                    html = '<button class="button" id="restartGame">Play Again</button>'
+
+                    if (this.gameType == 'daily') {
+                        html += 
+                        `<button class="button" id="shareScore">
+                            <span>Share Score</span>
+                            <span class="popup" id="clipboardCopy">Copied to clipboard!</span>
+                        </button>`
+                    } 
                     break;
                 default:
                     html = `
