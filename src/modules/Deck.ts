@@ -11,9 +11,10 @@ export type TileProbability = {
 export class Deck {
     private items: HandItem[];
     private infinite: boolean;
-    private random: () => number;  // Random function (either seeded or default)
+    private randomFn = Math.random;  // Random function (either seeded or default)
     private tileProbability: TileProbability;
     private randomTileState: boolean;
+    private seed: string | null;
     
     constructor(seed: string | null = null, infinite: boolean = false, probabilityConfig?: TileProbability, randomTileState?: boolean) {
         this.items = [];
@@ -27,9 +28,19 @@ export class Deck {
             null: 0.1 // Default probability for null (empty space)
         };
         this.randomTileState = randomTileState ?? false;
+        this.seed = seed;
 
-        // Initialize the random function, with or without a seed
-        this.random = seed ? seedrandom(seed) : Math.random;
+        this.setRandomFn();
+        
+    }
+
+    reset(): void {
+        this.setItems([]);
+        this.setRandomFn();
+    }
+
+    setRandomFn(): void {
+        this.randomFn = this.seed ? seedrandom(this.seed) : Math.random;
     }
 
     getItems(): HandItem[] {
@@ -47,7 +58,7 @@ export class Deck {
         
         do {
             for (let i = this.items.length - 1; i > 0; i--) {
-                const j = Math.floor(this.random() * (i + 1));
+                const j = Math.floor(this.randomFn() * (i + 1));
                 [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
             }
         } while (this.isSameOrder(originalOrder, this.items));  // Keep shuffling if the order is the same
@@ -100,7 +111,7 @@ export class Deck {
 
     // Generate a random tile or null based on the probabilities
     private randomTileOrNull(): Tile | null {
-        let rand = this.random();
+        let rand = this.randomFn();
         for (const key in this.tileProbability) {
             const prob = this.tileProbability[key as keyof TileProbability];
             if (rand < prob) {

@@ -33,7 +33,8 @@ const createMockDeck = (): Partial<Deck> => ({
     drawItem: vi.fn(),
     getItemCount: vi.fn(() => 10),
     fillInitialDeck: vi.fn(),
-    setItems: vi.fn()
+    setItems: vi.fn(),
+    reset: vi.fn()
 });
 
 const createMockPlayerHand = (): Partial<PlayerHand> => ({
@@ -233,7 +234,7 @@ describe('GameManager', () => {
 
         expect(gameBoard.clearBoard).toHaveBeenCalled();
         expect(playerHand.clearHand).toHaveBeenCalled();
-        expect(deck.setItems).toHaveBeenCalled();
+        expect(deck.reset).toHaveBeenCalled();
     });
 
     it('should call necessary updates when advancing turn', () => {

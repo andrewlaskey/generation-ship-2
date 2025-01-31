@@ -38,7 +38,7 @@ export class GameManager {
     state: GameState;
     readonly optionDefaults: GameManagerOptions = {
         size: 9,
-        initialDeckSize: 40,
+        initialDeckSize: 4,
         maxHandSize: 3,
         infiniteDeck: false,
         freeplay: false,
@@ -198,7 +198,7 @@ export class GameManager {
     resetGame(): void {
         this.gameBoard.clearBoard();
         this.playerHand.clearHand();
-        this.deck.setItems([]);
+        this.deck.reset();
         this.deck.fillInitialDeck(this.options.initialDeckSize);  // Fill the deck with initial items
         this.playerScore = {
             ecology: new ScoreObject('ecology', 0),
