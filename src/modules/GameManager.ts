@@ -349,7 +349,7 @@ export class GameManager {
 
         scoreElements.set('Base', 100 * (eco + pop));
 
-        scoreElements.set('Ecology ratio bonus', pop > 0 ? 100 * (eco / pop) : 100);
+        scoreElements.set('Ecology ratio bonus', pop > 0 ? Math.round(100 * (eco / pop)) : 100);
 
         scoreElements.set('Remaining deck modifier', this.getDeckItemCount() * -1);
 

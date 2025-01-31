@@ -350,3 +350,7 @@
 .final-score-table dd:last-of-type {
   font-size: 1.5em;
 }
+
+.histogram-wrapper {
+  padding-bottom: 2rem;
+}
