@@ -26,12 +26,6 @@
   position: relative;
 }
 
-.grid-container {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  width: 100%;
-}
-
 .info-bar,
 .game-updates,
 .dynamic-display,
@@ -42,7 +36,7 @@
 
 .grid-container {
   padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1rem;
 }
 
 .info-bar {
@@ -318,6 +312,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 2rem;
 }
 
 .player-actions .button {
