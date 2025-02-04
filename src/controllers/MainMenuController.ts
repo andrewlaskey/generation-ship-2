@@ -130,6 +130,6 @@ export class MainMenuController implements ViewController {
     }
 
     private validateInput(val: number, validation: NumberValidation): boolean {
-        return val > validation.min && val < validation.max;
+        return val >= validation.min && val <= validation.max;
     }
 }
