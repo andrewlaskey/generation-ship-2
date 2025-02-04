@@ -367,13 +367,3 @@ export class ThreeWasteTileHandler implements ThreeTileHandler {
         }
     }
 }
-
-function applyMaterialToChildren(obj: THREE.Object3D, material: THREE.MeshStandardMaterial): void {
-    obj.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-            child.material = material;
-            child.receiveShadow = true;
-            child.castShadow = true;
-        }
-    });
-}
