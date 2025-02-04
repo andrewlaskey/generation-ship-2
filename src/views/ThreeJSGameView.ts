@@ -164,12 +164,12 @@ export class ThreeJSGameView implements GameView {
         // Add background and fog
         const loader = new THREE.CubeTextureLoader();
         const skyboxTexture = loader.load([
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +X (right)
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // -X (left)
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +Y (top)
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // -Y (bottom)
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png', // +Z (front)
-            '/generation-ship-2/public/textures/skybox/nightskycolor.png'  // -Z (back)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +X (right)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // -X (left)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +Y (top)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // -Y (bottom)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +Z (front)
+            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`  // -Z (back)
         ]);
         // this.scene.background = new THREE.Color(0x000000); // Sunset color
         this.scene.background = skyboxTexture;
@@ -178,7 +178,7 @@ export class ThreeJSGameView implements GameView {
         // Add world plane
         const geometry = new THREE.PlaneGeometry(outerWorldSize, outerWorldSize, 10, 10);
         const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('/generation-ship-2/public/textures/grass.png', (texture) => {
+        textureLoader.load(`${import.meta.env.BASE_URL}textures/grass.png`, (texture) => {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.repeat.set(10, 10); // Adjust for more/less tiling

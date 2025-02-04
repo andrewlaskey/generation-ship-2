@@ -31,18 +31,18 @@ export class ThreeModelLibrary {
     private async loadObj(): Promise<void> {
         const loader = new OBJLoader();
         const modelsToLoad = [
-            '/generation-ship-2/public/models/Power2.obj',
-            '/generation-ship-2/public/models/Farm.obj',
-            '/generation-ship-2/public/models/Tree1.obj',
-            '/generation-ship-2/public/models/SmallHouse1.obj',
-            '/generation-ship-2/public/models/Broken wall.obj',
-            '/generation-ship-2/public/models/Rock 2.obj',
-            '/generation-ship-2/public/models/Rock.obj',
-            '/generation-ship-2/public/models/World Ring.obj',
-            '/generation-ship-2/public/models/BigHouse.obj',
-            '/generation-ship-2/public/models/Yurt.obj',
-            '/generation-ship-2/public/models/Tree2.obj',
-            '/generation-ship-2/public/models/Tree3.obj'
+            `${import.meta.env.BASE_URL}models/Power2.obj`,
+            `${import.meta.env.BASE_URL}models/Farm.obj`,
+            `${import.meta.env.BASE_URL}models/Tree1.obj`,
+            `${import.meta.env.BASE_URL}models/SmallHouse1.obj`,
+            `${import.meta.env.BASE_URL}models/Broken wall.obj`,
+            `${import.meta.env.BASE_URL}models/Rock 2.obj`,
+            `${import.meta.env.BASE_URL}models/Rock.obj`,
+            `${import.meta.env.BASE_URL}models/World Ring.obj`,
+            `${import.meta.env.BASE_URL}models/BigHouse.obj`,
+            `${import.meta.env.BASE_URL}models/Yurt.obj`,
+            `${import.meta.env.BASE_URL}models/Tree2.obj`,
+            `${import.meta.env.BASE_URL}models/Tree3.obj`
         ];
 
         for(const path of modelsToLoad) {
@@ -59,10 +59,10 @@ export class ThreeModelLibrary {
     private async loadGltf(): Promise<void> {
         const loader = new GLTFLoader();
         const modelsToLoad = [
-            '/generation-ship-2/public/models/Farm.glb',
-            '/generation-ship-2/public/models/Tree1.glb',
-            '/generation-ship-2/public/models/Tree2.glb',
-            '/generation-ship-2/public/models/Tree3.glb',
+            `${import.meta.env.BASE_URL}models/Farm.glb`,
+            `${import.meta.env.BASE_URL}models/Tree1.glb`,
+            `${import.meta.env.BASE_URL}models/Tree2.glb`,
+            `${import.meta.env.BASE_URL}models/Tree3.glb`,
         ];
 
         for(const path of modelsToLoad) {
