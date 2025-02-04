@@ -346,7 +346,7 @@ describe('GameManager', () => {
     });
 
     it('should return the correct calculated base player score', () => {
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+        (gameBoard.countTileTypes as Mock).mockReturnValue({
             tree: 1,
             people: 2
         });
@@ -359,7 +359,7 @@ describe('GameManager', () => {
 
     it('should correctly subtract deckSize from calculated player score', () => {
         // One ecology and 2 people = 1 + (2 * 5)
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+        (gameBoard.countTileTypes as Mock).mockReturnValue({
             tree: 1,
             people: 2
         });
@@ -371,11 +371,11 @@ describe('GameManager', () => {
         const result = gameManager.getFinalPlayerScoreElements();
 
         // result = (100 * (1 + (2 * 5)) - 5
-        expect(result.get('Remaining deck modifier')).toBe(-5);
+        expect(result.get('Remaining deck penalty')).toBe(-5);
     });
 
     it('should return the correct eco ratio score', () => {
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+        (gameBoard.countTileTypes as Mock).mockReturnValue({
             tree: 1,
             people: 2
         });
@@ -386,9 +386,22 @@ describe('GameManager', () => {
         expect(result.get('Ecology ratio bonus')).toBe(10);
     });
 
+    it('should return the correct waste penalty', () => {
+        (gameBoard.countTileTypes as Mock).mockReturnValue({
+            tree: 1,
+            people: 2,
+            waste: 4
+        });
+
+        gameManager.updatePlayerScore();
+        const result = gameManager.getFinalPlayerScoreElements();
+
+        expect(result.get('Waste tiles penalty')).toBe(-40);
+    });
+
     it.skip('should correctly multiply calculated player score by the time factor', () => {
         // One people tile = 5 points
-        (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
+        (gameBoard.countTileTypes as Mock).mockReturnValue({
             tree: 0,
             people: 1
         });

@@ -30,7 +30,7 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
             mainMenuController.init();
             break;
         case 'three':
-            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary, { debug: true });    
+            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary, { debug: false, fpsOn: false });    
             const threeJSController = new ThreeJSGameController(gameManager, threeJSView, switchView);
             threeJSController.init();
             break;
@@ -59,7 +59,6 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
 async function start() {
     try {
         await modelLibrary.loadModels();
-        console.log(modelLibrary);
         switchView('menu');
     } catch (e) {
         console.error('Failed to start app', e);

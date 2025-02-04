@@ -35,7 +35,7 @@
 }
 
 .grid-container {
-  padding-top: 2rem;
+  padding-top: 1rem;
   padding-bottom: 1rem;
 }
 
@@ -44,10 +44,15 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding-top: 2rem;
 }
 
 .dynamic-display .hidden {
   display: none;
+}
+
+.toolbar {
+  padding-bottom: 2rem;
 }
 
 .toolbar.hidden {
@@ -55,7 +60,7 @@
 }
 
 .game-updates {
-  padding-bottom: 2rem;
+  padding-bottom: 0.5rem;
 }
 
 /* Grid */
@@ -84,10 +89,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
   perspective: 1200px;
   overflow: auto;
-  /* border: 2px solid white; */
 }
 
 .grid-inner-wrap {
@@ -233,7 +236,7 @@
 .hand-item .cell {
   width: var(--hand-tile-size-mobile);
   height: var(--hand-tile-size-mobile);
-  font-size: 1.6rem;
+  font-size: 1.15rem;
   border: 1px solid black;
 }
 

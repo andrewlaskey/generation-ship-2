@@ -12,6 +12,7 @@ export class GameBoard {
     constructor(public size: number) {
         this.gridSize = size;
         this.grid = this.createBoard(this.gridSize);
+
     }
 
     // Method to create the grid of spaces
@@ -43,6 +44,7 @@ export class GameBoard {
     
         // Place a tree tile at the center
         this.placeTileAt(centerX, centerY, new Tile(TileType.Tree, 1, TileState.Neutral));
+        
     
         // Place a farm tile one cell north, if within bounds
         if (this.isValidCoordinate(centerX, centerY - 1)) {
@@ -53,6 +55,14 @@ export class GameBoard {
         if (this.isValidCoordinate(centerX - 1, centerY)) {
             this.placeTileAt(centerX - 1, centerY, new Tile(TileType.People, 1, TileState.Neutral));
         }
+
+        // Debugging
+        // this.placeTileAt(centerX + 1, centerY + 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+        // this.placeTileAt(centerX, centerY + 2, new Tile(TileType.Tree, 3, TileState.Neutral));
+        // this.placeTileAt(centerX, centerY + 1, new Tile(TileType.Farm, 2, TileState.Neutral));
+        // this.placeTileAt(centerX - 1, centerY - 1, new Tile(TileType.Farm, 3, TileState.Neutral));
+        // this.placeTileAt(centerX - 2, centerY - 1, new Tile(TileType.Waste, 1, TileState.Neutral));
+        // this.placeTileAt(centerX - 2, centerY + 2, new Tile(TileType.Power, 1, TileState.Neutral));
     }
 
     // Method to get a specific space by coordinates

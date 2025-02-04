@@ -1,6 +1,6 @@
 // Import necessary classes
 import { GameBoard } from './GameBoard';
-import { TileState } from './Tile';
+import { TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { TileHandlerRegistry } from './TileHandlerRegistry';
 import { PlayerHand, HandItem } from './PlayerHand';
@@ -38,7 +38,7 @@ export class GameManager {
     state: GameState;
     readonly optionDefaults: GameManagerOptions = {
         size: 9,
-        initialDeckSize: 4,
+        initialDeckSize: 40,
         maxHandSize: 3,
         infiniteDeck: false,
         freeplay: false,
@@ -346,12 +346,21 @@ export class GameManager {
         const scoreElements = new Map<string, number>();
         const eco = this.getPlayerScore('ecology');
         const pop = this.getPlayerScore('population');
+        const tileTypeCounts = this.gameBoard.countTileTypes();
+        const baseScoreMultiplier = 100;
+        const wastePenaltyMultiplier = -10;
 
-        scoreElements.set('Base', 100 * (eco + pop));
+        scoreElements.set('Base', baseScoreMultiplier * (eco + pop));
 
         scoreElements.set('Ecology ratio bonus', pop > 0 ? Math.round(100 * (eco / pop)) : 100);
 
-        scoreElements.set('Remaining deck modifier', this.getDeckItemCount() * -1);
+        scoreElements.set('Remaining deck penalty', this.getDeckItemCount() * -1);
+
+        if (tileTypeCounts.hasOwnProperty(TileType.Waste)) {
+            const wasteCount = tileTypeCounts[TileType.Waste];
+
+            scoreElements.set('Waste tiles penalty', wasteCount * wastePenaltyMultiplier);
+        }
 
         return scoreElements;
     }

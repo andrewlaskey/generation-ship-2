@@ -14,7 +14,7 @@ export class ThreeModelLibrary {
             await this.loadObj();
             await this.loadGltf();
         } catch (e) {
-            console.log('Failed to load models', e);
+            console.error('Failed to load models', e);
         }
     }
 

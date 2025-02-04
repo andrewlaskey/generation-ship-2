@@ -331,18 +331,22 @@ ${this.finalPlayerScoreHtml()}
                 case GameState.GameOver:
                     html = `
                 <button class="button" id="restartGame">Restart</button>
+                <a href="https://ko-fi.com/timbertales" class="button" target="_blank">Support the Game on Ko-fi</a>
                 `;
                     break;
                 case GameState.Complete:
-                    html = '<button class="button" id="restartGame">Play Again</button>'
+                    html = '<button class="button" id="restartGame">Play Again</button>';
 
                     if (this.gameType == 'daily') {
-                        html += 
-                        `<button class="button" id="shareScore">
+                        html += `
+                        <button class="button" id="shareScore">
                             <span>Share Score</span>
                             <span class="popup" id="clipboardCopy">Copied to clipboard!</span>
-                        </button>`
-                    } 
+                        </button>
+                        `;
+                    }
+
+                    html += '<a href="https://ko-fi.com/timbertales" class="button" target="_blank">Support the Game</a>';
                     break;
                 default:
                     html = `
@@ -350,7 +354,7 @@ ${this.finalPlayerScoreHtml()}
             <button id="player-action-affirmative" class="button small btn-player-action">Yes</button>
             <span>/</span>
             <button id="player-action-negative" class="button small btn-player-action">No</button>
-            `
+            `;
             }
             
         } else {

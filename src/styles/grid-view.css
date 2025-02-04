@@ -26,15 +26,15 @@ box-shadow:
 
 /* Tile levels adjust the size of the character */
 .cell.l1::before {
-font-size: 1.8rem;
+font-size: 1.8em;
 }
 
 .cell.l2::before {
-font-size: 2.2rem;
+font-size: 2.2em;
 }
 
 .cell.l3::before {
-font-size: 2.5rem;
+font-size: 2.5em;
 }
 
 

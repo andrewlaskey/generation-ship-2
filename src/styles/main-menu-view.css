@@ -84,6 +84,7 @@
     overflow-y: scroll;
     font-size: 1.25rem;
     opacity: 1;
+    z-index: 10;
 }
 
 .main-menu-options {
@@ -123,6 +124,16 @@
 .main-menu .input p {
     margin-top: 0;
     margin-bottom: 0.5em;
+}
+
+.main-menu input {
+    font-size: 1.5em;
+    padding: 0.25em 0.5em;
+    font-family: "VT323", monospace;
+}
+
+.main-menu input[type="number"] {
+    width: 3em;
 }
 
 .main-menu-footer {

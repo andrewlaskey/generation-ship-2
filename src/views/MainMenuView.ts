@@ -44,15 +44,42 @@ export class MainMenuView implements View {
                     <h3>Select Options</h3>
                     <div class="input">
                         <p>Grid size:</p>
-                        <input type="number" id="gridSizeInput" value="9" min="5" max="15"/>
+                        <input
+                            id="gridSizeInput"
+                            type="number" 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value="9"
+                            min="5"
+                            max="15"
+                            step="1"
+                        />
                     </div>
                     <div class="input">
                         <p>Hand size:<p>
-                        <input type="number" id="handSizeInput" value="3" min="1" max="3"/>
+                        <input
+                            id="handSizeInput"    
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value="3"
+                            min="1"
+                            max="3"
+                            step="1"
+                        />
                     </div>
                     <div class="input">
                         <p>Deck size:<p>
-                        <input type="number" id="deckSizeInput" value="40" min="10" max="100"/>
+                        <input
+                            id="deckSizeInput"
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value="40"
+                            min="10"
+                            max="100"
+                            step="1"
+                        />
                     </div>
                     <div class="input">
                         <p>Seed:</p>
