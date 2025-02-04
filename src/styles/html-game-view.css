@@ -23,6 +23,7 @@
   flex-direction: column;
   align-items: center;
   padding: 0.5rem;
+  padding-bottom: 5rem;
   position: relative;
 }
 
@@ -35,7 +36,7 @@
 }
 
 .grid-container {
-  padding-top: 1rem;
+  padding-top: 0.25rem;
   padding-bottom: 0;
 }
 
