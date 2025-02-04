@@ -87,6 +87,7 @@ export class MainMenuView implements View {
                     </div>
                     <button class="button" id="closeSubmenu">←</button>
                     <button class="button" id="startGame" data-game-type="custom">Start</button>
+                    <p class="warning" id="warningNotice"><p>
                 </div>
                 <div class="submenu hidden" id="about">
                     ${ABOUT_HTML}

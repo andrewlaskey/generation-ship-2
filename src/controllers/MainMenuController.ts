@@ -4,6 +4,11 @@ import { ViewController } from "../types/ViewControllerInterface";
 import { getCurrentDate } from "../utils/getCurrentDate";
 import { MainMenuView } from "../views/MainMenuView";
 
+export interface NumberValidation {
+    min: number;
+    max: number;
+}
+
 export class MainMenuController implements ViewController {
      private gameManager: GameManager;
      private view: MainMenuView;
@@ -52,6 +57,8 @@ export class MainMenuController implements ViewController {
 
     private initStartGameButtonListeners() {
         const startGameButtons = this.view.document.querySelectorAll<HTMLButtonElement>('#startGame');
+        const warningNotice = this.view.document.querySelector<HTMLParagraphElement>('#warningNotice')!;
+        warningNotice.textContent = '';
 
         startGameButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -66,17 +73,36 @@ export class MainMenuController implements ViewController {
                         this.switchViewFn(target, target);
                         break;
                     case 'custom':
+                        const gridSizeValidation: NumberValidation = { min: 5, max: 15 };
                         const gridSizeInput = this.view.document.querySelector<HTMLInputElement>('#gridSizeInput');
                         const gridSizeInputValue = gridSizeInput && gridSizeInput.value.length ? parseInt(gridSizeInput.value, 10) : this.gameManager.optionDefaults.size;
 
+                        if (!this.validateInput(gridSizeInputValue, gridSizeValidation)) {
+                            warningNotice.textContent = `Grid size must be between ${gridSizeValidation.min} and ${gridSizeValidation.max}`;
+                            break;
+                        }
+
+                        const handSizeValidation: NumberValidation = { min: 1, max: 3 };
                         const handSizeInput = this.view.document.querySelector<HTMLInputElement>('#handSizeInput');
                         const handSizeInputValue = handSizeInput && handSizeInput.value.length ? parseInt(handSizeInput.value, 10) : this.gameManager.optionDefaults.maxHandSize;
 
+                        if (!this.validateInput(handSizeInputValue, handSizeValidation)) {
+                            warningNotice.textContent = `Hand size must be between ${handSizeValidation.min} and ${handSizeValidation.max}`;
+                            break;
+                        }
+
+                        const deckSizeValidation: NumberValidation = { min: 10, max: 100 };
                         const deckSizeInput = this.view.document.querySelector<HTMLInputElement>('#deckSizeInput');
                         const deckSizeInputValue = deckSizeInput && deckSizeInput.value.length ? parseInt(deckSizeInput.value, 10) : this.gameManager.optionDefaults.initialDeckSize;
 
+                        if (!this.validateInput(deckSizeInputValue, deckSizeValidation)) {
+                            warningNotice.textContent = `Deck size must be between ${deckSizeValidation.min} and ${deckSizeValidation.max}`;
+                            break;
+                        }
+
                         const seedInput = this.view.document.querySelector<HTMLInputElement>('#seedInputStr');
                         const seedInputValue = seedInput && seedInput.value.length ? seedInput.value : undefined
+
 
                         this.gameManager.configGame({
                             seed: seedInputValue,
@@ -101,5 +127,9 @@ export class MainMenuController implements ViewController {
                 button.blur();
             });
         });
+    }
+
+    private validateInput(val: number, validation: NumberValidation): boolean {
+        return val > validation.min && val < validation.max;
     }
 }
