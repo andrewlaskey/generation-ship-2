@@ -32,6 +32,11 @@
     gap: 10px;
 }
 
+.threejs-controls .button {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 .threejs-controls .left {
     grid-column: 1;
     grid-row: 1 / 2;

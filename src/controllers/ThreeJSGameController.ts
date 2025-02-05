@@ -122,12 +122,12 @@ export class ThreeJSGameController {
                 this.lastTouchX = touch.clientX;
                 this.lastTouchY = touch.clientY;
                 
-                // Prevent default to avoid scrolling
                 event.preventDefault();
             }
         });
     
         document.addEventListener('keydown', (event) => {
+            event.preventDefault();
             switch (event.code) {
                 case 'ArrowUp':
                 case 'KeyW':
@@ -149,6 +149,7 @@ export class ThreeJSGameController {
         });
     
         document.addEventListener('keyup', (event) => {
+            event.preventDefault();
             switch (event.code) {
                 case 'ArrowUp':
                 case 'KeyW':
@@ -169,36 +170,44 @@ export class ThreeJSGameController {
             }
         });
 
-        moveLeftBtn?.addEventListener('pointerdown', () => {
+        moveLeftBtn?.addEventListener('pointerdown', (event) => {
             this.moveLeft = true;
+            event.preventDefault();
         });
 
-        moveLeftBtn?.addEventListener('pointerup', () => {
+        moveLeftBtn?.addEventListener('pointerup', (event) => {
             this.moveLeft = false;
+            event.preventDefault();
         });
 
-        moveRightBtn?.addEventListener('pointerdown', () => {
+        moveRightBtn?.addEventListener('pointerdown', (event) => {
             this.moveRight = true;
+            event.preventDefault();
         });
 
-        moveRightBtn?.addEventListener('pointerup', () => {
+        moveRightBtn?.addEventListener('pointerup', (event) => {
             this.moveRight = false;
+            event.preventDefault();
         });
 
-        moveForwardBtn?.addEventListener('pointerdown', () => {
+        moveForwardBtn?.addEventListener('pointerdown', (event) => {
             this.moveForward = true;
+            event.preventDefault();
         });
 
-        moveForwardBtn?.addEventListener('pointerup', () => {
+        moveForwardBtn?.addEventListener('pointerup', (event) => {
             this.moveForward = false;
+            event.preventDefault();
         });
 
-        moveBackwardBtn?.addEventListener('pointerdown', () => {
+        moveBackwardBtn?.addEventListener('pointerdown', (event) => {
             this.moveBackward = true;
+            event.preventDefault();
         });
 
-        moveBackwardBtn?.addEventListener('pointerup', () => {
+        moveBackwardBtn?.addEventListener('pointerup', (event) => {
             this.moveBackward = false;
+            event.preventDefault();
         });
     }
     
