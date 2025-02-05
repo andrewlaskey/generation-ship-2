@@ -383,7 +383,7 @@ describe('GameManager', () => {
         gameManager.updatePlayerScore();
         const result = gameManager.getFinalPlayerScoreElements();
 
-        expect(result.get('Ecology ratio bonus')).toBe(10);
+        expect(result.get('Ecology ratio bonus')).toBe(100);
     });
 
     it('should return the correct waste penalty', () => {

@@ -349,10 +349,15 @@ export class GameManager {
         const tileTypeCounts = this.gameBoard.countTileTypes();
         const baseScoreMultiplier = 100;
         const wastePenaltyMultiplier = -10;
+        const ecoRatioMultiplier = 1000;
+        const ecoRatioNoPopBase = 100;
 
         scoreElements.set('Base', baseScoreMultiplier * (eco + pop));
 
-        scoreElements.set('Ecology ratio bonus', pop > 0 ? Math.round(100 * (eco / pop)) : 100);
+        scoreElements.set(
+            'Ecology ratio bonus',
+            pop > 0 ? Math.round(ecoRatioMultiplier * (eco / pop)) : ecoRatioNoPopBase
+        );
 
         scoreElements.set('Remaining deck penalty', this.getDeckItemCount() * -1);
 
