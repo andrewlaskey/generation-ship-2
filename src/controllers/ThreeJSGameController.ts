@@ -70,6 +70,10 @@ export class ThreeJSGameController {
     private initCameraControls(): void {
         const canvas = this.gameView.getCanvas();
         const document = this.gameView.document;
+        const moveLeftBtn = document.querySelector<HTMLButtonElement>('#left');
+        const moveForwardBtn = document.querySelector<HTMLButtonElement>('#forward');
+        const moveBackwardBtn = document.querySelector<HTMLButtonElement>('#backward');
+        const moveRightBtn = document.querySelector<HTMLButtonElement>('#right');
     
         canvas.addEventListener('mousedown', () => {
             this.isDragging = true;
@@ -163,6 +167,38 @@ export class ThreeJSGameController {
                     this.moveRight = false;
                     break;
             }
+        });
+
+        moveLeftBtn?.addEventListener('pointerdown', () => {
+            this.moveLeft = true;
+        });
+
+        moveLeftBtn?.addEventListener('pointerup', () => {
+            this.moveLeft = false;
+        });
+
+        moveRightBtn?.addEventListener('pointerdown', () => {
+            this.moveRight = true;
+        });
+
+        moveRightBtn?.addEventListener('pointerup', () => {
+            this.moveRight = false;
+        });
+
+        moveForwardBtn?.addEventListener('pointerdown', () => {
+            this.moveForward = true;
+        });
+
+        moveForwardBtn?.addEventListener('pointerup', () => {
+            this.moveForward = false;
+        });
+
+        moveBackwardBtn?.addEventListener('pointerdown', () => {
+            this.moveBackward = true;
+        });
+
+        moveBackwardBtn?.addEventListener('pointerup', () => {
+            this.moveBackward = false;
         });
     }
     

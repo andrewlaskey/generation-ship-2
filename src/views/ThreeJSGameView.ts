@@ -94,8 +94,16 @@ export class ThreeJSGameView implements GameView {
         const html = `
 <div class="threejs-wrapper">
     <div class="threejs" id="gridContainer"></div>
-    <button class="button" id="exit">⬅</button>
+    <div class="threejs-header">
+        <button class="button" id="exit">⬅</button>
+    </div>
     <div class="threejs-footer">
+        <div class="threejs-controls">
+            <button class="button left" id="left">⏴</button>
+            <button class="button forward" id="forward">⏶</button>
+            <button class="button backward" id="backward">⏷</button>
+            <button class="button right" id="right">⏵</button>
+        </div>
         <p>⚠️ Warning! 3D Mode is a work in progress ⚠️</p>
     </div>
 </div>`
