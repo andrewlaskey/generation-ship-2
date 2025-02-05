@@ -17,6 +17,8 @@ export class ThreeJSGameController {
     private movementSpeed = 5;
     private mouseMoveDeltaX = 0;
     private mouseMoveDeltaY = 0;
+    private lastTouchX = 0;
+    private lastTouchY = 0;
 
     constructor(gameManager: GameManager, gameView: ThreeJSGameView, fn: SwitchViewFn) {
         this.gameManager = gameManager;
@@ -25,11 +27,8 @@ export class ThreeJSGameController {
     }
 
     init(startGame?: boolean) {
-        console.log('Init', startGame);
-        // Set up any input listeners
         this.initInputListeners();
 
-        // Start the game
         if (startGame) {
             this.gameManager.startGame();
         }
@@ -86,6 +85,41 @@ export class ThreeJSGameController {
             if (this.isDragging) {
                 this.mouseMoveDeltaX = event.movementX * this.mouseSensitivity;
                 this.mouseMoveDeltaY = event.movementY * this.mouseSensitivity;
+            }
+        });
+
+        canvas.addEventListener('touchstart', (event) => {
+            this.isDragging = true;
+
+            const touch = event.touches[0];
+            this.lastTouchX = touch.clientX;
+            this.lastTouchY = touch.clientY;
+
+            event.preventDefault();
+        });
+        
+        canvas.addEventListener('touchend', () => {
+            this.isDragging = false;
+            this.mouseMoveDeltaX = 0;
+            this.mouseMoveDeltaY = 0;
+        });
+        
+        canvas.addEventListener('touchmove', (event) => {
+            if (this.isDragging) {
+                const touch = event.touches[0];
+                // Calculate the movement delta
+                const deltaX = touch.clientX - this.lastTouchX;
+                const deltaY = touch.clientY - this.lastTouchY;
+                
+                this.mouseMoveDeltaX = deltaX * this.mouseSensitivity;
+                this.mouseMoveDeltaY = deltaY * this.mouseSensitivity;
+                
+                // Update last position
+                this.lastTouchX = touch.clientX;
+                this.lastTouchY = touch.clientY;
+                
+                // Prevent default to avoid scrolling
+                event.preventDefault();
             }
         });
     

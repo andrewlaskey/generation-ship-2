@@ -95,6 +95,9 @@ export class ThreeJSGameView implements GameView {
 <div class="threejs-wrapper">
     <div class="threejs" id="gridContainer"></div>
     <button class="button" id="exit">⬅</button>
+    <div class="threejs-footer">
+        <p>⚠️ Warning! 3D Mode is a work in progress ⚠️</p>
+    </div>
 </div>`
 
         insertHtml(html, this.appDiv);
