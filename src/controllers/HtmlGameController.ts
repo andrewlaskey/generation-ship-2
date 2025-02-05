@@ -280,12 +280,8 @@ export class HtmlGameController implements ViewController {
                     score: finalScore,
                     result: this.gameManager.state
                 });
-            } else {
-                const sampleData = this.generateHistogram(1000);
-                allScores = sampleData.map(sample => sample.score);
+                this.gameView.showHistogram(allScores, finalScore);
             }
-
-            this.gameView.showHistogram(allScores, finalScore);
         }
         
         // Notify the view to re-render the updated game state
