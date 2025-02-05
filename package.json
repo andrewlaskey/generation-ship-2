@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "d3": "^7.9.0",
+    "gsap": "^3.12.7",
     "radash": "^12.1.0",
     "seedrandom": "^3.0.5",
     "stats.js": "^0.17.0",

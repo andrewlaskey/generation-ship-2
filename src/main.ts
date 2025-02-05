@@ -12,6 +12,7 @@ import { SwitchViewFn } from './types/SwitchViewFn';
 import { LocalStorage } from './modules/LocalStorage';
 import { UserScoreHistory } from './modules/UserScoreHistory';
 import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
+import { LoadingIcon } from './modules/LoadingIcon';
 
 
 let gameManager = new GameManager();
@@ -58,13 +59,15 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
 
 async function start() {
     try {
+        const loading = new LoadingIcon(document, '#loading');
         await modelLibrary.loadModels();
-        switchView('menu');
+        loading.remove();
     } catch (e) {
         console.error('Failed to start app', e);
     }
 }
 
 start().then(() => {
+    switchView('menu');
     console.log('Game Loaded')
 })
