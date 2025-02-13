@@ -9,7 +9,7 @@ import { HtmlGameView } from '../views/HtmlGameView';
 export class HtmlGameController implements ViewController {
     private gameManager: GameManager;
     private gameView: HtmlGameView;
-    private selectedGridCell: { x: number; y: number};
+    private selectedGridCell: { x: number; y: number} | null;
     private switchViewFn?: SwitchViewFn
     private autoPlayer: AutoPlayer;
     private userScoreHistory: UserScoreHistory | undefined | null;
@@ -80,7 +80,11 @@ export class HtmlGameController implements ViewController {
         inspectModeButton?.addEventListener('click', () => {
             this.gameView.toggleScoreGraph(false);
             this.gameView.toggleInspectMode();
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            
+            if (this.selectedGridCell) {
+                this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            }
+
             this.gameView.hidePlayerActions();
             this.updateView();
         });
@@ -88,7 +92,10 @@ export class HtmlGameController implements ViewController {
         openScoreGraphButton?.addEventListener('click', () => {
             this.gameView.toggleInspectMode(false);
             this.gameView.toggleScoreGraph();
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+
+            if (this.selectedGridCell) {
+                this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            }
             this.gameView.hidePlayerActions();
             this.updateView();
         })
@@ -173,29 +180,34 @@ export class HtmlGameController implements ViewController {
 
         if (playerActionAffirmative) {
             playerActionAffirmative.addEventListener('click', () => {
-                const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
-                const success = this.gameManager.placeTileBlock(
-                    this.selectedGridCell.x,
-                    this.selectedGridCell.y,
-                    selectedHandIndex
-                );
-                
-                if (!success) {
-                    console.error(`Failed to place tile block at (${this.selectedGridCell.x}, ${this.selectedGridCell.y}). Invalid placement or non-tile item.`);
-                    this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
-                    this.gameView.hidePlayerActions();
-                    this.updateView();
-                } else {
-                    this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
-                    // Advance the players turn after making a placement
-                    this.advanceTurn();
+                if (this.selectedGridCell) {
+                    const selectedHandIndex = this.gameManager.getSelectedItemIndex();  // Get selected item index from hand
+                    const success = this.gameManager.placeTileBlock(
+                        this.selectedGridCell.x,
+                        this.selectedGridCell.y,
+                        selectedHandIndex
+                    );
+                    
+                    if (!success) {
+                        console.error(`Failed to place tile block at (${this.selectedGridCell.x}, ${this.selectedGridCell.y}). Invalid placement or non-tile item.`);
+                        this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+                        this.gameView.hidePlayerActions();
+                        this.updateView();
+                    } else {
+                        this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+                        // Advance the players turn after making a placement
+                        this.advanceTurn();
+                    }
                 }
             });
         }
 
         if (playerActionNegative) {
             playerActionNegative.addEventListener('click', () => {
-                this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+                if (this.selectedGridCell) {
+                    this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+                    this.selectedGridCell = null;
+                }
                 this.gameView.hidePlayerActions();
                 this.updateView();
             })
@@ -216,22 +228,31 @@ export class HtmlGameController implements ViewController {
     }
 
     private handleTileBlockPlacementSelect(x: number, y: number): void {
-        if (x == this.selectedGridCell.x && y == this.selectedGridCell.y) {
+        const shouldRotatePlacedTile = this.selectedGridCell && x == this.selectedGridCell.x && y == this.selectedGridCell.y
+        
+        if (shouldRotatePlacedTile) {
             this.gameManager.rotateSelectedItem();
         } else {
-            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            // place tile
+            if (this.selectedGridCell) {
+                // remove existing highlight before adding new one
+                this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+            }
+
             this.gameManager.addBoardHighlight(x, y);
             this.gameView.showPlayerActions();
         }
 
-        this.selectedGridCell.x = x;
-        this.selectedGridCell.y = y;
+        // Update the selected cell position
+        this.selectedGridCell = { x, y };
     }
 
     private handleInspectCell(x: number, y: number): void {
-        this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
-        this.selectedGridCell.x = x;
-        this.selectedGridCell.y = y;
+        if (this.selectedGridCell) {
+            this.gameManager.removeBoardHighlight(this.selectedGridCell.x, this.selectedGridCell.y);
+        }
+
+        this.selectedGridCell = { x, y };
 
         const space = this.gameManager.gameBoard.getSpace(x, y);
 

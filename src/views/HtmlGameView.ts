@@ -53,7 +53,11 @@ export class HtmlGameView implements GameView {
                     <div class="info-bar">
                         <div class="help">
                             <button class="button warn" id="quitButton">⬅</button>
-                            <button class="button" id="helpButton">⚙️</button>
+                            <button class="button" id="helpButton">
+                                <svg id="icon-info" viewBox="0 0 24 24">
+                                    <path d="M12.984 9v-2.016h-1.969v2.016h1.969zM12.984 17.016v-6h-1.969v6h1.969zM12 2.016q4.125 0 7.055 2.93t2.93 7.055-2.93 7.055-7.055 2.93-7.055-2.93-2.93-7.055 2.93-7.055 7.055-2.93z"></path>
+                                </svg>
+                            </button>
                         </div>
                         <div id="scoreboard" class="scoreboard"></div>
                     </div>
@@ -100,9 +104,21 @@ export class HtmlGameView implements GameView {
         const toolbarHtml = `
 <h3>Tools</h3>
 <div class="tools">
-    <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">🔎</button>
-    <button class="button" id="flying">🚀</button>
-    <button class="button ${this.isShowingScoreGraph ? 'enabled' : '' }" id="openScoreGraph">📈</button>
+    <button class="button ${this.inspectModeEnabled ? 'enabled' : '' }" id="inspectMode">
+        <svg id="icon-search" viewBox="0 0 32 32">
+            <path d="M31.715 28.953c0.381 0.381 0.381 0.999 0 1.381l-1.381 1.381c-0.382 0.381-1 0.381-1.381 0l-9.668-9.668c-0.105-0.105-0.175-0.229-0.222-0.361-1.983 1.449-4.418 2.314-7.063 2.314-6.627 0-12-5.373-12-12s5.373-12 12-12c6.627 0 12 5.373 12 12 0 2.645-0.865 5.080-2.314 7.063 0.132 0.047 0.256 0.116 0.361 0.222l9.668 9.668zM12 4c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8c0-4.418-3.582-8-8-8z"></path>
+        </svg>
+    </button>
+    <button class="button" id="flying">
+        <svg id="icon-cube" viewBox="0 0 26 28">
+            <path d="M14 25.453l10-5.453v-9.938l-10 3.641v11.75zM13 11.937l10.906-3.969-10.906-3.969-10.906 3.969zM26 8v12c0 0.734-0.406 1.406-1.047 1.75l-11 6c-0.297 0.172-0.625 0.25-0.953 0.25s-0.656-0.078-0.953-0.25l-11-6c-0.641-0.344-1.047-1.016-1.047-1.75v-12c0-0.844 0.531-1.594 1.313-1.875l11-4c0.219-0.078 0.453-0.125 0.688-0.125s0.469 0.047 0.688 0.125l11 4c0.781 0.281 1.313 1.031 1.313 1.875z"></path>
+        </svg>
+    </button>
+    <button class="button ${this.isShowingScoreGraph ? 'enabled' : '' }" id="openScoreGraph">
+        <svg viewBox="0 0 20 20">
+            <path d="M0.69 11.331l1.363 0.338 1.026-1.611-1.95-0.482c-0.488-0.121-0.981 0.174-1.102 0.66-0.121 0.483 0.175 0.973 0.663 1.095zM18.481 11.592l-4.463 4.016-5.247-4.061c-0.1-0.076-0.215-0.133-0.338-0.162l-0.698-0.174-1.027 1.611 1.1 0.273 5.697 4.408c0.166 0.127 0.362 0.189 0.559 0.189 0.219 0 0.438-0.078 0.609-0.232l5.028-4.527c0.372-0.334 0.401-0.906 0.064-1.277s-0.911-0.4-1.284-0.064zM8.684 7.18l4.887 3.129c0.413 0.264 0.961 0.154 1.24-0.246l5.027-7.242c0.286-0.412 0.183-0.977-0.231-1.26-0.414-0.285-0.979-0.182-1.265 0.23l-4.528 6.521-4.916-3.147c-0.204-0.131-0.451-0.174-0.688-0.123-0.236 0.053-0.442 0.197-0.571 0.4l-7.497 11.767c-0.27 0.422-0.144 0.983 0.28 1.25 0.15 0.096 0.319 0.141 0.486 0.141 0.301 0 0.596-0.149 0.768-0.42l7.008-11z"></path>
+        </svg>
+    </button>
 </div>
         `
 
@@ -145,8 +161,18 @@ export class HtmlGameView implements GameView {
 
     private buildScoreBoard(): void {
         const html = `
-<div class="score">🌲 ${this.gameManager.getPlayerScore('ecology')}</div>
-<div class="score">👤 ${this.gameManager.getPlayerScore('population')}</div>
+<div class="score">
+    <svg class="icon icon-leaf" viewBox="0 0 24 24">
+        <path d="M20 11c0-4.9-3.499-9.1-8.32-9.983l-0.18-0.034-0.18 0.033c-4.821 0.884-8.32 5.084-8.32 9.984 0 4.617 3.108 8.61 7.5 9.795v1.205c0 0.553 0.448 1 1 1s1-0.447 1-1v-1.205c4.392-1.185 7.5-5.178 7.5-9.795zM12.5 18.7v-2.993l4.354-4.354c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-3.647 3.647v-3.586l2.354-2.354c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-1.647 1.647v-3.293c0-0.553-0.448-1-1-1s-1 0.447-1 1v3.293l-1.646-1.647c-0.195-0.195-0.512-0.195-0.707 0s-0.195 0.512 0 0.707l2.354 2.354v3.586l-3.646-3.646c-0.195-0.195-0.512-0.195-0.707 0s-0.195 0.512 0 0.707l4.354 4.354v2.992c-3.249-1.116-5.502-4.179-5.502-7.7 0-3.874 2.723-7.201 6.5-7.981 3.777 0.78 6.5 4.107 6.5 7.981 0 3.521-2.253 6.584-5.5 7.7z"></path>
+    </svg>
+    <span>${this.gameManager.getPlayerScore('ecology')}<span>
+</div>
+<div class="score">
+    <svg class="icon icon-group" viewBox="0 0 24 24">
+        <path d="M15.984 12.984q1.313 0 2.859 0.375t2.859 1.219 1.313 1.922v2.484h-6v-2.484q0-2.063-1.969-3.469 0.328-0.047 0.938-0.047zM8.016 12.984q1.313 0 2.859 0.375t2.836 1.219 1.289 1.922v2.484h-14.016v-2.484q0-1.078 1.313-1.922t2.859-1.219 2.859-0.375zM8.016 11.016q-1.219 0-2.109-0.891t-0.891-2.109 0.891-2.109 2.109-0.891 2.086 0.891 0.867 2.109-0.867 2.109-2.086 0.891zM15.984 11.016q-1.219 0-2.109-0.891t-0.891-2.109 0.891-2.109 2.109-0.891 2.109 0.891 0.891 2.109-0.891 2.109-2.109 0.891z"></path>
+    </svg>
+    <span>${this.gameManager.getPlayerScore('population')}</span>
+</div>
 `;
         insertHtml(html, this.scoreBoard);
     }
@@ -269,14 +295,14 @@ export class HtmlGameView implements GameView {
     }
 
     private updateScoreBoard(): void {
-        const scoreDivs = this.scoreBoard.querySelectorAll<HTMLDivElement>('.score');
+        const scoreSpans = this.scoreBoard.querySelectorAll<HTMLDivElement>('.score span');
         const scores = [
-            `🌲 ${this.gameManager.getPlayerScore('ecology')}`,
-            `👤 ${this.gameManager.getPlayerScore('population')}`
+            `${this.gameManager.getPlayerScore('ecology')}`,
+            `${this.gameManager.getPlayerScore('population')}`
         ]
 
-        scoreDivs.forEach((div, index) => {
-            div.textContent = scores[index]
+        scoreSpans.forEach((span, index) => {
+            span.textContent = scores[index]
         });
     }
 

@@ -180,6 +180,12 @@ h1 {
   }
 }
 
+.button svg {
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+}
+
 .loading {
   position: absolute;
   top: 25vh;

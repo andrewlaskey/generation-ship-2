@@ -289,6 +289,19 @@
   padding: 3px 10px;
 }
 
+.score .icon {
+  width: 1em;
+  height: 1em;
+}
+
+.score .icon-leaf {
+  fill: #1b9416;
+}
+
+.score .icon-group {
+  fill: steelblue;
+}
+
 .about {
   display: none;
   position: absolute;
