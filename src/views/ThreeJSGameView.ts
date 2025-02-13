@@ -278,6 +278,25 @@ export class ThreeJSGameView implements GameView {
         newPosition.addScaledVector(combinedDirection, distance);
         newPosition.y = 1.6; // Lock y-position
 
+        // Check that the new position is within bounds
+        const gameSize = this.gameManager.gameBoard.size;
+        const worldSize = gameSize * this.tileSize;
+        const outerWorldSize = worldSize * Math.SQRT2;
+        const outerWorldSizeRadius = outerWorldSize * 0.5;
+        const centerPoint = new THREE.Vector3();
+
+        if (centerPoint.distanceTo(newPosition) > outerWorldSizeRadius) {
+            // Calculate direction vector from center to new position
+            const direction = newPosition.clone().sub(centerPoint).normalize();
+            
+            // Scale the direction vector by the maximum allowed radius
+            // This gives us the closest valid position on the circle
+            const constrainedPosition = direction.multiplyScalar(outerWorldSizeRadius);
+            
+            // Update the newPosition to the constrained position
+            newPosition.copy(constrainedPosition);
+        }
+
         // Update the camera position
         this.camera.position.copy(newPosition);
     
