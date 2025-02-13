@@ -115,8 +115,8 @@ export class ThreeFarmTileHandler implements ThreeTileHandler {
                     midPosition
                 ]
 
-                const dummy = new THREE.Object3D();
                 for (let i = 0; i < farmInstanceCount; i++) {
+                    const dummy = new THREE.Object3D();
                     dummy.position.set(farmPositions[i].x, farmPositions[i].y, farmPositions[i].z);
                     dummy.rotateY(Math.random() * Math.PI * 2);
                     dummy.updateMatrix();
