@@ -92,7 +92,9 @@ export class MainMenuView implements View {
                 <div class="submenu hidden" id="about">
                     ${ABOUT_HTML}
                     <button class="button" id="closeSubmenu">✓</button>
-                    <p>vALPHA<br>Support the development of this game on <a href="https://ko-fi.com/timbertales" target="_blank">ko-fi</a></p>
+                    <p>vALPHA (frequent, possibly breaking changes)<br>
+                    Support the development of this game on <a href="https://ko-fi.com/timbertales" target="_blank">☕️ Ko-fi</a><br>
+                    Follow the development progress on <a href="https://bsky.app/profile/andrewlaskey.bsky.social" target="_blank">🦋 Bluesky</a></p>
                 </div>
                 <div class="main-menu-footer">
                     <button class="button small" data-action="toggleMeditation">Meditation Mode</button>
