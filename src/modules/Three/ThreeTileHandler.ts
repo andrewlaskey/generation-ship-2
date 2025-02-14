@@ -271,11 +271,19 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
+    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            const houseLevel1FileName = 'Yurt.obj';
+            let fileName = 'Yurt.obj';
+
+            if (tile.level === 2) {
+                fileName = 'Longhouse.glb';
+            } else if (tile.level === 3) {
+                fileName = 'Bighouse.glb';
+            }
+
             const tileMid = this.tileSize * 0.5;
-            const obj = library.get(houseLevel1FileName);
+
+            const obj = library.get(fileName);
             const woodMaterial = new THREE.MeshStandardMaterial({
                 color: 0x741518,
                 roughness: 0.8, 
@@ -290,14 +298,15 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
                 }
             });
 
+
             if (geometry) {
-                this.manager.addInstanceKind(houseLevel1FileName, geometry, woodMaterial);
+                this.manager.addInstanceKind(fileName, geometry, woodMaterial);
 
                 const placePosition = new THREE.Vector3(position.x + tileMid, position.y, position.z + tileMid);
                 const matrix = new THREE.Matrix4();
                 matrix.setPosition(placePosition);
                 
-                this.manager.addInstance(houseLevel1FileName, matrix);
+                this.manager.addInstance(fileName, matrix);
             }
         } catch (e) {
             console.error('Failed to load people tile', e);

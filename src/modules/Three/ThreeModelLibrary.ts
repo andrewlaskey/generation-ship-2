@@ -63,6 +63,8 @@ export class ThreeModelLibrary {
             `${import.meta.env.BASE_URL}models/Tree1.glb`,
             `${import.meta.env.BASE_URL}models/Tree2.glb`,
             `${import.meta.env.BASE_URL}models/Tree3.glb`,
+            `${import.meta.env.BASE_URL}models/Bighouse.glb`,
+            `${import.meta.env.BASE_URL}models/Longhouse.glb`,
         ];
 
         for(const path of modelsToLoad) {

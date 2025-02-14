@@ -52,7 +52,11 @@ export class HtmlGameView implements GameView {
                 <div class="html-game-view-inner">
                     <div class="info-bar">
                         <div class="help">
-                            <button class="button warn" id="quitButton">⬅</button>
+                            <button class="button warn" id="quitButton">
+                                <svg id="icon-arrow_back_ios" viewBox="0 0 24 24">
+                                    <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
+                                </svg>
+                            </button>
                             <button class="button" id="helpButton">
                                 <svg id="icon-info" viewBox="0 0 24 24">
                                     <path d="M12.984 9v-2.016h-1.969v2.016h1.969zM12.984 17.016v-6h-1.969v6h1.969zM12 2.016q4.125 0 7.055 2.93t2.93 7.055-2.93 7.055-7.055 2.93-7.055-2.93-2.93-7.055 2.93-7.055 7.055-2.93z"></path>
