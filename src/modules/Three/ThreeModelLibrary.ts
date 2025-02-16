@@ -31,18 +31,10 @@ export class ThreeModelLibrary {
     private async loadObj(): Promise<void> {
         const loader = new OBJLoader();
         const modelsToLoad = [
-            `${import.meta.env.BASE_URL}models/Power2.obj`,
-            `${import.meta.env.BASE_URL}models/Farm.obj`,
-            `${import.meta.env.BASE_URL}models/Tree1.obj`,
-            `${import.meta.env.BASE_URL}models/SmallHouse1.obj`,
             `${import.meta.env.BASE_URL}models/Broken wall.obj`,
             `${import.meta.env.BASE_URL}models/Rock 2.obj`,
             `${import.meta.env.BASE_URL}models/Rock.obj`,
             `${import.meta.env.BASE_URL}models/World Ring.obj`,
-            `${import.meta.env.BASE_URL}models/BigHouse.obj`,
-            `${import.meta.env.BASE_URL}models/Yurt.obj`,
-            `${import.meta.env.BASE_URL}models/Tree2.obj`,
-            `${import.meta.env.BASE_URL}models/Tree3.obj`
         ];
 
         for(const path of modelsToLoad) {
@@ -63,8 +55,10 @@ export class ThreeModelLibrary {
             `${import.meta.env.BASE_URL}models/Tree1.glb`,
             `${import.meta.env.BASE_URL}models/Tree2.glb`,
             `${import.meta.env.BASE_URL}models/Tree3.glb`,
+            `${import.meta.env.BASE_URL}models/Smallhouse.glb`,
             `${import.meta.env.BASE_URL}models/Bighouse.glb`,
-            `${import.meta.env.BASE_URL}models/Longhouse.glb`,
+            `${import.meta.env.BASE_URL}models/Midhouse.glb`,
+            `${import.meta.env.BASE_URL}models/Power_3.glb`,
         ];
 
         for(const path of modelsToLoad) {

@@ -19,7 +19,7 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
 
     updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
         try {
-            const fileName = 'Power2.obj';
+            const fileName = 'Power_3.glb';
             const obj = library.get(fileName);
             const material = new THREE.MeshStandardMaterial({
                 color: 0x555451,
@@ -273,10 +273,10 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
 
     updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
         try {
-            let fileName = 'Yurt.obj';
+            let fileName = 'Smallhouse.glb';
 
             if (tile.level === 2) {
-                fileName = 'Longhouse.glb';
+                fileName = 'Midhouse.glb';
             } else if (tile.level === 3) {
                 fileName = 'Bighouse.glb';
             }
@@ -285,7 +285,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
 
             const obj = library.get(fileName);
             const woodMaterial = new THREE.MeshStandardMaterial({
-                color: 0x741518,
+                color: 0xc9b6b1,
                 roughness: 0.8, 
                 metalness: 0.0,
                 flatShading: true
