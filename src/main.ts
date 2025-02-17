@@ -13,6 +13,7 @@ import { LocalStorage } from './modules/LocalStorage';
 import { UserScoreHistory } from './modules/UserScoreHistory';
 import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
 import { LoadingIcon } from './modules/LoadingIcon';
+import { ThreeTextureLibrary } from './modules/Three/ThreeTextureLibrary';
 
 
 let gameManager = new GameManager();
@@ -22,6 +23,7 @@ const localStorage = new LocalStorage(window.localStorage);
 const userScoreHistory = new UserScoreHistory(localStorage);
 
 const modelLibrary = new ThreeModelLibrary();
+const textureLibrary = new ThreeTextureLibrary();
 
 const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
     switch(viewName) {
@@ -31,7 +33,13 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
             mainMenuController.init();
             break;
         case 'three':
-            const threeJSView = new ThreeJSGameView(gameManager, document, modelLibrary, { debug: false, fpsOn: false });    
+            const threeJSView = new ThreeJSGameView(
+                gameManager,
+                document,
+                modelLibrary,
+                textureLibrary,
+                { debug: false, fpsOn: false }
+            );
             const threeJSController = new ThreeJSGameController(gameManager, threeJSView, switchView);
             threeJSController.init();
             break;
@@ -61,6 +69,7 @@ async function start() {
     try {
         const loading = new LoadingIcon(document, '#loading');
         await modelLibrary.loadModels();
+        await textureLibrary.loadTextures();
         loading.remove();
     } catch (e) {
         console.error('Failed to start app', e);

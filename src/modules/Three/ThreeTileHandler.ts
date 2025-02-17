@@ -3,9 +3,10 @@ import { draw } from 'radash';
 import { ThreeModelLibrary } from './ThreeModelLibrary';
 import { Tile } from '../Tile';
 import { ThreeInstanceManager } from './ThreeInstanceManager';
+import { ThreeTextureLibrary } from './ThreeTextureLibrary';
 
 export interface ThreeTileHandler {
-    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void;
+    updateScene(scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, textures: ThreeTextureLibrary, tile: Tile): void;
 }
 
 export class ThreePowerTileHandler implements ThreeTileHandler {
@@ -17,16 +18,24 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
+    updateScene(
+        scene: THREE.Scene,
+        position: THREE.Vector3,
+        library: ThreeModelLibrary,
+        textures: ThreeTextureLibrary,
+        _tile: Tile
+    ): void {
         try {
             const fileName = 'Power_3.glb';
             const obj = library.get(fileName);
+
+            const texture = textures.get('Power3.png');
+
             const material = new THREE.MeshStandardMaterial({
-                color: 0x555451,
-                roughness: 0.7, 
-                metalness: 0.2,
-                flatShading: true
+                map: texture,
             });
+            material.needsUpdate = true;
+            
             const tileMid = this.tileSize * 0.5;
             let geometry;
 
@@ -44,6 +53,7 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
                 dummy.updateMatrix();
 
                 this.manager.addInstance(fileName, dummy.matrix);
+
             }
 
             // TODO: need to clone lights I think
@@ -71,7 +81,13 @@ export class ThreeFarmTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
+    updateScene(
+        _scene: THREE.Scene,
+        position: THREE.Vector3,
+        library: ThreeModelLibrary,
+        _textures: ThreeTextureLibrary,
+        tile: Tile
+    ): void {
         try {
             const fileName = 'Farm.glb';
 
@@ -141,7 +157,13 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
+    updateScene(
+        _scene: THREE.Scene,
+        position: THREE.Vector3,
+        library: ThreeModelLibrary,
+        _textures: ThreeTextureLibrary,
+        tile: Tile
+    ): void {
         try {
             type ModelMapObj = {
                 name: string,
@@ -271,25 +293,38 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, tile: Tile): void {
+    updateScene(
+        _scene: THREE.Scene,
+        position: THREE.Vector3,
+        library: ThreeModelLibrary,
+        textures: ThreeTextureLibrary,
+        tile: Tile
+    ): void {
         try {
             let fileName = 'Smallhouse.glb';
+            let textureFileName = 'SmallHouse.png';
 
             if (tile.level === 2) {
                 fileName = 'Midhouse.glb';
+                textureFileName = 'MidHouse.png';
             } else if (tile.level === 3) {
                 fileName = 'Bighouse.glb';
+                textureFileName = 'BigHouse.png';
             }
 
             const tileMid = this.tileSize * 0.5;
 
             const obj = library.get(fileName);
-            const woodMaterial = new THREE.MeshStandardMaterial({
-                color: 0xc9b6b1,
-                roughness: 0.8, 
-                metalness: 0.0,
-                flatShading: true
+            const texture = textures.get(textureFileName);
+
+            const material = new THREE.MeshStandardMaterial({
+                // roughness: 0.8, 
+                // metalness: 0.0,
+                // flatShading: true,
+                map: texture
             });
+            material.needsUpdate = true;
+
             let geometry;
 
             obj.traverse((child) => {
@@ -300,7 +335,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
 
 
             if (geometry) {
-                this.manager.addInstanceKind(fileName, geometry, woodMaterial);
+                this.manager.addInstanceKind(fileName, geometry, material);
 
                 const placePosition = new THREE.Vector3(position.x + tileMid, position.y, position.z + tileMid);
                 const matrix = new THREE.Matrix4();
@@ -323,7 +358,13 @@ export class ThreeWasteTileHandler implements ThreeTileHandler {
         this.manager = manager;
     }
 
-    updateScene(_scene: THREE.Scene, position: THREE.Vector3, library: ThreeModelLibrary, _tile: Tile): void {
+    updateScene(
+        _scene: THREE.Scene,
+        position: THREE.Vector3,
+        library: ThreeModelLibrary,
+        _textures: ThreeTextureLibrary,
+        _tile: Tile
+    ): void {
         try {
             const rock1FileName = 'Rock.obj';
             const rock2FileName = 'Rock 2.obj';

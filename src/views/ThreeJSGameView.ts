@@ -6,6 +6,7 @@ import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
 import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegistry';
 import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
 import { ThreeInstanceManager } from '../modules/Three/ThreeInstanceManager';
+import { ThreeTextureLibrary } from '../modules/Three/ThreeTextureLibrary';
 
 export type ThreeJSGameViewOptions = {
     debug?: boolean;
@@ -18,7 +19,8 @@ export class ThreeJSGameView implements GameView {
     private renderer: THREE.WebGLRenderer;
     private tileHandlerRegistry: ThreeTileHandlerRegistry;
     private modelLibrary: ThreeModelLibrary;
-    private instanceManager = new ThreeInstanceManager()
+    private textureLibrary: ThreeTextureLibrary;
+    private instanceManager = new ThreeInstanceManager();
     public document: Document;
     private appDiv: HTMLDivElement;
     private gridContainer!: HTMLDivElement;
@@ -28,7 +30,13 @@ export class ThreeJSGameView implements GameView {
     private debugOn = false;
     private stats = new Stats();
 
-    constructor(gameManager: GameManager, document: Document, modelLibrary: ThreeModelLibrary, options?: ThreeJSGameViewOptions) {
+    constructor(
+        gameManager: GameManager,
+        document: Document,
+        modelLibrary: ThreeModelLibrary,
+        textureLibrary: ThreeTextureLibrary,
+        options?: ThreeJSGameViewOptions
+    ) {
         this.debugOn = options?.debug ?? false;
         this.gameManager = gameManager;
         this.document = document;
@@ -45,6 +53,7 @@ export class ThreeJSGameView implements GameView {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize, this.instanceManager);
         this.modelLibrary = modelLibrary;
+        this.textureLibrary = textureLibrary;
 
         this.gridContainer.appendChild(this.renderer.domElement);
 
@@ -138,7 +147,7 @@ export class ThreeJSGameView implements GameView {
                     const handler = this.tileHandlerRegistry.getHandler(tile.type);
 
                     if (handler) {
-                        handler.updateScene(this.scene, meshPos, this.modelLibrary, tile);
+                        handler.updateScene(this.scene, meshPos, this.modelLibrary, this.textureLibrary, tile);
                     }
                 }
             }
@@ -177,40 +186,30 @@ export class ThreeJSGameView implements GameView {
         this.scene.add(ambientLight);
 
         // Add background and fog
-        const loader = new THREE.CubeTextureLoader();
-        const skyboxTexture = loader.load([
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +X (right)
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // -X (left)
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +Y (top)
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // -Y (bottom)
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`, // +Z (front)
-            `${import.meta.env.BASE_URL}textures/skybox/nightskycolor.png`  // -Z (back)
-        ]);
+        
         // this.scene.background = new THREE.Color(0x000000); // Sunset color
-        this.scene.background = skyboxTexture;
+        this.scene.background = this.textureLibrary.skybox;
         this.scene.fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
         
         // Add world plane
         const geometry = new THREE.PlaneGeometry(outerWorldSize, outerWorldSize, 10, 10);
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.load(`${import.meta.env.BASE_URL}textures/grass.png`, (texture) => {
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(10, 10); // Adjust for more/less tiling
-            
-            const material = new THREE.MeshStandardMaterial({
-                map: texture,
-                color: 0xa5d66e, // Adjust base color for the grass
-            });
-            
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.receiveShadow = true;
-
-            mesh.position.set(0, 0, 0);
-            mesh.rotation.x = -Math.PI / 2;
-
-            this.scene.add(mesh);
+        const texture = this.textureLibrary.get('grass.png');
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(10, 10); // Adjust for more/less tiling
+        
+        const material = new THREE.MeshStandardMaterial({
+            map: texture,
+            color: 0xa5d66e, // Adjust base color for the grass
         });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.receiveShadow = true;
+
+        mesh.position.set(0, 0, 0);
+        mesh.rotation.x = -Math.PI / 2;
+
+        this.scene.add(mesh);
 
         // Add World Ring
         const worldRing = this.modelLibrary.get('World Ring.obj');

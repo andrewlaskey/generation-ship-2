@@ -127,7 +127,6 @@ export class ThreeJSGameController {
         });
     
         document.addEventListener('keydown', (event) => {
-            event.preventDefault();
             switch (event.code) {
                 case 'ArrowUp':
                 case 'KeyW':
@@ -149,7 +148,6 @@ export class ThreeJSGameController {
         });
     
         document.addEventListener('keyup', (event) => {
-            event.preventDefault();
             switch (event.code) {
                 case 'ArrowUp':
                 case 'KeyW':
