@@ -4,6 +4,7 @@ import { ThreeFarmTileHandler, ThreePeopleTileHandler, ThreePowerTileHandler, Th
 import { ThreeModelLibrary } from "./ThreeModelLibrary";
 import { TileState, TileType, Tile } from "../Tile";
 import { ThreeInstanceManager } from "./ThreeInstanceManager";
+import { ThreeTextureLibrary } from "./ThreeTextureLibrary";
 
 describe('ThreeTileHandler', () => {
     describe('ThreePowerTileHandler', () => {
@@ -11,6 +12,7 @@ describe('ThreeTileHandler', () => {
         let mockLibrary: ThreeModelLibrary;
         let handler: ThreePowerTileHandler;
         let mockInstanceManager: ThreeInstanceManager;
+        let mockTextureLibrary: ThreeTextureLibrary;
         
         beforeEach(() => {
 
@@ -24,6 +26,10 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockTextureLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeTextureLibrary;
 
             mockInstanceManager = {
                 addInstance: vi.fn(),
@@ -44,7 +50,7 @@ describe('ThreeTileHandler', () => {
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary, mockTextureLibrary, tile);
     
             expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledOnce();
             expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
@@ -56,6 +62,7 @@ describe('ThreeTileHandler', () => {
         let handler: ThreeFarmTileHandler;
         let mockLibrary: ThreeModelLibrary;
         let mockInstanceManager: ThreeInstanceManager;
+        let mockTextureLibrary: ThreeTextureLibrary;
         
         beforeEach(() => {
 
@@ -69,6 +76,10 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockTextureLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeTextureLibrary;
 
             mockInstanceManager = {
                 addInstance: vi.fn(),
@@ -89,7 +100,7 @@ describe('ThreeTileHandler', () => {
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary, mockTextureLibrary, tile);
     
             expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledOnce();
             expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
@@ -101,6 +112,7 @@ describe('ThreeTileHandler', () => {
         let handler: ThreeTreeTileHandler;
         let mockLibrary: ThreeModelLibrary;
         let mockInstanceManager: ThreeInstanceManager;
+        let mockTextureLibrary: ThreeTextureLibrary;
         
         beforeEach(() => {
 
@@ -114,6 +126,10 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockTextureLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeTextureLibrary;
 
             mockInstanceManager = {
                 addInstance: vi.fn(),
@@ -135,7 +151,7 @@ describe('ThreeTileHandler', () => {
             (mockLibrary.get as Mock).mockReturnValue(mockObj)
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary, mockTextureLibrary, tile);
     
             expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(3); // 3 tree models currently
             expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
@@ -147,6 +163,7 @@ describe('ThreeTileHandler', () => {
         let handler: ThreePeopleTileHandler;
         let mockLibrary: ThreeModelLibrary;
         let mockInstanceManager: ThreeInstanceManager;
+        let mockTextureLibrary: ThreeTextureLibrary;
         
         beforeEach(() => {
 
@@ -160,6 +177,10 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockTextureLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeTextureLibrary;
             
             mockInstanceManager = {
                 addInstance: vi.fn(),
@@ -181,7 +202,7 @@ describe('ThreeTileHandler', () => {
             (mockLibrary.get as Mock).mockReturnValue(mockObj);
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary, mockTextureLibrary, tile);
     
             expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(1);
             expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(1);
@@ -193,6 +214,7 @@ describe('ThreeTileHandler', () => {
         let handler: ThreeWasteTileHandler
         let mockLibrary: ThreeModelLibrary;
         let mockInstanceManager: ThreeInstanceManager;
+        let mockTextureLibrary: ThreeTextureLibrary;
         
         beforeEach(() => {
 
@@ -206,6 +228,10 @@ describe('ThreeTileHandler', () => {
             mockLibrary = {
                 get: vi.fn()
             } as unknown as ThreeModelLibrary;
+
+            mockTextureLibrary = {
+                get: vi.fn()
+            } as unknown as ThreeTextureLibrary;
 
             mockInstanceManager = {
                 addInstance: vi.fn(),
@@ -227,7 +253,7 @@ describe('ThreeTileHandler', () => {
             (mockLibrary.get as Mock).mockReturnValue(mockObj);
     
             // Call the updateScene method
-            await handler.updateScene(mockScene, mockPosition, mockLibrary, tile);
+            await handler.updateScene(mockScene, mockPosition, mockLibrary, mockTextureLibrary, tile);
     
             expect(mockInstanceManager.addInstanceKind).toHaveBeenCalledTimes(3);
             expect(mockInstanceManager.addInstance).toHaveBeenCalledTimes(3);

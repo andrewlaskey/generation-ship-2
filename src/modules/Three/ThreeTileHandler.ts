@@ -19,7 +19,7 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
     }
 
     updateScene(
-        scene: THREE.Scene,
+        _scene: THREE.Scene,
         position: THREE.Vector3,
         library: ThreeModelLibrary,
         textures: ThreeTextureLibrary,
