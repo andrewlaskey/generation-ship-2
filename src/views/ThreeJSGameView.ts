@@ -7,6 +7,7 @@ import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegis
 import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
 import { ThreeInstanceManager } from '../modules/Three/ThreeInstanceManager';
 import { ThreeTextureLibrary } from '../modules/Three/ThreeTextureLibrary';
+import { gsap } from 'gsap';
 
 export type ThreeJSGameViewOptions = {
     debug?: boolean;
@@ -29,6 +30,7 @@ export class ThreeJSGameView implements GameView {
     private tileSize = 8;
     private debugOn = false;
     private stats = new Stats();
+    private sunArc = new THREE.Group();
 
     constructor(
         gameManager: GameManager,
@@ -76,6 +78,7 @@ export class ThreeJSGameView implements GameView {
         this.initializeGrid();
 
         // Begin animation loop
+        this.rotateSunArc();
         this.animate();
     }
 
@@ -162,7 +165,7 @@ export class ThreeJSGameView implements GameView {
         const outerWorldSize = worldSize * Math.SQRT2;
         // Add directional light
         const directionalLight = new THREE.DirectionalLight(0xebbb73, 1.0);
-        directionalLight.position.set(-30, 30, 30);
+        directionalLight.position.set(-30, 35, 0);
         directionalLight.castShadow = true;
 
         directionalLight.shadow.mapSize.width = 1024;
@@ -174,11 +177,11 @@ export class ThreeJSGameView implements GameView {
         directionalLight.shadow.camera.top = 50;
         directionalLight.shadow.camera.bottom = -50;
 
-        this.scene.add(directionalLight);
+        this.sunArc.add(directionalLight);
 
         if (this.debugOn) {
             const sunHelper = new THREE.DirectionalLightHelper(directionalLight);
-            this.scene.add(sunHelper);
+            this.sunArc.add(sunHelper);
         }
 
         // Dim ambient light
@@ -212,7 +215,7 @@ export class ThreeJSGameView implements GameView {
         this.scene.add(mesh);
 
         // Add World Ring
-        const worldRing = this.modelLibrary.get('World Ring.obj');
+        const worldRing = this.modelLibrary.get('WorldRing.glb');
 
         if (worldRing) {
             worldRing?.position.set(0, -1, 0);
@@ -224,31 +227,52 @@ export class ThreeJSGameView implements GameView {
                 metalness: 0.2,
             });
 
-            const sunMaterial = new THREE.MeshStandardMaterial({
-                // color: 0xffe345,
-                color: 0xffffff,
-                roughness: 0.2,
-                metalness: 0.6,
-                emissive: 0xffe345,
-                fog: false,
-            });
-
             worldRing.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
-                    if (child.name == 'Sun') {
-                        child.material = sunMaterial
-                    }  else {
-                        child.material = ringMaterial;
-                    }
+                    child.material = ringMaterial;
                     child.receiveShadow = true;
                     child.castShadow = true;
                 }
             });
-
+            
             this.scene.add(worldRing);
-
-            // const sunLight = new THREE.PointLight(0x)
         }
+
+        // Add SunArc
+        this.addSunArc(outerWorldSize);
+
+        this.scene.add(this.sunArc);
+    }
+
+    private addSunArc(outerWorldSize: number): void {
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xccd0db,
+            roughness: 0.8, 
+            metalness: 0.2,
+        });
+        const model = this.modelLibrary.get('SunArc.glb');
+
+        model.position.set(0, 0, 0);
+        model.scale.set(outerWorldSize, outerWorldSize, outerWorldSize);
+
+        model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.material = material;
+                child.receiveShadow = true;
+                child.castShadow = true;
+            }
+        });
+
+        this.sunArc.add(model);
+    }
+
+    private rotateSunArc(): void {
+        gsap.to(this.sunArc.rotation, {
+            x: Math.PI * 2, // Rotate 360 degrees
+            duration: 60 * 5,
+            ease: "none",
+            repeat: -1,
+        });
     }
 
     public moveCamera(direction: THREE.Vector3, distance: number, yawDelta: number, pitchDelta: number) {

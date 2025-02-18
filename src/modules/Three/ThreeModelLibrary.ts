@@ -59,6 +59,8 @@ export class ThreeModelLibrary {
             `${import.meta.env.BASE_URL}models/Bighouse.glb`,
             `${import.meta.env.BASE_URL}models/Midhouse.glb`,
             `${import.meta.env.BASE_URL}models/Power_3.glb`,
+            `${import.meta.env.BASE_URL}models/WorldRing.glb`,
+            `${import.meta.env.BASE_URL}models/SunArc.glb`,
         ];
 
         for(const path of modelsToLoad) {
