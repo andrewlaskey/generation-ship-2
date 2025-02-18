@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { draw } from 'radash';
 import { ThreeModelLibrary } from './ThreeModelLibrary';
-import { Tile } from '../Tile';
+import { Tile, TileState } from '../Tile';
 import { ThreeInstanceManager } from './ThreeInstanceManager';
 import { ThreeTextureLibrary } from './ThreeTextureLibrary';
 
@@ -23,18 +23,29 @@ export class ThreePowerTileHandler implements ThreeTileHandler {
         position: THREE.Vector3,
         library: ThreeModelLibrary,
         textures: ThreeTextureLibrary,
-        _tile: Tile
+        tile: Tile
     ): void {
         try {
-            const fileName = 'Power_3.glb';
+            let fileName = 'Power_3.glb';
             const obj = library.get(fileName);
-
             const texture = textures.get('Power3.png');
+            const emissiveMapTexture = textures.get('Power3_map.png');
 
-            const material = new THREE.MeshStandardMaterial({
+            let material = new THREE.MeshStandardMaterial({
                 map: texture,
+                emissive: 0x32dfe4,
+                emissiveMap: emissiveMapTexture,
+                emissiveIntensity: 1
             });
-            material.needsUpdate = true;
+
+            if (tile.state === TileState.Dead) {
+                fileName += `-${TileState.Dead}`;
+                material = new THREE.MeshStandardMaterial({
+                    color: 0x1e2023
+                });
+            }
+
+            material.needsUpdate = true; 
             
             const tileMid = this.tileSize * 0.5;
             let geometry;
