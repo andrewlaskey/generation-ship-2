@@ -245,10 +245,14 @@ export class ThreeJSGameView implements GameView {
     }
 
     private addSunArc(outerWorldSize: number): void {
+        const texture = this.textureLibrary.get('SunArc_map.png');
         const material = new THREE.MeshStandardMaterial({
             color: 0xccd0db,
             roughness: 0.8, 
             metalness: 0.2,
+            emissive: 0xffe600,
+            emissiveMap: texture,
+            emissiveIntensity: 1
         });
         const model = this.modelLibrary.get('SunArc.glb');
 
