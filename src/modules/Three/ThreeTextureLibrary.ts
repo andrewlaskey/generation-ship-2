@@ -38,7 +38,8 @@ export class ThreeTextureLibrary {
             'MidHouse.png',
             'BigHouse.png',
             'grass.png',
-            'Power3_map.png'
+            'Power3_map.png',
+            'SunArc_map.png'
         ];
 
         for(const path of texturesToLoad) {
