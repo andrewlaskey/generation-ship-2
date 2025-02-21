@@ -215,6 +215,7 @@ export class ThreeDayNightCycle {
     }
 
     private convertColorVal(val: number): number {
+        // Three uses float values from 0 to 1. I'm used to 0-255.
         return val / 255;
     }
 }
