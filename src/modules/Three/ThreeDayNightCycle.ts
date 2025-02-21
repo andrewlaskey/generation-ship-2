@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { gsap } from 'gsap';
 
 export class ThreeDayNightCycle {
-    public cycleDurationMinutes = 3;
+    public cycleDurationMinutes = 1;
+    private tl: gsap.core.Timeline;
 
     constructor(
         private sunArc: THREE.Group, 
@@ -10,224 +11,210 @@ export class ThreeDayNightCycle {
         private fog: THREE.Fog,
         private sunLight: THREE.DirectionalLight
     ) {
+        this.tl = gsap.timeline({ repeat: -1 });
+        this.setupTimeline();
+    }
 
+    private setupTimeline(): void {
+        const fullCycleDuration = 60 * this.cycleDurationMinutes;
+        
+        // Define our cycle points as percentages of the full duration
+        const cyclePoints = {
+            noon: 0,                           // 0%
+            sunset: fullCycleDuration * 0.125, // 12.5%
+            night: fullCycleDuration * 0.25,   // 25%
+            midnight: fullCycleDuration * 0.5, // 50%
+            sunrise: fullCycleDuration * 0.75, // 75%
+            morning: fullCycleDuration * 0.875 // 87.5%
+            // back to noon at 100%
+        };
+        
+        // Add labels at each cycle point
+        Object.entries(cyclePoints).forEach(([label, time]) => {
+            this.tl.addLabel(label, time);
+        });
     }
 
     public start(): void {
-        // Note: Currently our scene is starting at noon
         const fullCycleDuration = 60 * this.cycleDurationMinutes;
 
+        // Clear existing animations before adding new ones
+        this.tl.clear();
+        
+        // Reset and setup the timeline labels
+        this.setupTimeline();
+        
+        // Add all animations
         this.rotateSunArc(fullCycleDuration);
-        this.updateAmbientLight(fullCycleDuration);
-        this.updateSun(fullCycleDuration);
-    };
+        this.updateAmbientLight();
+        this.updateSun();
+        
+        // Start the timeline playing
+        this.tl.play(0);
+    }
 
     private rotateSunArc(fullCycleDuration: number): void {
-        gsap.to(this.sunArc.rotation, {
+        this.tl.to(this.sunArc.rotation, {
             x: Math.PI * 2, // Rotate 360 degrees
             duration: fullCycleDuration,
             ease: "none",
-            repeat: -1,
-        });
+        }, 0); // Start at the beginning of the timeline
     }
 
-    private updateSun(fullCycleDuration: number): void {
+    private updateSun(): void {
         const colorObject = {
-            r: 0.98,
-            g: 0.92,
-            b: 0.76
+            r: 255,
+            g: 252,
+            b: 198
         };
 
-        const tl = gsap.timeline({
-            repeat: -1
-        });
+        const setSunLightColorFromRgb = (): void => {
+            this.sunLight.color.setRGB(
+                this.convertColorVal(colorObject.r),
+                this.convertColorVal(colorObject.g),
+                this.convertColorVal(colorObject.b)
+            );
+        };
 
-        tl.addLabel('afternoon', 0);
-        tl.addLabel('sunset', fullCycleDuration * 0.133);
-        tl.addLabel('sunrise', fullCycleDuration * 0.75);
-        tl.addLabel('morning', fullCycleDuration * 0.875);
+        // Noon to sunset transition (12.5% of cycle)
+        this.tl.to(colorObject, {
+            r: 255,
+            g: 229,
+            b: 198,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            onUpdate: () => setSunLightColorFromRgb(),
+        }, 'noon');
+        this.tl.set(this.sunLight, { intensity: 1 }, 'noon');
 
-        tl.fromTo(colorObject,
-            {
-                r: 0.96,
-                g: 0.76,
-                b: 0,
-            }, {
-                r: 0.96,
-                g: 0.55,
-                b: 0,
-                duration: 5,
-                onUpdate: () => {
-                    this.sunLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'afternoon'
-        );
-        tl.set(this.sunLight, { intensity: 1 }, 'afternoon');
-
-        tl.fromTo(colorObject, {
-            r: 0.96,
-            g: 0.55,
-            b: 0
-        }, {
-            r: 0.96,
-            g: 0.49,
-            b: 0,
-            duration: 5,
-            onUpdate: () => {
-                this.sunLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-            }
-        }, 'sunset')
-        tl.fromTo(this.sunLight, {
-            intensity: 1
-        }, {
+        // Sunset to night transition (12.5% of cycle)
+        this.tl.to(colorObject, {
+            r: 245,
+            g: 105,
+            b: 34,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            onUpdate: () => setSunLightColorFromRgb(),
+        }, 'sunset');
+        
+        // Night transition
+        this.tl.to(this.sunLight, {
             intensity: 0,
-            duration: 3
-        }, '>1')
+            duration: 60 * this.cycleDurationMinutes * 0.05, // Fade out quickly as night falls
+        }, 'night-=2');
+        
+        this.tl.to(colorObject, {
+            r: 128,
+            g: 95,
+            b: 217,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            onUpdate: () => setSunLightColorFromRgb(),
+        }, 'night');
 
-        tl.fromTo(this.sunLight, {
-            intensity: 0
-        }, {
+        // Sunrise transition
+        this.tl.to(this.sunLight, {
             intensity: 1,
-            duration: 5,
+            duration: 60 * this.cycleDurationMinutes * 0.05, // Fade in as sun rises
         }, 'sunrise-=2');
-        tl.fromTo(colorObject, {
-            r: 0.96,
-            g: 0.49,
-            b: 0
-        }, {
-            r: 0.96,
-            g: 0.55,
-            b: 0,
-            duration: 5,
-            onUpdate: () => {
-                this.sunLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-            }
+        
+        this.tl.to(colorObject, {
+            r: 248,
+            g: 174,
+            b: 21,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            onUpdate: () => setSunLightColorFromRgb(),
         }, 'sunrise');
         
-        tl.fromTo(colorObject,
-            {
-                r: 0.96,
-                g: 0.55,
-                b: 0
-            }, {
-            r: 0.96,
-            g: 0.76,
-            b: 0,
-            duration: 5,
-            onUpdate: () => {
-                this.sunLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-            }
+        // Morning to noon transition
+        this.tl.to(colorObject, {
+            r: 255,
+            g: 252,
+            b: 198,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            onUpdate: () => setSunLightColorFromRgb(),
         }, 'morning');
-        tl.set(this.sunLight, { intensity: 1 }, 'morning');
     }
 
-    private updateAmbientLight(fullCycleDuration: number): void {
-        const transitionDurationSeconds = 5;
+    private updateAmbientLight(): void {
         const colorObject = {
-            r: 0.96,
-            g: 0.96,
-            b: 0.96
+            r: 255,
+            g: 240,
+            b: 157
         };
 
-        const tl = gsap.timeline({
-            repeat: -1,
-            defaults: {
-                duration: transitionDurationSeconds,
-                ease: 'power1.inOut'
-            }
-        });
+        const updateColors = () => {
+            this.ambientLight.color.setRGB(
+                this.convertColorVal(colorObject.r),
+                this.convertColorVal(colorObject.g),
+                this.convertColorVal(colorObject.b));
+            this.fog.color.setRGB(
+                this.convertColorVal(colorObject.r),
+                this.convertColorVal(colorObject.g),
+                this.convertColorVal(colorObject.b)
+            );
+        };
 
-        tl.addLabel('afternoon', 0);
-        tl.addLabel('sunset', fullCycleDuration * 0.133);
-        tl.addLabel('night', fullCycleDuration * 0.25);
-        tl.addLabel('sunrise', fullCycleDuration * 0.75);
-        tl.addLabel('morning', fullCycleDuration * 0.875);
+        // Noon to sunset (shift to orange)
+        this.tl.to(colorObject, {
+            r: 243,
+            g: 64,
+            b: 22,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            ease: 'power1.inOut',
+            onUpdate: updateColors
+        }, 'noon');
+
+        // Sunset to night (shift to purple)
+        this.tl.to(colorObject, {
+            r: 163,
+            g: 63,
+            b: 235,
+            duration: 60 * this.cycleDurationMinutes * 0.125,
+            ease: 'power1.inOut',
+            onUpdate: updateColors
+        }, 'sunset');
+
+        // Night to midnight (go to deep blue)
+        this.tl.to(colorObject, {
+            r: 39,
+            g: 19,
+            b: 180,
+            duration: 60 * this.cycleDurationMinutes * 0.25,
+            ease: 'power2.out',
+            onUpdate: updateColors
+        }, 'night');
+        this.tl.to(this.ambientLight, {
+            intensity: 0.05,
+            duration: 60 * this.cycleDurationMinutes * 0.25,
+            ease: 'power2.out',
+        }, 'night');
+
+        // Midnight to sunrise (to orange)
+        this.tl.to(colorObject, {
+            r: 236,
+            g: 90,
+            b: 21,
+            duration: 60 * this.cycleDurationMinutes * 0.25,
+            ease: 'expo.in',
+            onUpdate: updateColors
+        }, 'midnight');
+        this.tl.to(this.ambientLight, {
+            intensity: 0.25,
+            duration: 60 * this.cycleDurationMinutes * 0.25,
+            ease: 'power2.out',
+        }, 'night');
 
 
-        tl.fromTo(colorObject,
-            { r: 0.96, g: 0.96, b: 0.96},
-            {
-                r: 0.93,
-                g: 0.60,
-                b: 0.82,
-                onUpdate: () => {
-                    this.ambientLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                    this.fog.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'afternoon'
-        );
-        tl.fromTo(colorObject,
-            {
-                r: 0.93,
-                g: 0.60,
-                b: 0.82,
-            },
-            {
-                r: 0.93,
-                g: 0.27,
-                b: 0.08,
-                onUpdate: () => {
-                    this.ambientLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                    this.fog.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'sunset'
-        );
+        // Sunrise to morning (back to bright yellow-ish white)
+        this.tl.to(colorObject, {
+            r: 255,
+            g: 240,
+            b: 157,
+            duration: 60 * this.cycleDurationMinutes * 0.25,
+            ease: 'power1.inOut',
+            onUpdate: updateColors
+        }, 'sunrise');
+    }
 
-        tl.fromTo(colorObject,
-            {
-                r: 0.93,
-                g: 0.27,
-                b: 0.08,
-            },
-            {
-                r: 0.07,
-                g: 0.09,
-                b: 0.36,
-                onUpdate: () => {
-                    this.ambientLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                    this.fog.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'night'
-        );
-
-        tl.fromTo(colorObject,
-            {
-                r: 0.07,
-                g: 0.09,
-                b: 0.36
-            },
-            {
-                r: 0.96,
-                g: 0.62,
-                b: 0,
-                onUpdate: () => {
-                    this.ambientLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                    this.fog.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'sunrise'
-        );
-
-        tl.fromTo(colorObject,
-            {
-                r: 0.96,
-                g: 0.62,
-                b: 0
-            },
-            {
-                r: 0.96,
-                g: 0.96,
-                b: 0.96,
-                onUpdate: () => {
-                    this.ambientLight.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                    this.fog.color.setRGB(colorObject.r, colorObject.g, colorObject.b);
-                }
-            },
-            'morning'
-        );
+    private convertColorVal(val: number): number {
+        return val / 255;
     }
 }
