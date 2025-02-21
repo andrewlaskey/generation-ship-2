@@ -7,7 +7,7 @@ import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegis
 import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
 import { ThreeInstanceManager } from '../modules/Three/ThreeInstanceManager';
 import { ThreeTextureLibrary } from '../modules/Three/ThreeTextureLibrary';
-import { gsap } from 'gsap';
+import { ThreeDayNightCycle } from '../modules/Three/ThreeDayNightCycle';
 
 export type ThreeJSGameViewOptions = {
     debug?: boolean;
@@ -31,6 +31,7 @@ export class ThreeJSGameView implements GameView {
     private debugOn = false;
     private stats = new Stats();
     private sunArc = new THREE.Group();
+    private dayNightController: ThreeDayNightCycle | null;
 
     constructor(
         gameManager: GameManager,
@@ -56,6 +57,7 @@ export class ThreeJSGameView implements GameView {
         this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize, this.instanceManager);
         this.modelLibrary = modelLibrary;
         this.textureLibrary = textureLibrary;
+        this.dayNightController = null;
 
         this.gridContainer.appendChild(this.renderer.domElement);
 
@@ -78,7 +80,9 @@ export class ThreeJSGameView implements GameView {
         this.initializeGrid();
 
         // Begin animation loop
-        this.rotateSunArc();
+        if (this.dayNightController) {
+            (this.dayNightController as ThreeDayNightCycle).start()
+        }
         this.animate();
     }
 
@@ -164,7 +168,7 @@ export class ThreeJSGameView implements GameView {
         const worldSize = gameSize * this.tileSize;
         const outerWorldSize = worldSize * Math.SQRT2;
         // Add directional light
-        const directionalLight = new THREE.DirectionalLight(0xebbb73, 1.0);
+        const directionalLight = new THREE.DirectionalLight(0xfbebc4, 1.0);
         directionalLight.position.set(-30, 35, 0);
         directionalLight.castShadow = true;
 
@@ -185,14 +189,16 @@ export class ThreeJSGameView implements GameView {
         }
 
         // Dim ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+        const ambientLight = new THREE.AmbientLight('#ffffff', 0.25);
         this.scene.add(ambientLight);
 
-        // Add background and fog
-        
+        // Add background
         // this.scene.background = new THREE.Color(0x000000); // Sunset color
         this.scene.background = this.textureLibrary.skybox;
-        this.scene.fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
+
+        // Add Fog
+        const fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
+        this.scene.fog = fog;
         
         // Add world plane
         const geometry = new THREE.PlaneGeometry(outerWorldSize, outerWorldSize, 10, 10);
@@ -242,6 +248,9 @@ export class ThreeJSGameView implements GameView {
         this.addSunArc(outerWorldSize);
 
         this.scene.add(this.sunArc);
+
+        // Update Day Night Cycle Controller
+        this.dayNightController = new ThreeDayNightCycle(this.sunArc, ambientLight, fog, directionalLight);
     }
 
     private addSunArc(outerWorldSize: number): void {
@@ -268,15 +277,6 @@ export class ThreeJSGameView implements GameView {
         });
 
         this.sunArc.add(model);
-    }
-
-    private rotateSunArc(): void {
-        gsap.to(this.sunArc.rotation, {
-            x: Math.PI * 2, // Rotate 360 degrees
-            duration: 60 * 5,
-            ease: "none",
-            repeat: -1,
-        });
     }
 
     public moveCamera(direction: THREE.Vector3, distance: number, yawDelta: number, pitchDelta: number) {
