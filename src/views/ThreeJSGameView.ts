@@ -28,6 +28,7 @@ export class ThreeJSGameView implements GameView {
     private pitch = 0;
     private yaw = 0;
     private tileSize = 8;
+    private cameraHeight = 1.2;
     private debugOn = false;
     private stats = new Stats();
     private sunArc = new THREE.Group();
@@ -62,7 +63,7 @@ export class ThreeJSGameView implements GameView {
         this.gridContainer.appendChild(this.renderer.domElement);
 
         // Set up camera position
-        this.camera.position.set(0, 1.6, 5);
+        this.camera.position.set(0, this.cameraHeight, 5);
 
         if (this.debugOn) {
             const axesHelper = new THREE.AxesHelper(50);
@@ -304,10 +305,10 @@ export class ThreeJSGameView implements GameView {
         combinedDirection.addScaledVector(strafe, direction.x); // Left/right
         combinedDirection.normalize();
     
-        // Calculate the new position while locking the y-position to 1.6
+        // Calculate the new position while locking the y-position
         const newPosition = this.camera.position.clone();
         newPosition.addScaledVector(combinedDirection, distance);
-        newPosition.y = 1.6; // Lock y-position
+        newPosition.y = this.cameraHeight; // Lock y-position
 
         // Check that the new position is within bounds
         const gameSize = this.gameManager.gameBoard.size;

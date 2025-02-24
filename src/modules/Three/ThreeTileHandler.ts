@@ -172,7 +172,7 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
         _scene: THREE.Scene,
         position: THREE.Vector3,
         library: ThreeModelLibrary,
-        _textures: ThreeTextureLibrary,
+        textures: ThreeTextureLibrary,
         tile: Tile
     ): void {
         try {
@@ -180,7 +180,8 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
                 name: string,
                 model: THREE.Object3D,
                 geometry: THREE.BufferGeometry | null,
-                count: number
+                count: number,
+                material: THREE.Material
             }
             const tree1FileName = 'Tree1.glb';
             const tree2FileName = 'Tree2.glb';
@@ -188,24 +189,37 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
             const tree1 = library.get(tree1FileName);
             const tree2 = library.get(tree2FileName);
             const tree3 = library.get(tree3FileName);
+            const tree1Texture = textures.get('tree1.png');
+            const tree2Texture = textures.get('Tree2.png');
+            const tree3Texture = textures.get('Tree3.png');
+
             const treeMap: ModelMapObj[] = [
                 {
                     name: tree1FileName,
                     model: tree1,
                     geometry: null,
-                    count: 0
+                    count: 0,
+                    material: new THREE.MeshStandardMaterial({
+                        map: tree1Texture
+                    })
                 },
                 {
                     name: tree2FileName,
                     model: tree2,
                     geometry: null,
-                    count: 0
+                    count: 0,
+                    material: new THREE.MeshStandardMaterial({
+                        map: tree2Texture
+                    })
                 },
                 {
                     name: tree3FileName,
                     model: tree3,
                     geometry: null,
-                    count: 0
+                    count: 0,
+                    material: new THREE.MeshStandardMaterial({
+                        map: tree3Texture
+                    })
                 }
             ];
 
@@ -233,15 +247,9 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
                 }
             }
 
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x1b9416,
-                roughness: 0.9, 
-                metalness: 0.0
-            });
-
             treeMap.forEach(treeType => {
                 if (treeType.geometry) {
-                    this.manager.addInstanceKind(treeType.name, treeType.geometry, material)
+                    this.manager.addInstanceKind(treeType.name, treeType.geometry, treeType.material)
 
                     for (let i = 0; i < treeType.count; i++) {
                         const dummy = this.addTree(position, tile.level);

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { gsap } from 'gsap';
 
 export class ThreeDayNightCycle {
-    public cycleDurationMinutes = 1;
+    public cycleDurationMinutes = 5;
     private tl: gsap.core.Timeline;
 
     constructor(
