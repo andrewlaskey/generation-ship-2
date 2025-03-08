@@ -24,8 +24,14 @@ jobs:
       - name: Build
         run: npm run build:itch
         
-      - name: Package game
+      - name: Verify asset paths and package game
         run: |
+          # Check if asset paths look correct
+          echo "Checking for absolute paths in index.html..."
+          grep -o 'src="/[^"]*"' dist/index.html || echo "No absolute src paths found - good!"
+          grep -o 'href="/[^"]*"' dist/index.html || echo "No absolute href paths found - good!"
+          
+          # Package the game
           cd dist
           zip -r ../generation-ship-2.zip .
           cd ..
