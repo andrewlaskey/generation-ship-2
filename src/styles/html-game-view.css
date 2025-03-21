@@ -101,6 +101,8 @@
   justify-content: center;
   width: fit-content;
   transform: rotateX(30deg) scale(0.8);
+  margin-top: -2rem; /* compensate for scale and perspective transform */
+  margin-bottom: -2rem; /* compensate for scale and perspective transform */
 }
 
 @media (min-width: 500px) {
@@ -132,8 +134,8 @@
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .deck-counter .deck {

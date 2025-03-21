@@ -138,9 +138,8 @@ content: '░'
 }
 
 
-/* Empty cell (no ASCII character) */
 .cell.empty::before {
-content: " ";
+    display: none;
 }
 
 @keyframes power-flash {
