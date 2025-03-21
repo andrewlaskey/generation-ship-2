@@ -108,6 +108,8 @@
 @media (min-width: 500px) {
   .grid-inner-wrap {
     transform: rotateX(30deg);
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
 

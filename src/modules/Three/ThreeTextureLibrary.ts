@@ -44,7 +44,10 @@ export class ThreeTextureLibrary {
             'SunArc_map.png',
             'tree1.png',
             'Tree2.png',
-            'Tree3.png'
+            'Tree3.png',
+            'BigHouse_emissive.png',
+            'MidHouse_emissive.png',
+            'SmallHouse_emissive.png'
         ];
 
         for(const path of texturesToLoad) {

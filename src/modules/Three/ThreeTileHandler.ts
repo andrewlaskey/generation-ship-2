@@ -322,25 +322,32 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
         try {
             let fileName = 'Smallhouse.glb';
             let textureFileName = 'SmallHouse.png';
+            let emissiveTexFileName = 'SmallHouse_emissive.png'
 
             if (tile.level === 2) {
                 fileName = 'Midhouse.glb';
                 textureFileName = 'MidHouse.png';
+                emissiveTexFileName = 'MidHouse_emissive.png'
             } else if (tile.level === 3) {
                 fileName = 'Bighouse.glb';
                 textureFileName = 'BigHouse.png';
+                emissiveTexFileName = 'BigHouse_emissive.png'
             }
 
             const tileMid = this.tileSize * 0.5;
 
             const obj = library.get(fileName);
             const texture = textures.get(textureFileName);
+            const emissiveMapTexture = textures.get(emissiveTexFileName);
 
             const material = new THREE.MeshStandardMaterial({
                 // roughness: 0.8, 
                 // metalness: 0.0,
                 // flatShading: true,
-                map: texture
+                map: texture,
+                emissiveMap: emissiveMapTexture,
+                emissiveIntensity: 0,
+                emissive: new THREE.Color(0xffbb00)
             });
             material.needsUpdate = true;
 

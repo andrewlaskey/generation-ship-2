@@ -1,15 +1,17 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { ThreeInstanceManager } from './ThreeInstanceManager';
 
 export class ThreeDayNightCycle {
-    public cycleDurationMinutes = 5;
+    public cycleDurationMinutes = 2;
     private tl: gsap.core.Timeline;
 
     constructor(
         private sunArc: THREE.Group, 
         private ambientLight: THREE.AmbientLight,
         private fog: THREE.Fog,
-        private sunLight: THREE.DirectionalLight
+        private sunLight: THREE.DirectionalLight,
+        private instanceManager: ThreeInstanceManager
     ) {
         this.tl = gsap.timeline({ repeat: -1 });
         this.setupTimeline();
@@ -48,9 +50,11 @@ export class ThreeDayNightCycle {
         this.rotateSunArc(fullCycleDuration);
         this.updateAmbientLight();
         this.updateSun();
+        this.updateHabitatLights();
         
         // Start the timeline playing
         this.tl.play(0);
+
     }
 
     private rotateSunArc(fullCycleDuration: number): void {
@@ -217,5 +221,27 @@ export class ThreeDayNightCycle {
     private convertColorVal(val: number): number {
         // Three uses float values from 0 to 1. I'm used to 0-255.
         return val / 255;
+    }
+
+    private updateHabitatLights(): void {
+        const collection = this.instanceManager.getInstanceCollection();
+
+        this.tl.call(() => {
+            collection.forEach((element, key) => {
+                if (key.includes('house.glb') && element.material instanceof THREE.MeshStandardMaterial) {
+                    element.material.emissiveIntensity = 1;
+                    element.material.needsUpdate = true;
+                }
+            });
+        }, [], "night");
+        
+        this.tl.call(() => {
+            collection.forEach((element, key) => {
+                if (key.includes('house.glb') && element.material instanceof THREE.MeshStandardMaterial) {
+                    element.material.emissiveIntensity = 0;
+                    element.material.needsUpdate = true;
+                }
+            });
+        }, [], "sunrise");
     }
 }
