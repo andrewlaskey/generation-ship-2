@@ -4,6 +4,7 @@ import { OBJLoader, GLTFLoader } from 'three/examples/jsm/Addons.js';
 
 export class ThreeModelLibrary {
     private modelMap: Map<string, THREE.Object3D>;
+    public hasLoadedModels = false;
 
     constructor() {
         this.modelMap = new Map();
@@ -13,6 +14,7 @@ export class ThreeModelLibrary {
         try {
             await this.loadObj();
             await this.loadGltf();
+            this.hasLoadedModels = true;
         } catch (e) {
             console.error('Failed to load models', e);
         }

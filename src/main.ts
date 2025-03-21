@@ -14,6 +14,7 @@ import { UserScoreHistory } from './modules/UserScoreHistory';
 import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
 import { LoadingIcon } from './modules/LoadingIcon';
 import { ThreeTextureLibrary } from './modules/Three/ThreeTextureLibrary';
+import { clearElementChildren } from './utils/htmlUtils';
 
 
 let gameManager = new GameManager();
@@ -25,7 +26,9 @@ const userScoreHistory = new UserScoreHistory(localStorage);
 const modelLibrary = new ThreeModelLibrary();
 const textureLibrary = new ThreeTextureLibrary();
 
-const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'custom') => {
+const hasLoadedData = (): boolean => (modelLibrary.hasLoadedModels && textureLibrary.hasLoadedTextures);
+
+const switchView: SwitchViewFn = async (viewName: string, newGametype?: 'daily' | 'custom'): Promise<void> => {
     switch(viewName) {
         case 'menu':
             const menuView = new MainMenuView(document);
@@ -51,6 +54,23 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
         default:
             let gameTypeUpdated = false;
 
+            if (!hasLoadedData()) {
+                console.log('Loading data');
+                
+                try {
+                    const appDiv = document.querySelector<HTMLDivElement>('#app')!;
+                    clearElementChildren(appDiv);
+                    const loading = new LoadingIcon(document, '#loading');
+
+                    await modelLibrary.loadModels();
+                    await textureLibrary.loadTextures();
+                    
+                    loading.remove();
+                } catch (e) {
+                    console.error('Failed to load models and textures', e);
+                }
+            }
+
             if (newGametype) {
                 gameType = newGametype;
                 gameTypeUpdated = true;
@@ -65,18 +85,8 @@ const switchView: SwitchViewFn = (viewName: string, newGametype?: 'daily' | 'cus
     }
 }
 
-async function start() {
-    try {
-        const loading = new LoadingIcon(document, '#loading');
-        await modelLibrary.loadModels();
-        await textureLibrary.loadTextures();
-        loading.remove();
-    } catch (e) {
-        console.error('Failed to start app', e);
-    }
+function start() {
+    switchView('menu');
 }
 
-start().then(() => {
-    switchView('menu');
-    console.log('Game Loaded')
-})
+start();

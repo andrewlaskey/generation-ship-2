@@ -5,6 +5,7 @@ import * as THREE from 'three';
 export class ThreeTextureLibrary {
     private textures: Map<string, THREE.Texture>;
     public skybox: THREE.CubeTexture | null = null;
+    public hasLoadedTextures = false;
 
     constructor() {
         this.textures = new Map();
@@ -14,6 +15,7 @@ export class ThreeTextureLibrary {
         try {
             await this.load();
             await this.loadSkybox();
+            this.hasLoadedTextures = true;
         } catch (e) {
             console.error('Failed to load models', e);
         }
