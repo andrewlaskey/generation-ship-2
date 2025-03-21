@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ThreeInstanceManager } from './ThreeInstanceManager';
 
 export class ThreeDayNightCycle {
-    public cycleDurationMinutes = 2;
+    public cycleDurationMinutes = 5;
     private tl: gsap.core.Timeline;
 
     constructor(

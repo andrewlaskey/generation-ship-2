@@ -125,7 +125,7 @@ export class ThreeJSGameView implements GameView {
             <button class="button backward" id="backward">⏷</button>
             <button class="button right" id="right">⏵</button>
         </div>
-        <p>⚠️ Warning! 3D Mode is a work in progress ⚠️</p>
+        <p class="threejs-info-text">⚠️ Warning! 3D Mode is a work in progress ⚠️</p>
     </div>
 </div>`
 
