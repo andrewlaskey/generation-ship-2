@@ -15,6 +15,7 @@ import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
 import { LoadingIcon } from './modules/LoadingIcon';
 import { ThreeTextureLibrary } from './modules/Three/ThreeTextureLibrary';
 import { clearElementChildren } from './utils/htmlUtils';
+import { TileConfigLoader } from './modules/TileConfigLoader';
 
 
 let gameManager = new GameManager();
@@ -25,8 +26,13 @@ const userScoreHistory = new UserScoreHistory(localStorage);
 
 const modelLibrary = new ThreeModelLibrary();
 const textureLibrary = new ThreeTextureLibrary();
+const tileRuleLoader = new TileConfigLoader();
 
-const hasLoadedData = (): boolean => (modelLibrary.hasLoadedModels && textureLibrary.hasLoadedTextures);
+const hasLoadedData = (): boolean => (
+    modelLibrary.hasLoadedModels &&
+    textureLibrary.hasLoadedTextures &&
+    tileRuleLoader.configsLoaded()
+);
 
 const switchView: SwitchViewFn = async (viewName: string, newGametype?: 'daily' | 'custom'): Promise<void> => {
     switch(viewName) {
@@ -64,6 +70,8 @@ const switchView: SwitchViewFn = async (viewName: string, newGametype?: 'daily' 
 
                     await modelLibrary.loadModels();
                     await textureLibrary.loadTextures();
+                    const configs = await tileRuleLoader.load();
+                    gameManager.setTileRuleConfigs(configs);
                     
                     loading.remove();
                 } catch (e) {

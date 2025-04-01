@@ -9,6 +9,7 @@ import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
 import { ConsoleLogLevel } from '../types/ConsoleLogLevels';
 import { SpaceUpdate } from './TileHandler';
+import { TileRuleConfig } from './TileRules';
 
 export type GameManagerOptions = {
  size: number;
@@ -46,6 +47,7 @@ export class GameManager {
     }
     gameStartTime: number = Date.now();
     gameEndTime: number = Date.now();
+    private tileRuleConfigs: Map<string, TileRuleConfig> = new Map();
     
     // private timeScoreFactor: number = 10;
 
@@ -82,6 +84,10 @@ export class GameManager {
             population: new ScoreObject('population', 0)
         }
         this.state = GameState.Ready;
+    }
+
+    setTileRuleConfigs(configMap: Map<string, TileRuleConfig>): void {
+        this.tileRuleConfigs = configMap;
     }
 
     // Draw a new item from the deck into the player's hand
