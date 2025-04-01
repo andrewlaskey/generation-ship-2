@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { evaluateRules, treeRules, farmRules, TileRuleConfig } from "./TileRules";
-import { TileType } from "./Tile";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { evaluateRules, treeRules, farmRules, TileRuleConfig, executeTileBoardUpdate, TileRuleAction, TileActionResult } from "./TileRules";
+import { Tile, TileState, TileType } from "./Tile";
+import { BoardSpace } from "./BoardSpace";
 
 describe('TileRules', () => {
     it('should return "thriving" if thriving conditions are met', () => {
@@ -76,7 +77,8 @@ describe('TileRules', () => {
                         },
                     ]
                 }
-            ]
+            ],
+            results: []
         }
 
         // Act
@@ -118,7 +120,8 @@ describe('TileRules', () => {
                         }
                     ]
                 }
-            ]
+            ],
+            results: []
         }
 
         // Act
@@ -129,4 +132,206 @@ describe('TileRules', () => {
         expect(positiveResult).toBe('struggling');
         expect(negativeResult).toBeNull();
     });
+
+    describe('executeTileBoardUpdate', () => {
+        let mockTile: Tile;
+        let mockBoardSpace: BoardSpace;
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+
+            mockTile = {
+                upgrade: vi.fn(),
+                downgrade: vi.fn(),
+                setState: vi.fn()
+            } as unknown as Tile;
+            mockBoardSpace = {
+                placeTile: vi.fn(),
+                removeTile: vi.fn()
+            } as unknown as BoardSpace;
+        });
+
+        it('should not do anything if no matching result config for action', () => {
+            // Arrange
+            const action: TileRuleAction = 'struggling';
+
+            // Act
+            executeTileBoardUpdate(action, mockTile, mockBoardSpace, []);
+
+            // Assert
+            expect(mockTile.upgrade).not.toHaveBeenCalled();
+            expect(mockTile.downgrade).not.toHaveBeenCalled();
+            expect(mockTile.setState).not.toHaveBeenCalled();
+            expect(mockBoardSpace.placeTile).not.toHaveBeenCalled();
+            expect(mockBoardSpace.removeTile).not.toHaveBeenCalled();
+        });
+
+        it('should handle removing a tile', () => {
+            // Arrange
+            const action: TileRuleAction = 'struggling';
+            const config = [
+                {
+                    name: 'struggling',
+                    remove: true
+                }
+            ] as TileActionResult[];
+
+            // Act
+            executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+            // Assert
+            expect(mockBoardSpace.removeTile).toHaveBeenCalled();
+        });
+
+        it('should handle updating a tile state', () => {
+            // Arrange
+            const action: TileRuleAction = 'thriving';
+            const config = [
+                {
+                    name: 'thriving',
+                    updateState: {
+                        unhealthy: TileState.Neutral,
+                        neutral: TileState.Healthy,
+                        healthy: TileState.Healthy
+                    },
+                }
+            ] as TileActionResult[];
+            mockTile.state = TileState.Neutral;
+
+            // Act
+            executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+            // Assert
+            expect(mockTile.setState).toHaveBeenCalledWith(TileState.Healthy);
+        });
+
+        describe('when upgrading', () => {
+            it('should handle upgrading a tile when status conditions are met', () => {
+                // Arrange
+                const action: TileRuleAction = 'thriving';
+                const config = [
+                    {
+                        name: 'thriving',
+                        upgrade: {
+                            conditions: {
+                                status: TileState.Healthy
+                            }
+                        },
+                    }
+                ] as TileActionResult[];
+                mockTile.state = TileState.Healthy;
+    
+                // Act
+                executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+    
+                // Assert
+                expect(mockTile.upgrade).toHaveBeenCalled();
+            });
+
+            it('should handle update when at max upgrade', () => {
+                // Arrange
+                const action: TileRuleAction = 'thriving';
+                const config = [
+                    {
+                        name: 'thriving',
+                        upgrade: {
+                            conditions: {
+                                status: TileState.Healthy
+                            },
+                            atMax: {
+                                status: TileState.Healthy
+                            }
+                        },
+                    }
+                ] as TileActionResult[];
+                mockTile.state = TileState.Healthy;
+                (mockTile.upgrade as Mock).mockReturnValue(false);
+    
+                // Act
+                executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+    
+                // Assert
+                expect(mockTile.upgrade).toHaveBeenCalled();
+                expect(mockTile.setState).toHaveBeenCalledWith(TileState.Healthy);
+            });
+        });
+
+        describe('when downgrading', () => {
+            it('should handle downgrading a tile when status conditions are met', () => {
+                // Arrange
+                const action: TileRuleAction = 'struggling';
+                const config = [
+                    {
+                        name: 'struggling',
+                        downgrade: {
+                            conditions: {
+                                status: TileState.Unhealthy
+                            }
+                        },
+                    }
+                ] as TileActionResult[];
+                mockTile.state = TileState.Unhealthy;
+    
+                // Act
+                executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+    
+                // Assert
+                expect(mockTile.downgrade).toHaveBeenCalled();
+            });
+
+            it('should handle update when at min downgrade', () => {
+                // Arrange
+                const action: TileRuleAction = 'struggling';
+                const config = [
+                    {
+                        name: 'struggling',
+                        downgrade: {
+                            conditions: {
+                                status: TileState.Unhealthy
+                            },
+                            atMin: {
+                                status: TileState.Unhealthy
+                            }
+                        },
+                    }
+                ] as TileActionResult[];
+                mockTile.state = TileState.Unhealthy;
+                (mockTile.downgrade as Mock).mockReturnValue(false);
+    
+                // Act
+                executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+    
+                // Assert
+                expect(mockTile.downgrade).toHaveBeenCalled();
+                expect(mockTile.setState).toHaveBeenCalledWith(TileState.Unhealthy);
+            });
+
+            it('should remove a tile if rule for min downgrade', () => {
+                // Arrange
+                const action: TileRuleAction = 'struggling';
+                const config = [
+                    {
+                        name: 'struggling',
+                        downgrade: {
+                            conditions: {
+                                status: TileState.Unhealthy
+                            },
+                            atMin: {
+                                remove: true
+                            }
+                        },
+                    }
+                ] as TileActionResult[];
+                mockTile.state = TileState.Unhealthy;
+                (mockTile.downgrade as Mock).mockReturnValue(false);
+    
+                // Act
+                executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+    
+                // Assert
+                expect(mockTile.downgrade).toHaveBeenCalled();
+                expect(mockBoardSpace.removeTile).toHaveBeenCalled();
+            });
+        });
+    })
 })
