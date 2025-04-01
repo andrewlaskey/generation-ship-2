@@ -1,9 +1,1 @@
-
-[
-    "tree-rules.json",
-    "farm-rules.json",
-    "people-rules.json",
-    "power-rules.json",
-    "waste-rules.json",
-    "empty-rules.json"
-  ]
+["tree.json", "farm.json", "people.json", "power.json", "waste.json", "empty.json"]

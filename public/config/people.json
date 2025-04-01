@@ -1,5 +1,5 @@
 {
-  "type": "tree",
+  "type": "people",
   "rules": [
     {
       "result": "thriving",
@@ -8,8 +8,14 @@
       "conditions": [
         {
           "kind": "single",
-          "type": "tree",
-          "count": 3,
+          "type": "power",
+          "count": 1,
+          "evaluation": "gteq"
+        },
+        {
+          "kind": "single",
+          "type": "farm",
+          "count": 1,
           "evaluation": "gteq"
         }
       ]
@@ -27,21 +33,9 @@
         },
         {
           "kind": "single",
-          "type": "people",
-          "count": 5,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "power",
-          "count": 3,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "tree",
-          "count": 5,
-          "evaluation": "gteq"
+          "type": "farm",
+          "count": 0,
+          "evaluation": "eq"
         }
       ]
     }

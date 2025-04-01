@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import {
   evaluateRules,
-  treeRules,
   TileRuleConfig,
   executeTileBoardUpdate,
   TileRuleAction,
@@ -11,6 +10,56 @@ import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 
 describe('TileRules', () => {
+  const mockTreeRules: TileRuleConfig = {
+    type: TileType.Tree,
+    rules: [
+      {
+        result: 'thriving',
+        combineConditions: 'AND',
+        priority: 1,
+        conditions: [
+          {
+            kind: 'single',
+            type: TileType.Tree,
+            count: 3,
+            evaluation: 'gteq',
+          },
+        ],
+      },
+      {
+        result: 'struggling',
+        combineConditions: 'OR',
+        priority: 2,
+        conditions: [
+          {
+            kind: 'single',
+            type: TileType.Tree,
+            count: 0,
+            evaluation: 'eq',
+          },
+          {
+            kind: 'single',
+            type: TileType.People,
+            count: 5,
+            evaluation: 'gteq',
+          },
+          {
+            kind: 'single',
+            type: TileType.Power,
+            count: 3,
+            evaluation: 'gteq',
+          },
+          {
+            kind: 'single',
+            type: TileType.Tree,
+            count: 5,
+            evaluation: 'gteq',
+          },
+        ],
+      },
+    ],
+    results: [],
+  };
   it('should return "thriving" if thriving conditions are met', () => {
     // Arrange
     const neighborCounts = {
@@ -18,7 +67,7 @@ describe('TileRules', () => {
     };
 
     // Act
-    const result = evaluateRules(neighborCounts, treeRules);
+    const result = evaluateRules(neighborCounts, mockTreeRules);
 
     // Assert
     expect(result).toBe('thriving');
@@ -31,7 +80,7 @@ describe('TileRules', () => {
     };
 
     // Act
-    const result = evaluateRules(neighborCounts, treeRules);
+    const result = evaluateRules(neighborCounts, mockTreeRules);
 
     // Assert
     expect(result).toBe('struggling');
@@ -45,7 +94,7 @@ describe('TileRules', () => {
     };
 
     // Act
-    const result = evaluateRules(neighborCounts, treeRules);
+    const result = evaluateRules(neighborCounts, mockTreeRules);
 
     // Assert
     expect(result).toBe('struggling');
@@ -155,6 +204,7 @@ describe('TileRules', () => {
       mockBoardSpace = {
         placeTile: vi.fn(),
         removeTile: vi.fn(),
+        isOccupied: vi.fn(),
       } as unknown as BoardSpace;
     });
 
@@ -339,6 +389,55 @@ describe('TileRules', () => {
         expect(mockTile.downgrade).toHaveBeenCalled();
         expect(mockBoardSpace.removeTile).toHaveBeenCalled();
       });
+    });
+
+    it('should spawn a new tile', () => {
+      // Arrange
+      const action = 'spawn tree';
+      const config = [
+        {
+          name: 'spawn tree',
+          spawnTile: {
+            type: 'tree',
+            state: 'neutral',
+            level: 1,
+          },
+        },
+      ] as TileActionResult[];
+      mockTile.state = TileState.Unhealthy;
+      (mockBoardSpace.isOccupied as Mock).mockReturnValue(false);
+
+      // Act
+      executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+      // Assert
+      expect(mockBoardSpace.isOccupied).toHaveBeenCalled();
+      expect(mockBoardSpace.placeTile).toHaveBeenCalled();
+    });
+
+    it('should replace a tile with new tile if tile exists on space already', () => {
+      // Arrange
+      const action = 'spawn tree';
+      const config = [
+        {
+          name: 'spawn tree',
+          spawnTile: {
+            type: 'tree',
+            state: 'neutral',
+            level: 1,
+          },
+        },
+      ] as TileActionResult[];
+      mockTile.state = TileState.Unhealthy;
+      (mockBoardSpace.isOccupied as Mock).mockReturnValue(true);
+
+      // Act
+      executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+      // Assert
+      expect(mockBoardSpace.isOccupied).toHaveBeenCalled();
+      expect(mockBoardSpace.removeTile).toHaveBeenCalled();
+      expect(mockBoardSpace.placeTile).toHaveBeenCalled();
     });
   });
 });

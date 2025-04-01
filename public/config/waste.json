@@ -1,0 +1,24 @@
+{
+  "type": "waste",
+  "rules": [
+    {
+      "result": "struggling",
+      "combineConditions": "OR",
+      "priority": 1,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "tree",
+          "count": 4,
+          "evaluation": "gteq"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "struggling",
+      "remove": true
+    }
+  ]
+}

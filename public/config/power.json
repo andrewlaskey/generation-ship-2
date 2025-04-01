@@ -1,0 +1,48 @@
+{
+  "type": "power",
+  "rules": [
+    {
+      "result": "thriving",
+      "combineConditions": "AND",
+      "priority": 1,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 1,
+          "evaluation": "gteq"
+        }
+      ]
+    },
+    {
+      "result": "struggling",
+      "combineConditions": "OR",
+      "priority": 2,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 0,
+          "evaluation": "eq"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "thriving",
+      "updateState": {
+        "neutral": "healthy",
+        "unhealthy": "healthy"
+      }
+    },
+    {
+      "name": "struggling",
+      "updateState": {
+        "neutral": "unhealthy",
+        "unhealthy": "dead",
+        "healthy": "unhealthy"
+      }
+    }
+  ]
+}

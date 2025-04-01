@@ -1,47 +1,41 @@
 {
-  "type": "tree",
+  "type": "Farm",
   "rules": [
     {
       "result": "thriving",
       "combineConditions": "AND",
-      "priority": 1,
+      "priority": 2,
       "conditions": [
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 1,
+          "evaluation": "gt"
+        },
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 4,
+          "evaluation": "lteq"
+        },
         {
           "kind": "single",
           "type": "tree",
           "count": 3,
-          "evaluation": "gteq"
+          "evaluation": "lteq"
         }
       ]
     },
     {
       "result": "struggling",
       "combineConditions": "OR",
-      "priority": 2,
+      "priority": 1,
       "conditions": [
         {
           "kind": "single",
-          "type": "tree",
+          "type": "people",
           "count": 0,
           "evaluation": "eq"
-        },
-        {
-          "kind": "single",
-          "type": "people",
-          "count": 5,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "power",
-          "count": 3,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "tree",
-          "count": 5,
-          "evaluation": "gteq"
         }
       ]
     }
