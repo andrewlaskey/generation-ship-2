@@ -13,5 +13,5 @@ const getBasePath = () => {
 };
 
 export default defineConfig({
-  base: getBasePath()
+  base: getBasePath(),
 });
