@@ -1,14 +1,11 @@
-// Import necessary classes
 import { GameBoard } from './GameBoard';
 import { TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
-import { TileHandlerRegistry } from './TileHandlerRegistry';
 import { PlayerHand, HandItem } from './PlayerHand';
 import { Deck } from './Deck';
 import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
 import { ConsoleLogLevel } from '../types/ConsoleLogLevels';
-import { SpaceUpdate } from './TileHandler';
 import { TileRuleConfig } from './TileRules';
 
 export type GameManagerOptions = {
@@ -32,7 +29,6 @@ export enum GameState {
 
 export class GameManager {
   gameBoard: GameBoard;
-  tileHandlerRegistry: TileHandlerRegistry;
   playerHand: PlayerHand; // Player's hand
   deck: Deck; // Deck for drawing HandItems
   playerScore: Record<string, ScoreObject>;
@@ -64,7 +60,6 @@ export class GameManager {
 
     this.tileRuleConfigs = this.options.ruleConfigs;
     this.gameBoard = new GameBoard(this.options.size);
-    this.tileHandlerRegistry = new TileHandlerRegistry();
     this.playerHand = new PlayerHand(this.options.maxHandSize); // Initialize the player's hand
     this.deck = new Deck(
       this.options.seed,
@@ -91,7 +86,6 @@ export class GameManager {
     }
 
     this.gameBoard = new GameBoard(this.options.size);
-    this.tileHandlerRegistry = new TileHandlerRegistry();
     this.playerHand = new PlayerHand(this.options.maxHandSize); // Initialize the player's hand
     this.deck = new Deck(
       this.options.seed,
@@ -294,29 +288,6 @@ export class GameManager {
     }, 0);
   }
 
-  // Method to update space based on the tile type
-  getUpdateSpace(x: number, y: number): SpaceUpdate | null {
-    const space = this.gameBoard.getSpace(x, y);
-
-    if (space) {
-      if (space.tile) {
-        const handler = this.tileHandlerRegistry.getHandler(space.tile.type);
-
-        if (handler) {
-          return handler.updateState(space, this); // Let the handler update the space based on the tile's type
-        }
-      } else {
-        const emptyHandler = this.tileHandlerRegistry.getHandler('empty');
-
-        if (emptyHandler) {
-          return emptyHandler.updateState(space, this);
-        }
-      }
-    }
-
-    return null;
-  }
-
   // Method to get all neighboring spaces of a given space on the gameboard
   getNeighbors(x: number, y: number): BoardSpace[] {
     const neighbors: BoardSpace[] = [];
@@ -358,10 +329,12 @@ export class GameManager {
     const eco = this.getPlayerScore('ecology');
     const pop = this.getPlayerScore('population');
     const tileTypeCounts = this.gameBoard.countTileTypes();
+    const habitatAges = this.gameBoard.getHabitatAges();
     const baseScoreMultiplier = 100;
     const wastePenaltyMultiplier = -10;
     const ecoRatioMultiplier = 1000;
     const ecoRatioNoPopBase = 100;
+    const survivalBonusMultiplier = 10;
 
     scoreElements.set('Base', baseScoreMultiplier * (eco + pop));
 
@@ -377,6 +350,11 @@ export class GameManager {
 
       scoreElements.set('Waste tiles penalty', wasteCount * wastePenaltyMultiplier);
     }
+
+    const survivalBonus = habitatAges.reduce((sum, age) => {
+      return sum + age * survivalBonusMultiplier;
+    }, 0);
+    scoreElements.set('Survival bonus', survivalBonus);
 
     return scoreElements;
   }

@@ -24,6 +24,7 @@ export class Tile {
   type: (typeof Tile.validTypes)[number];
   level: number;
   state: (typeof Tile.validStates)[number];
+  age: number;
 
   constructor(
     type: (typeof Tile.validTypes)[number],
@@ -43,6 +44,7 @@ export class Tile {
     this.type = type;
     this.level = level;
     this.state = state;
+    this.age = 0;
   }
 
   // Method to update the state of the tile
@@ -75,5 +77,9 @@ export class Tile {
     }
 
     return false;
+  }
+
+  ageUp(): void {
+    this.age++;
   }
 }

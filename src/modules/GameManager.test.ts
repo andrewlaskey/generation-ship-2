@@ -27,6 +27,7 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
     setStartingCondition: vi.fn(),
     clearBoard: vi.fn(),
     updateBoard: vi.fn(),
+    getHabitatAges: vi.fn().mockReturnValue([]),
   };
 };
 
@@ -432,6 +433,22 @@ describe('GameManager', () => {
     const result = gameManager.getFinalPlayerScoreElements();
 
     expect(result.get('Waste tiles penalty')).toBe(-40);
+  });
+
+  it('should return the correct survival bonus', () => {
+    // Arrange
+    (gameBoard.countTileTypes as Mock).mockReturnValue({
+      tree: 1,
+      people: 2,
+      waste: 4,
+    });
+    (gameBoard.getHabitatAges as Mock).mockReturnValue([3, 2]);
+
+    // Act
+    const result = gameManager.getFinalPlayerScoreElements();
+
+    // Assert
+    expect(result.get('Survival bonus')).toBe(50);
   });
 
   it.skip('should correctly multiply calculated player score by the time factor', () => {

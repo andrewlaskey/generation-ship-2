@@ -173,9 +173,9 @@ export class HtmlGameController implements ViewController {
 
         try {
           const text = `Generation Ship 2 - Daily Challenge ${getCurrentDate()}
-🌲 ${ecoScore}
-👤 ${popScore}
-🧮 ${totalScore}`;
+🌲 ${ecoScore.toLocaleString()}
+👤 ${popScore.toLocaleString()}
+🧮 ${totalScore.toLocaleString()}`;
           await navigator.clipboard.writeText(text);
 
           popup?.classList.add('active');

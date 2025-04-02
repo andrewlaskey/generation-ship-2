@@ -156,88 +156,7 @@ describe('GameBoard', () => {
     });
   });
 
-  describe('executeSpaceUpdate', () => {
-    it("should change the space's state", () => {
-      board = new GameBoard(2);
-      board.placeTileAt(1, 1, tile1);
-
-      const update: SpaceUpdate = {
-        change: SpaceChange.ChangeState,
-        newState: TileState.Healthy,
-      };
-
-      board.executeSpaceUpate(1, 1, update);
-
-      const space = board.getSpace(1, 1);
-
-      expect(space?.tile?.state).toBe(TileState.Healthy);
-    });
-
-    it('should increase the space tile level on Upgrade', () => {
-      board = new GameBoard(2);
-      board.placeTileAt(1, 1, tile1);
-
-      const update: SpaceUpdate = {
-        change: SpaceChange.Upgrade,
-      };
-
-      board.executeSpaceUpate(1, 1, update);
-
-      const space = board.getSpace(1, 1);
-
-      expect(space?.tile?.level).toBe(2);
-    });
-
-    it('should decrease the space tile level on Downgrade', () => {
-      board = new GameBoard(2);
-      board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
-
-      const update: SpaceUpdate = {
-        change: SpaceChange.Downgrade,
-      };
-
-      board.executeSpaceUpate(1, 1, update);
-
-      const space = board.getSpace(1, 1);
-
-      expect(space?.tile?.level).toBe(1);
-    });
-
-    it('should correctly remove a tile', () => {
-      board = new GameBoard(2);
-      board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
-
-      const update: SpaceUpdate = {
-        change: SpaceChange.Remove,
-      };
-
-      board.executeSpaceUpate(1, 1, update);
-
-      const space = board.getSpace(1, 1);
-
-      expect(space?.tile).toBeNull();
-    });
-
-    it('should correctly replace a tile', () => {
-      board = new GameBoard(2);
-      board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
-
-      const update: SpaceUpdate = {
-        change: SpaceChange.Replace,
-        replaceTile: new Tile(TileType.Waste, 1, TileState.Neutral),
-      };
-
-      board.executeSpaceUpate(1, 1, update);
-
-      const space = board.getSpace(1, 1);
-
-      expect(space?.tile?.type).toBe(TileType.Waste);
-      expect(space?.tile?.state).toBe(TileState.Neutral);
-      expect(space?.tile?.level).toBe(1);
-    });
-  });
-
-  describe('updateSpace', () => {
+  describe('getSpaceAction', () => {
     it('should get the correct space by x y', () => {
       // Arrange
       board = new GameBoard(2);
@@ -486,6 +405,76 @@ describe('GameBoard', () => {
 
       expect(space?.tile).toBeDefined();
       expect(space?.tile?.state).toBe(TileState.Healthy);
+    });
+
+    it('should age each tile on the board', () => {
+      // Arrange
+      board = new GameBoard(3);
+      board.placeTileAt(0, 0, new Tile(TileType.Tree, 1, TileState.Neutral));
+      board.placeTileAt(0, 1, new Tile(TileType.People, 2, TileState.Neutral));
+      const mockTreeConfig = {
+        type: TileType.Tree,
+        rules: [
+          {
+            result: 'thriving',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.People,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+        ],
+        results: [
+          {
+            name: 'thriving',
+            updateState: {
+              unhealthy: TileState.Neutral,
+              neutral: TileState.Healthy,
+              healthy: TileState.Healthy,
+            },
+          },
+        ],
+      };
+      const configMap = new Map();
+      configMap.set(TileType.Tree, mockTreeConfig);
+
+      // Act
+      board.updateBoard(configMap);
+
+      // Assert
+      const space1 = board.getSpace(0, 0);
+      const space2 = board.getSpace(0, 1);
+
+      expect(space1?.tile).toBeDefined();
+      expect(space1?.tile?.age).toBe(1);
+
+      expect(space2?.tile).toBeDefined();
+      expect(space2?.tile?.age).toBe(1);
+    });
+  });
+
+  describe('getHabitatAges', () => {
+    it('should return the ages of habitats', () => {
+      // Arrange
+      const habitat1 = new Tile(TileType.People, 1, TileState.Neutral);
+      const habitat2 = new Tile(TileType.People, 1, TileState.Neutral);
+      const tree = new Tile(TileType.Tree, 1, TileState.Neutral);
+      habitat1.age = 3;
+      habitat2.age = 2;
+      board = new GameBoard(2);
+      board.placeTileAt(0, 0, habitat1);
+      board.placeTileAt(0, 1, habitat2);
+      board.placeTileAt(1, 1, tree);
+
+      // Act
+      const ages = board.getHabitatAges();
+
+      expect(ages).toStrictEqual([3, 2]);
     });
   });
 });

@@ -79,4 +79,16 @@ describe('Tile', () => {
     tile.downgrade(true);
     expect(tile.level).toBe(1);
   });
+
+  it('should increase the tiles age', () => {
+    // Arrange
+    const tile = new Tile('people', 1, 'neutral');
+
+    // Act
+    tile.ageUp();
+    tile.ageUp();
+
+    // Assert
+    expect(tile.age).toBe(2);
+  });
 });

@@ -8,6 +8,7 @@ import { GridView } from './GridView';
 import { getTileCellClassList } from '../utils/getTileCellClassList';
 import { clearElementChildren, getRelativePosition, insertHtml } from '../utils/htmlUtils';
 import { GraphsView, ScoreGraphLines } from './GraphsView';
+import { toTitleCase } from '../utils/stringHelpers';
 
 export class HtmlGameView implements GameView {
   private gameManager: GameManager;
@@ -343,11 +344,11 @@ ${this.finalPlayerScoreHtml()}
     let html = `<dl class="final-score-table">`;
 
     scoreElements.forEach((val, key) => {
-      html += `<dt>${key}</dt><dd>${val}</dd>`;
+      html += `<dt>${key}</dt><dd>${val.toLocaleString()}</dd>`;
     });
 
     html += `
-        <dt>Total</dt><dd>${this.gameManager.getCalculatedPlayerScore()}
+        <dt>Total</dt><dd>${this.gameManager.getCalculatedPlayerScore().toLocaleString()}
         </dl>`;
 
     return html;
@@ -462,9 +463,10 @@ ${this.finalPlayerScoreHtml()}
     if (tile) {
       return `
 <ul>
-    <li><strong>Type:</strong> ${tile.type}</li>
-    <li><strong>Status:</strong> ${tile.state}</li>
+    <li><strong>Type:</strong> ${toTitleCase(tile.type)}</li>
+    <li><strong>Status:</strong> ${toTitleCase(tile.state)}</li>
     <li><strong>Level:</strong> ${tile.level}</li>
+    <li><strong>Age:</strong> ${tile.age}</li>
 </ul>
 `;
     }

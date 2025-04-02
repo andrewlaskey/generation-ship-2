@@ -124,55 +124,6 @@ export class GameBoard {
     return false;
   }
 
-  executeSpaceUpate(x: number, y: number, update: SpaceUpdate): void {
-    const space = this.getSpace(x, y);
-    let tile: Tile | null;
-
-    if (!space) return;
-
-    switch (update.change) {
-      case SpaceChange.ChangeState:
-        tile = space.tile;
-
-        if (!update.newState) {
-          console.error(space.tile, update);
-          throw new Error('Space update for change state missing new state!');
-        }
-
-        if (tile) {
-          tile.setState(update.newState);
-        }
-        break;
-      case SpaceChange.Upgrade:
-        tile = space.tile;
-
-        if (tile) {
-          tile.upgrade();
-        }
-        break;
-      case SpaceChange.Downgrade:
-        tile = space.tile;
-
-        if (tile) {
-          tile.downgrade();
-        }
-        break;
-      case SpaceChange.Remove:
-        space.removeTile();
-        break;
-      case SpaceChange.Replace:
-        space.removeTile();
-
-        if (!update.replaceTile) {
-          console.error(space.tile, update);
-          throw new Error('No replacement tile to replace current tile!');
-        }
-
-        space.placeTile(update.replaceTile);
-        break;
-    }
-  }
-
   // Method to check if the coordinates are valid
   private isValidCoordinate(x: number, y: number): boolean {
     return x >= 0 && x < this.size && y >= 0 && y < this.size;
@@ -204,6 +155,14 @@ export class GameBoard {
     const actions: BoardSpaceAction[] = [];
     for (let x = 0; x < this.gridSize; x++) {
       for (let y = 0; y < this.gridSize; y++) {
+        // Increase evert tile's age
+        const space = this.getSpace(x, y);
+
+        if (space && space.tile) {
+          space.tile.ageUp();
+        }
+
+        // Evaluate rules and determine action for each space
         const action = this.getSpaceAction(x, y, ruleConfigs);
 
         if (action) {
@@ -292,5 +251,21 @@ export class GameBoard {
     });
 
     return neighborTiles;
+  }
+
+  public getHabitatAges(): number[] {
+    const ages: number[] = [];
+
+    for (let x = 0; x < this.gridSize; x++) {
+      for (let y = 0; y < this.gridSize; y++) {
+        const space = this.getSpace(x, y);
+
+        if (space && space.tile && space.tile.type === TileType.People) {
+          ages.push(space.tile.age);
+        }
+      }
+    }
+
+    return ages;
   }
 }
