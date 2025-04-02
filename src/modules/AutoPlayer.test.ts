@@ -1,10 +1,42 @@
 import { describe, it, expect } from 'vitest';
 import { AutoPlayer } from './AutoPlayer';
 import { GameManager, GameState } from './GameManager';
+import { TileType, TileState } from './Tile';
+
+const mockTreeConfig = {
+  type: TileType.Tree,
+  rules: [
+    {
+      result: 'thriving',
+      combineConditions: 'AND',
+      priority: 1,
+      conditions: [
+        {
+          kind: 'single',
+          type: TileType.People,
+          count: 1,
+          evaluation: 'eq',
+        },
+      ],
+    },
+  ],
+  results: [
+    {
+      name: 'thriving',
+      updateState: {
+        unhealthy: TileState.Neutral,
+        neutral: TileState.Healthy,
+        healthy: TileState.Healthy,
+      },
+    },
+  ],
+};
+const configMap = new Map();
+configMap.set(TileType.Tree, mockTreeConfig);
 
 describe('AutoPlayer', () => {
   it('should start the game', () => {
-    const gameManager = new GameManager();
+    const gameManager = new GameManager({ ruleConfigs: configMap });
     const autoPlayer = new AutoPlayer(gameManager);
 
     autoPlayer.startNewGame();
@@ -13,7 +45,7 @@ describe('AutoPlayer', () => {
   });
 
   it('should make a player move', () => {
-    const gameManager = new GameManager();
+    const gameManager = new GameManager({ ruleConfigs: configMap });
     const autoPlayer = new AutoPlayer(gameManager);
 
     autoPlayer.startNewGame();
@@ -33,6 +65,7 @@ describe('AutoPlayer', () => {
       initialDeckSize: 4,
       maxHandSize: 1,
       seed: 'test-1',
+      ruleConfigs: configMap,
     });
     const autoPlayer = new AutoPlayer(gameManager);
     const results = [];
@@ -55,6 +88,7 @@ describe('AutoPlayer', () => {
       initialDeckSize: 4,
       maxHandSize: 1,
       seed: 'test-1',
+      ruleConfigs: configMap,
     });
     const autoPlayer = new AutoPlayer(gameManager);
 

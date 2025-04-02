@@ -1,41 +1,51 @@
 {
-  "type": "tree",
+  "type": "farm",
   "rules": [
     {
       "result": "thriving",
       "combineConditions": "AND",
-      "priority": 1,
+      "priority": 2,
       "conditions": [
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 1,
+          "evaluation": "gt",
+          "useCalculated": true
+        },
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 4,
+          "evaluation": "lteq",
+          "useCalculated": true
+        },
         {
           "kind": "single",
           "type": "tree",
           "count": 3,
-          "evaluation": "gteq"
+          "evaluation": "lteq"
         }
       ]
     },
     {
       "result": "struggling",
       "combineConditions": "OR",
-      "priority": 2,
+      "priority": 1,
       "conditions": [
         {
           "kind": "single",
-          "type": "tree",
+          "type": "people",
           "count": 0,
           "evaluation": "eq"
         },
         {
-          "kind": "single",
-          "type": "people",
-          "count": 5,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "power",
-          "count": 3,
-          "evaluation": "gteq"
+          "kind": "comparison",
+          "leftType": "people",
+          "rightType": "farm",
+          "difference": 5,
+          "evaluation": "gteq",
+          "useCalculated": true
         },
         {
           "kind": "single",
@@ -83,7 +93,11 @@
           "status": "unhealthy"
         },
         "atMin": {
-          "remove": true
+          "replace": {
+            "type": "waste",
+            "level": 1,
+            "state": "neutral"
+          }
         }
       }
     }

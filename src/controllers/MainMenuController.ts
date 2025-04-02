@@ -72,6 +72,7 @@ export class MainMenuController implements ViewController {
               ...this.gameManager.optionDefaults,
               seed: getCurrentDate(),
             });
+            this.view.stopAutoPlay();
             this.switchViewFn(target, target);
             break;
           }
@@ -125,6 +126,7 @@ export class MainMenuController implements ViewController {
               maxHandSize: handSizeInputValue,
               initialDeckSize: deckSizeInputValue,
             });
+            this.view.stopAutoPlay();
             this.switchViewFn(target, target);
             break;
           }

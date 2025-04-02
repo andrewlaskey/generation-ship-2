@@ -48,7 +48,7 @@ export class Tile {
   // Method to update the state of the tile
   setState(newState: (typeof Tile.validStates)[number]): void {
     if (!Tile.validStates.includes(newState)) {
-      throw new Error('Invalid tile state');
+      throw new Error(`Invalid tile state: ${newState}`);
     }
     this.state = newState;
   }

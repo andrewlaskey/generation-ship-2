@@ -1,8 +1,16 @@
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { SpaceChange, SpaceUpdate } from './TileHandler';
+import { evaluateRules, executeTileBoardUpdate, NeighborCounts, TileRuleConfig } from './TileRules';
 
 export type GameBoardRenderFn<T> = (space: BoardSpace) => T;
+
+export type BoardSpaceAction = {
+  x: number;
+  y: number;
+  action: string | null;
+  config: TileRuleConfig;
+};
 
 // Class to represent the GameBoard
 export class GameBoard {
@@ -190,5 +198,99 @@ export class GameBoard {
       },
       {} as Record<TileType, number>
     );
+  }
+
+  public updateBoard(ruleConfigs: Map<string, TileRuleConfig>): void {
+    const actions: BoardSpaceAction[] = [];
+    for (let x = 0; x < this.gridSize; x++) {
+      for (let y = 0; y < this.gridSize; y++) {
+        const action = this.getSpaceAction(x, y, ruleConfigs);
+
+        if (action) {
+          actions.push(action);
+        }
+      }
+    }
+
+    for (const action of actions) {
+      const space = this.getSpace(action.x, action.y);
+
+      if (space) {
+        const tile = space.tile;
+
+        executeTileBoardUpdate(action.action, tile, space, action.config.results);
+      }
+    }
+  }
+
+  public getSpaceAction(
+    x: number,
+    y: number,
+    ruleConfigs: Map<string, TileRuleConfig>
+  ): BoardSpaceAction | null {
+    const space = this.getSpace(x, y);
+
+    if (space) {
+      const tile = space.tile;
+      const config = tile ? ruleConfigs.get(tile.type) : ruleConfigs.get('empty');
+
+      if (config) {
+        const neighborCounts = this.getNeighborCounts(x, y);
+        const action = evaluateRules(neighborCounts, config);
+
+        return {
+          x,
+          y,
+          action,
+          config,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  public getNeighborCounts(x: number, y: number): NeighborCounts {
+    const neighbors: Tile[] = this.getNeighbors(x, y);
+
+    return neighbors.reduce((counts, tile) => {
+      if (tile.state != TileState.Dead) {
+        const currentTypeCounts = counts[tile.type];
+
+        if (currentTypeCounts !== undefined) {
+          currentTypeCounts.calculated += tile.level;
+          currentTypeCounts.raw += 1;
+        } else {
+          counts[tile.type] = {
+            calculated: tile.level,
+            raw: 1,
+          };
+        }
+      }
+      return counts;
+    }, {} as NeighborCounts);
+  }
+
+  private getNeighbors(x: number, y: number): Tile[] {
+    const neighborTiles: Tile[] = [];
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1], // Cardinal directions (N, S, W, E)
+      [-1, -1],
+      [1, 1],
+      [-1, 1],
+      [1, -1], // Diagonal directions
+    ];
+
+    directions.forEach(([dx, dy]) => {
+      const neighbor = this.getSpace(x + dx, y + dy);
+      if (neighbor && neighbor.tile) {
+        neighborTiles.push(neighbor.tile);
+      }
+    });
+
+    return neighborTiles;
   }
 }

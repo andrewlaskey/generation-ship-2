@@ -5,7 +5,12 @@ export type EvalOp = 'eq' | 'lt' | 'lteq' | 'gt' | 'gteq';
 
 export type ConditionCombineOp = 'OR' | 'AND';
 
-export type NeighborCounts = Partial<Record<TileType, number>>;
+export interface TileTypeCount {
+  raw: number;
+  calculated: number;
+}
+
+export type NeighborCounts = Partial<Record<TileType, TileTypeCount>>;
 
 export type TileRuleAction = 'thriving' | 'struggling';
 
@@ -14,6 +19,7 @@ export interface SingleTypeCondition {
   type: TileType;
   count: number;
   evaluation: EvalOp;
+  useCalculated?: boolean;
 }
 
 // A new condition type for comparing two different tile counts
@@ -23,13 +29,14 @@ export interface ComparisonCondition {
   rightType: TileType;
   difference: number; // The value to compare with (leftCount - rightCount)
   evaluation: EvalOp;
+  useCalculated?: boolean;
 }
 
 // Union type for all possible conditions
 export type TileRuleCondition = SingleTypeCondition | ComparisonCondition;
 
 export interface TileRule {
-  result: TileRuleAction;
+  result: TileRuleAction | string; // maybe revisit
   conditions: TileRuleCondition[];
   combineConditions: ConditionCombineOp;
   priority: number;
@@ -55,342 +62,35 @@ export interface DowngradeConfig {
   atMin?: {
     remove?: boolean;
     status?: TileState;
+    replace?: SpawnTileConfig;
   };
 }
 
+export interface SpawnTileConfig {
+  type: TileType;
+  state: TileState;
+  level: number;
+}
+
 export interface TileActionResult {
-  name: TileRuleAction;
+  name: TileRuleAction | string;
   updateState?: StatusTransition;
   upgrade?: UpgradeConfig;
   downgrade?: DowngradeConfig;
   remove?: boolean;
+  spawnTile?: SpawnTileConfig;
 }
 
 export interface TileRuleConfig {
-  type: TileType;
+  type: TileType | 'empty';
   rules: TileRule[];
   results: TileActionResult[];
 }
 
-// Default configurations for each tile type
-export const treeRules: TileRuleConfig = {
-  type: TileType.Tree,
-  rules: [
-    {
-      result: 'thriving',
-      combineConditions: 'AND',
-      priority: 1,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 3,
-          evaluation: 'gteq',
-        },
-      ],
-    },
-    {
-      result: 'struggling',
-      combineConditions: 'OR',
-      priority: 2,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 0,
-          evaluation: 'eq',
-        },
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 5,
-          evaluation: 'gteq',
-        },
-        {
-          kind: 'single',
-          type: TileType.Power,
-          count: 3,
-          evaluation: 'gteq',
-        },
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 5,
-          evaluation: 'gteq',
-        },
-      ],
-    },
-  ],
-  results: [
-    {
-      name: 'thriving',
-      updateState: {
-        neutral: TileState.Healthy,
-        unhealthy: TileState.Neutral,
-        healthy: TileState.Healthy,
-      },
-      upgrade: {
-        conditions: {
-          status: TileState.Healthy,
-        },
-        atMax: {
-          status: TileState.Healthy,
-        },
-      },
-    },
-    {
-      name: 'struggling',
-      updateState: {
-        neutral: TileState.Unhealthy,
-        unhealthy: TileState.Unhealthy,
-        healthy: TileState.Neutral,
-      },
-      downgrade: {
-        conditions: {
-          status: TileState.Unhealthy,
-        },
-        atMin: {
-          remove: true,
-        },
-      },
-    },
-  ],
-};
-
-export const peopleRules: TileRuleConfig = {
-  type: TileType.People,
-  rules: [
-    {
-      result: 'thriving',
-      combineConditions: 'AND',
-      priority: 1,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.Power,
-          count: 1,
-          evaluation: 'gteq',
-        },
-        {
-          kind: 'single',
-          type: TileType.Farm,
-          count: 1,
-          evaluation: 'gteq',
-        },
-      ],
-    },
-    {
-      result: 'struggling',
-      combineConditions: 'OR',
-      priority: 2,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 0,
-          evaluation: 'eq',
-        },
-        {
-          kind: 'single',
-          type: TileType.Farm,
-          count: 0,
-          evaluation: 'eq',
-        },
-      ],
-    },
-  ],
-  results: [
-    {
-      name: 'thriving',
-      updateState: {
-        neutral: TileState.Healthy,
-        unhealthy: TileState.Neutral,
-        healthy: TileState.Healthy,
-      },
-      upgrade: {
-        conditions: {
-          status: TileState.Healthy,
-        },
-        atMax: {
-          status: TileState.Healthy,
-        },
-      },
-    },
-    {
-      name: 'struggling',
-      updateState: {
-        neutral: TileState.Unhealthy,
-        unhealthy: TileState.Unhealthy,
-        healthy: TileState.Neutral,
-      },
-      downgrade: {
-        conditions: {
-          status: TileState.Unhealthy,
-        },
-        atMin: {
-          remove: true,
-        },
-      },
-    },
-  ],
-};
-
-export const farmRules: TileRuleConfig = {
-  type: TileType.Farm,
-  rules: [
-    {
-      result: 'thriving',
-      combineConditions: 'AND',
-      priority: 2,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 1,
-          evaluation: 'gt',
-        },
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 4,
-          evaluation: 'lteq',
-        },
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 3,
-          evaluation: 'lteq',
-        },
-      ],
-    },
-    {
-      result: 'struggling',
-      combineConditions: 'OR',
-      priority: 1,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 0,
-          evaluation: 'eq',
-        },
-      ],
-    },
-  ],
-  results: [
-    {
-      name: 'thriving',
-      updateState: {
-        neutral: TileState.Healthy,
-        unhealthy: TileState.Neutral,
-        healthy: TileState.Healthy,
-      },
-      upgrade: {
-        conditions: {
-          status: TileState.Healthy,
-        },
-        atMax: {
-          status: TileState.Healthy,
-        },
-      },
-    },
-    {
-      name: 'struggling',
-      updateState: {
-        neutral: TileState.Unhealthy,
-        unhealthy: TileState.Unhealthy,
-        healthy: TileState.Neutral,
-      },
-      downgrade: {
-        conditions: {
-          status: TileState.Unhealthy,
-        },
-        atMin: {
-          remove: true,
-        },
-      },
-    },
-  ],
-};
-
-export const powerRules: TileRuleConfig = {
-  type: TileType.Power,
-  rules: [
-    {
-      result: 'thriving',
-      combineConditions: 'AND',
-      priority: 1,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 1,
-          evaluation: 'gteq',
-        },
-      ],
-    },
-    {
-      result: 'struggling',
-      combineConditions: 'OR',
-      priority: 2,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.People,
-          count: 0,
-          evaluation: 'eq',
-        },
-      ],
-    },
-  ],
-  results: [
-    {
-      name: 'thriving',
-      updateState: {
-        neutral: TileState.Healthy,
-        unhealthy: TileState.Healthy,
-      },
-    },
-    {
-      name: 'struggling',
-      updateState: {
-        neutral: TileState.Unhealthy,
-        unhealthy: TileState.Dead,
-        healthy: TileState.Unhealthy,
-      },
-    },
-  ],
-};
-
-export const wasteRules: TileRuleConfig = {
-  type: TileType.Waste,
-  rules: [
-    {
-      result: 'struggling',
-      combineConditions: 'OR',
-      priority: 1,
-      conditions: [
-        {
-          kind: 'single',
-          type: TileType.Tree,
-          count: 4,
-          evaluation: 'gteq',
-        },
-      ],
-    },
-  ],
-  results: [
-    {
-      name: 'struggling',
-      remove: true,
-    },
-  ],
-};
-
 export function evaluateRules(
   neighborCounts: NeighborCounts,
   ruleConfig: TileRuleConfig
-): TileRuleAction | null {
+): string | null {
   const sortedRules = [...ruleConfig.rules].sort((a, b) => b.priority - a.priority);
 
   for (const rule of sortedRules) {
@@ -398,7 +98,12 @@ export function evaluateRules(
 
     const conditionResults = rule.conditions.map(condition => {
       if (condition.kind === 'single') {
-        const actualCount = neighborCounts[condition.type] ?? 0;
+        let actualCount = 0;
+        const counts = neighborCounts[condition.type];
+
+        if (counts) {
+          actualCount = condition.useCalculated ? counts.calculated : counts.raw;
+        }
 
         switch (condition.evaluation) {
           case 'eq':
@@ -415,9 +120,21 @@ export function evaluateRules(
             return false;
         }
       } else if (condition.kind === 'comparison') {
-        const leftCount = neighborCounts[condition.leftType] ?? 0;
-        const rightCount = neighborCounts[condition.rightType] ?? 0;
-        const actualDifference = leftCount - rightCount;
+        let actualLeftCount = 0;
+        let actualRightCount = 0;
+        const leftCounts = neighborCounts[condition.leftType];
+        const rightCounts = neighborCounts[condition.rightType];
+
+        if (leftCounts) {
+          actualLeftCount = condition.useCalculated ? leftCounts.calculated : leftCounts.raw;
+        }
+
+        if (rightCounts) {
+          actualRightCount = condition.useCalculated ? rightCounts.calculated : rightCounts.raw;
+        }
+        const actualDifference = actualLeftCount - actualRightCount;
+
+        console.log(actualDifference);
 
         switch (condition.evaluation) {
           case 'eq':
@@ -453,31 +170,35 @@ export function evaluateRules(
 }
 
 export function executeTileBoardUpdate(
-  action: TileRuleAction,
-  tile: Tile,
+  action: string | null,
+  tile: Tile | null,
   space: BoardSpace,
   actionConfig: TileActionResult[]
 ): void {
-  const selectedConfig = actionConfig.find(({ name }) => name === action);
+  const searchAction = action ? action : 'default';
+  const selectedConfig = actionConfig.find(({ name }) => name === searchAction);
 
   if (selectedConfig) {
-    const { remove, updateState, upgrade, downgrade } = selectedConfig;
+    const { remove, updateState, upgrade, downgrade, spawnTile } = selectedConfig;
+    const currentState = tile ? tile.state : null;
 
     if (remove) {
       space.removeTile();
     }
 
-    if (updateState) {
-      const newState = updateState[tile.state];
+    if (updateState && tile && currentState) {
+      const newState = updateState[currentState];
 
-      tile.setState(newState);
+      if (newState) {
+        tile.setState(newState);
+      }
     }
 
-    if (upgrade) {
+    if (upgrade && tile && currentState) {
       const { conditions, atMax } = upgrade;
 
       if (conditions.status) {
-        if (tile.state === conditions.status) {
+        if (currentState === conditions.status) {
           const upgradeResult = tile.upgrade();
 
           if (!upgradeResult && atMax) {
@@ -489,11 +210,11 @@ export function executeTileBoardUpdate(
       }
     }
 
-    if (downgrade) {
+    if (downgrade && tile && currentState) {
       const { conditions, atMin } = downgrade;
 
       if (conditions.status) {
-        if (tile.state === conditions.status) {
+        if (currentState === conditions.status) {
           const downgradeResult = tile.downgrade();
 
           if (!downgradeResult && atMin) {
@@ -504,9 +225,30 @@ export function executeTileBoardUpdate(
             if (atMin.remove) {
               space.removeTile();
             }
+
+            if (atMin.replace) {
+              space.removeTile();
+              const newTile = new Tile(
+                atMin.replace.type,
+                atMin.replace.level,
+                atMin.replace.state
+              );
+              space.placeTile(newTile);
+            }
           }
         }
       }
+    }
+
+    if (spawnTile) {
+      const tileExists = space.isOccupied();
+      const newTile = new Tile(spawnTile.type, spawnTile.level, spawnTile.state);
+
+      if (tileExists) {
+        space.removeTile();
+      }
+
+      space.placeTile(newTile);
     }
   }
 }

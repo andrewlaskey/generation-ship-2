@@ -10,8 +10,8 @@ export class TileConfigLoader {
     return this.loaded;
   }
 
-  getRules(tileType: string): TileRuleConfig | undefined {
-    return this.configs.get(tileType);
+  getRules(): Map<string, TileRuleConfig> {
+    return this.configs;
   }
 
   async load(): Promise<Map<string, TileRuleConfig>> {

@@ -1,5 +1,5 @@
 {
-  "type": "tree",
+  "type": "power",
   "rules": [
     {
       "result": "thriving",
@@ -8,9 +8,16 @@
       "conditions": [
         {
           "kind": "single",
-          "type": "tree",
+          "type": "people",
+          "count": 1,
+          "evaluation": "gteq",
+          "useCalculated": true
+        },
+        {
+          "kind": "single",
+          "type": "power",
           "count": 3,
-          "evaluation": "gteq"
+          "evaluation": "lteq"
         }
       ]
     },
@@ -21,27 +28,16 @@
       "conditions": [
         {
           "kind": "single",
-          "type": "tree",
-          "count": 0,
-          "evaluation": "eq"
-        },
-        {
-          "kind": "single",
           "type": "people",
-          "count": 5,
-          "evaluation": "gteq"
+          "count": 0,
+          "evaluation": "eq",
+          "useCalculated": true
         },
         {
           "kind": "single",
           "type": "power",
           "count": 3,
-          "evaluation": "gteq"
-        },
-        {
-          "kind": "single",
-          "type": "tree",
-          "count": 5,
-          "evaluation": "gteq"
+          "evaluation": "gt"
         }
       ]
     }
@@ -59,32 +55,15 @@
       "name": "thriving",
       "updateState": {
         "neutral": "healthy",
-        "unhealthy": "neutral",
-        "healthy": "healthy"
-      },
-      "upgrade": {
-        "conditions": {
-          "status": "healthy"
-        },
-        "atMax": {
-          "status": "healthy"
-        }
+        "unhealthy": "healthy"
       }
     },
     {
       "name": "struggling",
       "updateState": {
         "neutral": "unhealthy",
-        "unhealthy": "unhealthy",
-        "healthy": "neutral"
-      },
-      "downgrade": {
-        "conditions": {
-          "status": "unhealthy"
-        },
-        "atMin": {
-          "remove": true
-        }
+        "unhealthy": "dead",
+        "healthy": "unhealthy"
       }
     }
   ]

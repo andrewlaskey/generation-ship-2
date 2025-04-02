@@ -1,0 +1,82 @@
+{
+  "type": "empty",
+  "rules": [
+    {
+      "result": "spawn tree",
+      "combineConditions": "AND",
+      "priority": 3,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "tree",
+          "count": 4,
+          "evaluation": "gteq"
+        }
+      ]
+    },
+    {
+      "result": "spawn people",
+      "combineConditions": "AND",
+      "priority": 2,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "people",
+          "count": 1,
+          "evaluation": "gteq"
+        },
+        {
+          "kind": "single",
+          "type": "power",
+          "count": 1,
+          "evaluation": "gteq"
+        },
+        {
+          "kind": "single",
+          "type": "farm",
+          "count": 2,
+          "evaluation": "gteq"
+        }
+      ]
+    },
+    {
+      "result": "spawn waste",
+      "combineConditions": "AND",
+      "priority": 1,
+      "conditions": [
+        {
+          "kind": "single",
+          "type": "waste",
+          "count": 3,
+          "evaluation": "gteq"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "spawn tree",
+      "spawnTile": {
+        "type": "tree",
+        "state": "neutral",
+        "level": 1
+      }
+    },
+    {
+      "name": "spawn people",
+      "spawnTile": {
+        "type": "people",
+        "state": "neutral",
+        "level": 1
+      }
+    },
+    {
+      "name": "spawn waste",
+      "spawnTile": {
+        "type": "waste",
+        "state": "neutral",
+        "level": 1
+      }
+    }
+  ]
+}
