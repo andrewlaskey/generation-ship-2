@@ -20,6 +20,7 @@ export type GameManagerOptions = {
   randomTileStates?: boolean;
   freeplay?: boolean;
   logging?: boolean;
+  ruleConfigs?: Map<string, TileRuleConfig>;
 };
 
 export enum GameState {
@@ -47,7 +48,7 @@ export class GameManager {
   };
   gameStartTime: number = Date.now();
   gameEndTime: number = Date.now();
-  private tileRuleConfigs: Map<string, TileRuleConfig> = new Map();
+  tileRuleConfigs: Map<string, TileRuleConfig>;
 
   // private timeScoreFactor: number = 10;
 
@@ -56,6 +57,12 @@ export class GameManager {
       ...this.optionDefaults,
       ...options,
     };
+
+    if (!this.options.ruleConfigs) {
+      throw new Error('Tile rules missing');
+    }
+
+    this.tileRuleConfigs = this.options.ruleConfigs;
     this.gameBoard = new GameBoard(this.options.size);
     this.tileHandlerRegistry = new TileHandlerRegistry();
     this.playerHand = new PlayerHand(this.options.maxHandSize); // Initialize the player's hand
@@ -79,6 +86,10 @@ export class GameManager {
       ...options,
     };
 
+    if (this.options.ruleConfigs) {
+      this.tileRuleConfigs = this.options.ruleConfigs;
+    }
+
     this.gameBoard = new GameBoard(this.options.size);
     this.tileHandlerRegistry = new TileHandlerRegistry();
     this.playerHand = new PlayerHand(this.options.maxHandSize); // Initialize the player's hand
@@ -94,10 +105,6 @@ export class GameManager {
       population: new ScoreObject('population', 0),
     };
     this.state = GameState.Ready;
-  }
-
-  setTileRuleConfigs(configMap: Map<string, TileRuleConfig>): void {
-    this.tileRuleConfigs = configMap;
   }
 
   // Draw a new item from the deck into the player's hand
@@ -177,34 +184,15 @@ export class GameManager {
 
   // Update the entire board (existing logic)
   updateBoard(): void {
-    const updates: { x: number; y: number; update: SpaceUpdate }[] = [];
-    const size = this.gameBoard.size;
-
-    for (let x = 0; x < size; x++) {
-      for (let y = 0; y < size; y++) {
-        const result = this.getUpdateSpace(x, y);
-
-        if (result) {
-          updates.push({
-            x,
-            y,
-            update: result,
-          });
-        }
-      }
+    if (this.tileRuleConfigs.size === 0) {
+      throw new Error('No rule configs loaded');
     }
 
-    updates.forEach(updateAction => {
-      this.gameBoard.executeSpaceUpate(updateAction.x, updateAction.y, updateAction.update);
-    });
+    this.gameBoard.updateBoard(this.tileRuleConfigs);
   }
 
   // Start a new game
   startGame(): void {
-    if (this.tileRuleConfigs.size === 0) {
-      console.warn('No rule configs loaded');
-    }
-
     this.updateBoard();
     this.fillHand();
     this.gameBoard.setStartingCondition();

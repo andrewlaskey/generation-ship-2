@@ -389,6 +389,37 @@ describe('TileRules', () => {
         expect(mockTile.downgrade).toHaveBeenCalled();
         expect(mockBoardSpace.removeTile).toHaveBeenCalled();
       });
+
+      it('should only remove tile if currently at min, not due to downgrade', () => {
+        // Arrange
+        const action: TileRuleAction = 'struggling';
+        const config = [
+          {
+            name: 'struggling',
+            updateState: {
+              neutral: 'unhealthy',
+              unhealthy: 'unhealthy',
+              healthy: 'neutral',
+            },
+            downgrade: {
+              conditions: {
+                status: TileState.Unhealthy,
+              },
+              atMin: {
+                remove: true,
+              },
+            },
+          },
+        ] as TileActionResult[];
+        const tile = new Tile(TileType.Tree, 1, TileState.Neutral);
+
+        // Act
+        executeTileBoardUpdate(action, tile, mockBoardSpace, config);
+
+        // Assert
+        expect(tile.state).toBe(TileState.Unhealthy);
+        expect(mockBoardSpace.removeTile).not.toHaveBeenCalled();
+      });
     });
 
     it('should spawn a new tile', () => {

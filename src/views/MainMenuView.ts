@@ -1,4 +1,5 @@
 import { VisualAutoPlayerController } from '../controllers/VisualAutoPlayerController';
+import { TileRuleConfig } from '../modules/TileRules';
 import { View } from '../types/ViewInterface';
 import { ABOUT_HTML } from '../utils/constants';
 
@@ -9,7 +10,7 @@ export class MainMenuView implements View {
   private mainMenuDiv: HTMLDivElement | null;
   private backgroundGameDiv: HTMLDivElement | null;
 
-  constructor(document: Document) {
+  constructor(document: Document, ruleConfig: Map<string, TileRuleConfig>) {
     this.document = document;
     this.appDiv = this.document.querySelector<HTMLDivElement>('#app')!;
 
@@ -20,8 +21,18 @@ export class MainMenuView implements View {
       '.background-player-wrapper'
     );
 
-    this.backgroundGame = new VisualAutoPlayerController(document, '#backgroundPlayer', 30, 40);
+    this.backgroundGame = new VisualAutoPlayerController(
+      document,
+      '#backgroundPlayer',
+      30,
+      40,
+      ruleConfig
+    );
     this.backgroundGame.init(true);
+  }
+
+  public stopAutoPlay(): void {
+    this.backgroundGame.stop();
   }
 
   public toggleMeditationMode(): void {

@@ -17,7 +17,6 @@ import { ThreeTextureLibrary } from './modules/Three/ThreeTextureLibrary';
 import { clearElementChildren } from './utils/htmlUtils';
 import { TileConfigLoader } from './modules/TileConfigLoader';
 
-const gameManager = new GameManager();
 let gameType: 'daily' | 'custom' = 'daily';
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -32,13 +31,15 @@ const hasLoadedData = (): boolean =>
   textureLibrary.hasLoadedTextures &&
   tileRuleLoader.configsLoaded();
 
+const gameManager = new GameManager({ ruleConfigs: tileRuleLoader.getRules() });
+
 const switchView: SwitchViewFn = async (
   viewName: string,
   newGametype?: 'daily' | 'custom'
 ): Promise<void> => {
   switch (viewName) {
     case 'menu': {
-      const menuView = new MainMenuView(document);
+      const menuView = new MainMenuView(document, tileRuleLoader.getRules());
       const mainMenuController = new MainMenuController(menuView, gameManager, switchView);
       mainMenuController.init();
       break;
@@ -71,8 +72,6 @@ const switchView: SwitchViewFn = async (
 
           await modelLibrary.loadModels();
           await textureLibrary.loadTextures();
-          const configs = await tileRuleLoader.load();
-          gameManager.setTileRuleConfigs(configs);
 
           loading.remove();
         } catch (e) {
@@ -101,8 +100,14 @@ const switchView: SwitchViewFn = async (
   }
 };
 
-function start() {
-  switchView('menu');
+async function start() {
+  await tileRuleLoader.load();
 }
 
-start();
+start()
+  .then(() => {
+    switchView('menu');
+  })
+  .catch(error => {
+    console.error(error);
+  });

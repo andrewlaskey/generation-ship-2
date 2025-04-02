@@ -1,10 +1,11 @@
 // gameboard.test.ts
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameBoard, GameBoardRenderFn } from './GameBoard';
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { SpaceChange, SpaceUpdate } from './TileHandler';
+import { TileRuleConfig } from './TileRules';
 
 describe('GameBoard', () => {
   let board: GameBoard;
@@ -233,6 +234,258 @@ describe('GameBoard', () => {
       expect(space?.tile?.type).toBe(TileType.Waste);
       expect(space?.tile?.state).toBe(TileState.Neutral);
       expect(space?.tile?.level).toBe(1);
+    });
+  });
+
+  describe('updateSpace', () => {
+    it('should get the correct space by x y', () => {
+      // Arrange
+      board = new GameBoard(2);
+      board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+      const configMap = new Map();
+      const spy = vi.spyOn(board, 'getSpace');
+
+      // Act
+      board.getSpaceAction(1, 1, configMap);
+
+      // Assert
+      expect(spy).toHaveBeenCalledWith(1, 1);
+    });
+
+    it('should return the correct action', () => {
+      // Arrange
+      board = new GameBoard(2);
+      board.placeTileAt(1, 1, new Tile(TileType.Tree, 1, TileState.Neutral));
+      board.placeTileAt(0, 0, new Tile(TileType.People, 1, TileState.Neutral));
+      const mockTreeConfig: TileRuleConfig = {
+        type: TileType.Tree,
+        rules: [
+          {
+            result: 'thriving',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.People,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+        ],
+        results: [
+          {
+            name: 'thriving',
+            updateState: {
+              unhealthy: TileState.Neutral,
+              neutral: TileState.Healthy,
+              healthy: TileState.Healthy,
+            },
+          },
+        ],
+      };
+      const configMap = new Map();
+      configMap.set(TileType.Tree, mockTreeConfig);
+
+      // Act
+      const result = board.getSpaceAction(1, 1, configMap);
+
+      // Assert
+      expect(result).toStrictEqual({
+        x: 1,
+        y: 1,
+        action: 'thriving',
+        config: mockTreeConfig,
+      });
+    });
+
+    it('should use the empty config, if available, if space is empty', () => {
+      // Arrange
+      board = new GameBoard(2);
+      board.placeTileAt(1, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+      const mockEmptyConfig: TileRuleConfig = {
+        type: 'empty',
+        rules: [
+          {
+            result: 'spawn tree',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.Tree,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+          {
+            result: 'spawn people',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.Farm,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+        ],
+        results: [
+          {
+            name: 'spawn tree',
+            spawnTile: {
+              type: TileType.Tree,
+              level: 1,
+              state: TileState.Neutral,
+            },
+          },
+          {
+            name: 'spawn people',
+            spawnTile: {
+              type: TileType.People,
+              level: 1,
+              state: TileState.Neutral,
+            },
+          },
+        ],
+      };
+      const configMap = new Map();
+      configMap.set('empty', mockEmptyConfig);
+
+      // Act
+      const result = board.getSpaceAction(0, 0, configMap);
+
+      // Assert
+      expect(result).toStrictEqual({
+        x: 0,
+        y: 0,
+        action: 'spawn tree',
+        config: mockEmptyConfig,
+      });
+    });
+
+    it('should return null', () => {
+      // Arrange
+      board = new GameBoard(2);
+      board.placeTileAt(1, 1, new Tile(TileType.Tree, 1, TileState.Neutral));
+      board.placeTileAt(0, 0, new Tile(TileType.Farm, 1, TileState.Neutral));
+      const mockTreeConfig: TileRuleConfig = {
+        type: TileType.Tree,
+        rules: [
+          {
+            result: 'thriving',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.People,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+        ],
+        results: [
+          {
+            name: 'thriving',
+            updateState: {
+              unhealthy: TileState.Neutral,
+              neutral: TileState.Healthy,
+              healthy: TileState.Healthy,
+            },
+          },
+        ],
+      };
+      const configMap = new Map();
+      configMap.set(TileType.Tree, mockTreeConfig);
+
+      // Act
+      const result = board.getSpaceAction(0, 0, configMap);
+
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getNeighborCounts', () => {
+    it('should correctly count neighbors', () => {
+      // Arrange
+      board = new GameBoard(3);
+      board.placeTileAt(0, 0, new Tile(TileType.Tree, 2, TileState.Neutral));
+      board.placeTileAt(0, 1, new Tile(TileType.Tree, 2, TileState.Neutral));
+      board.placeTileAt(0, 2, new Tile(TileType.Tree, 2, TileState.Neutral));
+
+      board.placeTileAt(1, 0, new Tile(TileType.Power, 2, TileState.Neutral));
+      board.placeTileAt(1, 2, new Tile(TileType.People, 2, TileState.Neutral));
+
+      board.placeTileAt(2, 0, new Tile(TileType.Waste, 2, TileState.Neutral));
+      board.placeTileAt(2, 1, new Tile(TileType.Waste, 2, TileState.Neutral));
+      board.placeTileAt(2, 2, new Tile(TileType.Farm, 2, TileState.Neutral));
+
+      // Act
+      const neighborCount = board.getNeighborCounts(1, 1);
+
+      // Assert
+      expect(neighborCount).toStrictEqual({
+        tree: 3,
+        power: 1,
+        people: 1,
+        waste: 2,
+        farm: 1,
+      });
+    });
+  });
+
+  describe('updateBoard', () => {
+    it('should update the board', () => {
+      // Arrange
+      board = new GameBoard(3);
+      board.placeTileAt(0, 0, new Tile(TileType.Tree, 1, TileState.Neutral));
+      board.placeTileAt(0, 1, new Tile(TileType.People, 2, TileState.Neutral));
+      const mockTreeConfig = {
+        type: TileType.Tree,
+        rules: [
+          {
+            result: 'thriving',
+            combineConditions: 'AND',
+            priority: 1,
+            conditions: [
+              {
+                kind: 'single',
+                type: TileType.People,
+                count: 1,
+                evaluation: 'eq',
+              },
+            ],
+          },
+        ],
+        results: [
+          {
+            name: 'thriving',
+            updateState: {
+              unhealthy: TileState.Neutral,
+              neutral: TileState.Healthy,
+              healthy: TileState.Healthy,
+            },
+          },
+        ],
+      };
+      const configMap = new Map();
+      configMap.set(TileType.Tree, mockTreeConfig);
+
+      // Act
+      board.updateBoard(configMap);
+
+      // Assert
+      const space = board.getSpace(0, 0);
+
+      expect(space?.tile).toBeDefined();
+      expect(space?.tile?.state).toBe(TileState.Healthy);
     });
   });
 });

@@ -9,9 +9,11 @@ export type GameResults = {
 
 export class AutoPlayer {
   public gameManager: GameManager;
+  public shouldPlay: boolean;
 
   constructor(gameManager: GameManager) {
     this.gameManager = gameManager;
+    this.shouldPlay = true;
   }
 
   updateManager(gameManager: GameManager): void {
@@ -23,20 +25,26 @@ export class AutoPlayer {
     this.gameManager.startGame();
   }
 
+  stop(): void {
+    this.shouldPlay = false;
+  }
+
   nextMove(): void {
-    // Pick random grid space
-    const gridSize = this.gameManager.gameBoard.size;
-    const selectedHandIndex = this.gameManager.getSelectedItemIndex(); // Get selected item index from hand
-    let placeTileSuccess = false;
+    if (this.shouldPlay) {
+      // Pick random grid space
+      const gridSize = this.gameManager.gameBoard.size;
+      const selectedHandIndex = this.gameManager.getSelectedItemIndex(); // Get selected item index from hand
+      let placeTileSuccess = false;
 
-    while (!placeTileSuccess) {
-      const x = Math.floor(Math.random() * (gridSize - 1));
-      const y = Math.floor(Math.random() * gridSize);
+      while (!placeTileSuccess) {
+        const x = Math.floor(Math.random() * (gridSize - 1));
+        const y = Math.floor(Math.random() * gridSize);
 
-      placeTileSuccess = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
+        placeTileSuccess = this.gameManager.placeTileBlock(x, y, selectedHandIndex);
+      }
+
+      this.gameManager.advanceTurn();
     }
-
-    this.gameManager.advanceTurn();
   }
 
   auto(): GameResults {

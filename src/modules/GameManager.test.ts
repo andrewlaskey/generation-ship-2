@@ -26,6 +26,7 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
     countTileTypes: vi.fn(),
     setStartingCondition: vi.fn(),
     clearBoard: vi.fn(),
+    updateBoard: vi.fn(),
   };
 };
 
@@ -48,6 +49,37 @@ const createMockPlayerHand = (): Partial<PlayerHand> => ({
   clearHand: vi.fn(),
 });
 
+const mockTreeConfig = {
+  type: TileType.Tree,
+  rules: [
+    {
+      result: 'thriving',
+      combineConditions: 'AND',
+      priority: 1,
+      conditions: [
+        {
+          kind: 'single',
+          type: TileType.People,
+          count: 1,
+          evaluation: 'eq',
+        },
+      ],
+    },
+  ],
+  results: [
+    {
+      name: 'thriving',
+      updateState: {
+        unhealthy: TileState.Neutral,
+        neutral: TileState.Healthy,
+        healthy: TileState.Healthy,
+      },
+    },
+  ],
+};
+const configMap = new Map();
+configMap.set(TileType.Tree, mockTreeConfig);
+
 describe('GameManager', () => {
   let gameManager: GameManager;
   let gameBoard: Partial<GameBoard>;
@@ -64,6 +96,7 @@ describe('GameManager', () => {
       size: 5,
       initialDeckSize: deckSize,
       maxHandSize: 5,
+      ruleConfigs: configMap,
     });
 
     gameManager.gameBoard = gameBoard as GameBoard;
@@ -150,15 +183,12 @@ describe('GameManager', () => {
     expect(playerHand.removeItem).not.toHaveBeenCalled();
   });
 
-  it('should update the board by calling updateSpace 25 times for a 5x5 grid', () => {
-    // Spy on updateSpace method
-    const updateSpaceSpy = vi.spyOn(gameManager, 'getUpdateSpace');
-
-    // Call updateBoard
+  it('should update the board by calling gameboard.updateBoard', () => {
+    // Act
     gameManager.updateBoard();
 
-    // Ensure updateSpace was called exactly 25 times (for 5x5 grid)
-    expect(updateSpaceSpy).toHaveBeenCalledTimes(25);
+    // Assert
+    expect(gameBoard.updateBoard).toHaveBeenCalled();
   });
 
   it('should get the current player hand', () => {
@@ -291,6 +321,7 @@ describe('GameManager', () => {
       initialDeckSize: deckSize,
       maxHandSize: 5,
       freeplay: true,
+      ruleConfigs: configMap,
     });
     freeplayGameManager.gameBoard = gameBoard as GameBoard;
     freeplayGameManager.deck = deck as Deck;

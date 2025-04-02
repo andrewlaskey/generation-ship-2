@@ -74,7 +74,7 @@ export interface TileActionResult {
 }
 
 export interface TileRuleConfig {
-  type: TileType;
+  type: TileType | 'empty';
   rules: TileRule[];
   results: TileActionResult[];
 }
@@ -154,22 +154,25 @@ export function executeTileBoardUpdate(
 
   if (selectedConfig) {
     const { remove, updateState, upgrade, downgrade, spawnTile } = selectedConfig;
+    const currentState = tile ? tile.state : null;
 
     if (remove) {
       space.removeTile();
     }
 
-    if (updateState && tile) {
-      const newState = updateState[tile.state];
+    if (updateState && tile && currentState) {
+      const newState = updateState[currentState];
 
-      tile.setState(newState);
+      if (newState) {
+        tile.setState(newState);
+      }
     }
 
-    if (upgrade && tile) {
+    if (upgrade && tile && currentState) {
       const { conditions, atMax } = upgrade;
 
       if (conditions.status) {
-        if (tile.state === conditions.status) {
+        if (currentState === conditions.status) {
           const upgradeResult = tile.upgrade();
 
           if (!upgradeResult && atMax) {
@@ -181,11 +184,11 @@ export function executeTileBoardUpdate(
       }
     }
 
-    if (downgrade && tile) {
+    if (downgrade && tile && currentState) {
       const { conditions, atMin } = downgrade;
 
       if (conditions.status) {
-        if (tile.state === conditions.status) {
+        if (currentState === conditions.status) {
           const downgradeResult = tile.downgrade();
 
           if (!downgradeResult && atMin) {
