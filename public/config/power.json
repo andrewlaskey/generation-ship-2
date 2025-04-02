@@ -10,7 +10,14 @@
           "kind": "single",
           "type": "people",
           "count": 1,
-          "evaluation": "gteq"
+          "evaluation": "gteq",
+          "useCalculated": true
+        },
+        {
+          "kind": "single",
+          "type": "power",
+          "count": 3,
+          "evaluation": "lteq"
         }
       ]
     },
@@ -23,12 +30,27 @@
           "kind": "single",
           "type": "people",
           "count": 0,
-          "evaluation": "eq"
+          "evaluation": "eq",
+          "useCalculated": true
+        },
+        {
+          "kind": "single",
+          "type": "power",
+          "count": 3,
+          "evaluation": "gt"
         }
       ]
     }
   ],
   "results": [
+    {
+      "name": "default",
+      "updateState": {
+        "neutral": "neutral",
+        "unhealthy": "neutral",
+        "healthy": "neutral"
+      }
+    },
     {
       "name": "thriving",
       "updateState": {

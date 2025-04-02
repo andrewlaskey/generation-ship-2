@@ -2,11 +2,15 @@ import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
 import { SpaceChange, SpaceUpdate } from './TileHandler';
 import { evaluateRules, executeTileBoardUpdate, NeighborCounts, TileRuleConfig } from './TileRules';
-import { X } from 'vitest/dist/chunks/reporters.DAfKSDh5.js';
 
 export type GameBoardRenderFn<T> = (space: BoardSpace) => T;
 
-export type BoardSpaceAction = { x: number; y: number; action: string; config: TileRuleConfig };
+export type BoardSpaceAction = {
+  x: number;
+  y: number;
+  action: string | null;
+  config: TileRuleConfig;
+};
 
 // Class to represent the GameBoard
 export class GameBoard {
@@ -234,31 +238,33 @@ export class GameBoard {
         const neighborCounts = this.getNeighborCounts(x, y);
         const action = evaluateRules(neighborCounts, config);
 
-        if (action) {
-          return {
-            x,
-            y,
-            action,
-            config,
-          };
-        }
+        return {
+          x,
+          y,
+          action,
+          config,
+        };
       }
     }
 
     return null;
   }
 
-  public getNeighborCounts(x: number, y: number, includeLevelInCount = false): NeighborCounts {
+  public getNeighborCounts(x: number, y: number): NeighborCounts {
     const neighbors: Tile[] = this.getNeighbors(x, y);
 
     return neighbors.reduce((counts, tile) => {
       if (tile.state != TileState.Dead) {
-        const inc = includeLevelInCount ? tile.level : 1;
+        const currentTypeCounts = counts[tile.type];
 
-        if (counts[tile.type] !== undefined) {
-          counts[tile.type] = (counts[tile.type] ?? 0) + inc;
+        if (currentTypeCounts !== undefined) {
+          currentTypeCounts.calculated += tile.level;
+          currentTypeCounts.raw += 1;
         } else {
-          counts[tile.type] = inc;
+          counts[tile.type] = {
+            calculated: tile.level,
+            raw: 1,
+          };
         }
       }
       return counts;

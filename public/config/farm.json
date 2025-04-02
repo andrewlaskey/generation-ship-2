@@ -1,5 +1,5 @@
 {
-  "type": "Farm",
+  "type": "farm",
   "rules": [
     {
       "result": "thriving",
@@ -10,13 +10,15 @@
           "kind": "single",
           "type": "people",
           "count": 1,
-          "evaluation": "gt"
+          "evaluation": "gt",
+          "useCalculated": true
         },
         {
           "kind": "single",
           "type": "people",
           "count": 4,
-          "evaluation": "lteq"
+          "evaluation": "lteq",
+          "useCalculated": true
         },
         {
           "kind": "single",
@@ -36,11 +38,33 @@
           "type": "people",
           "count": 0,
           "evaluation": "eq"
+        },
+        {
+          "kind": "comparison",
+          "leftType": "people",
+          "rightType": "farm",
+          "difference": 5,
+          "evaluation": "gteq",
+          "useCalculated": true
+        },
+        {
+          "kind": "single",
+          "type": "tree",
+          "count": 5,
+          "evaluation": "gteq"
         }
       ]
     }
   ],
   "results": [
+    {
+      "name": "default",
+      "updateState": {
+        "neutral": "neutral",
+        "unhealthy": "neutral",
+        "healthy": "neutral"
+      }
+    },
     {
       "name": "thriving",
       "updateState": {
@@ -69,7 +93,11 @@
           "status": "unhealthy"
         },
         "atMin": {
-          "remove": true
+          "replace": {
+            "type": "waste",
+            "level": 1,
+            "state": "neutral"
+          }
         }
       }
     }

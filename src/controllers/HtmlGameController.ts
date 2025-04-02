@@ -269,6 +269,7 @@ export class HtmlGameController implements ViewController {
     const space = this.gameManager.gameBoard.getSpace(x, y);
 
     if (space) {
+      // console.log(this.gameManager.gameBoard.getNeighborCounts(x, y));
       this.gameManager.addBoardHighlight(x, y);
       this.gameView.setInspectTileDetails(space.tile);
     } else {

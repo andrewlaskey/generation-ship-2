@@ -5,7 +5,12 @@ export type EvalOp = 'eq' | 'lt' | 'lteq' | 'gt' | 'gteq';
 
 export type ConditionCombineOp = 'OR' | 'AND';
 
-export type NeighborCounts = Partial<Record<TileType, number>>;
+export interface TileTypeCount {
+  raw: number;
+  calculated: number;
+}
+
+export type NeighborCounts = Partial<Record<TileType, TileTypeCount>>;
 
 export type TileRuleAction = 'thriving' | 'struggling';
 
@@ -14,6 +19,7 @@ export interface SingleTypeCondition {
   type: TileType;
   count: number;
   evaluation: EvalOp;
+  useCalculated?: boolean;
 }
 
 // A new condition type for comparing two different tile counts
@@ -23,6 +29,7 @@ export interface ComparisonCondition {
   rightType: TileType;
   difference: number; // The value to compare with (leftCount - rightCount)
   evaluation: EvalOp;
+  useCalculated?: boolean;
 }
 
 // Union type for all possible conditions
@@ -55,6 +62,7 @@ export interface DowngradeConfig {
   atMin?: {
     remove?: boolean;
     status?: TileState;
+    replace?: SpawnTileConfig;
   };
 }
 
@@ -90,7 +98,12 @@ export function evaluateRules(
 
     const conditionResults = rule.conditions.map(condition => {
       if (condition.kind === 'single') {
-        const actualCount = neighborCounts[condition.type] ?? 0;
+        let actualCount = 0;
+        const counts = neighborCounts[condition.type];
+
+        if (counts) {
+          actualCount = condition.useCalculated ? counts.calculated : counts.raw;
+        }
 
         switch (condition.evaluation) {
           case 'eq':
@@ -107,9 +120,21 @@ export function evaluateRules(
             return false;
         }
       } else if (condition.kind === 'comparison') {
-        const leftCount = neighborCounts[condition.leftType] ?? 0;
-        const rightCount = neighborCounts[condition.rightType] ?? 0;
-        const actualDifference = leftCount - rightCount;
+        let actualLeftCount = 0;
+        let actualRightCount = 0;
+        const leftCounts = neighborCounts[condition.leftType];
+        const rightCounts = neighborCounts[condition.rightType];
+
+        if (leftCounts) {
+          actualLeftCount = condition.useCalculated ? leftCounts.calculated : leftCounts.raw;
+        }
+
+        if (rightCounts) {
+          actualRightCount = condition.useCalculated ? rightCounts.calculated : rightCounts.raw;
+        }
+        const actualDifference = actualLeftCount - actualRightCount;
+
+        console.log(actualDifference);
 
         switch (condition.evaluation) {
           case 'eq':
@@ -145,12 +170,13 @@ export function evaluateRules(
 }
 
 export function executeTileBoardUpdate(
-  action: string,
+  action: string | null,
   tile: Tile | null,
   space: BoardSpace,
   actionConfig: TileActionResult[]
 ): void {
-  const selectedConfig = actionConfig.find(({ name }) => name === action);
+  const searchAction = action ? action : 'default';
+  const selectedConfig = actionConfig.find(({ name }) => name === searchAction);
 
   if (selectedConfig) {
     const { remove, updateState, upgrade, downgrade, spawnTile } = selectedConfig;
@@ -198,6 +224,16 @@ export function executeTileBoardUpdate(
 
             if (atMin.remove) {
               space.removeTile();
+            }
+
+            if (atMin.replace) {
+              space.removeTile();
+              const newTile = new Tile(
+                atMin.replace.type,
+                atMin.replace.level,
+                atMin.replace.state
+              );
+              space.placeTile(newTile);
             }
           }
         }

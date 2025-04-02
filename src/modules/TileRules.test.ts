@@ -63,7 +63,10 @@ describe('TileRules', () => {
   it('should return "thriving" if thriving conditions are met', () => {
     // Arrange
     const neighborCounts = {
-      [TileType.Tree]: 3,
+      [TileType.Tree]: {
+        raw: 3,
+        calculated: 3,
+      },
     };
 
     // Act
@@ -76,7 +79,10 @@ describe('TileRules', () => {
   it('should return "struggling" if struggling conditions are met', () => {
     // Arrange
     const neighborCounts = {
-      [TileType.Tree]: 0,
+      [TileType.Tree]: {
+        raw: 0,
+        calculated: 0,
+      },
     };
 
     // Act
@@ -89,8 +95,8 @@ describe('TileRules', () => {
   it('should prioritize rules if multiple conditions are met', () => {
     // Arrange
     const neighborCounts = {
-      [TileType.Tree]: 3, // Tree thriving condition
-      [TileType.Power]: 3, // Tree struggling condition
+      [TileType.Tree]: { raw: 3, calculated: 3 }, // Tree thriving condition
+      [TileType.Power]: { raw: 3, calculated: 3 }, // Tree struggling condition
     };
 
     // Act
@@ -103,13 +109,13 @@ describe('TileRules', () => {
   it('should handle multiple conditions for same tile type', () => {
     // Arrange
     const peopleTooFew = {
-      [TileType.People]: 0,
+      [TileType.People]: { raw: 0, calculated: 0 },
     };
     const peopleJustRight = {
-      [TileType.People]: 3,
+      [TileType.People]: { raw: 3, calculated: 3 },
     };
     const peopleTooMany = {
-      [TileType.People]: 5,
+      [TileType.People]: { raw: 5, calculated: 5 },
     };
     const rules: TileRuleConfig = {
       type: TileType.Farm,
@@ -151,12 +157,12 @@ describe('TileRules', () => {
   it('should handle comparison conditions', () => {
     // Arrange
     const positiveEvalCounts = {
-      [TileType.People]: 5,
-      [TileType.Farm]: 2,
+      [TileType.People]: { raw: 5, calculated: 5 },
+      [TileType.Farm]: { raw: 2, calculated: 2 },
     };
     const negativeEvalCounts = {
-      [TileType.People]: 3,
-      [TileType.Farm]: 2,
+      [TileType.People]: { raw: 3, calculated: 3 },
+      [TileType.Farm]: { raw: 2, calculated: 2 },
     };
 
     const rules: TileRuleConfig = {
@@ -187,6 +193,83 @@ describe('TileRules', () => {
     // Assert
     expect(positiveResult).toBe('struggling');
     expect(negativeResult).toBeNull();
+  });
+
+  it('should handle checking calculated counts', () => {
+    // Arrange
+    const mockRules: TileRuleConfig = {
+      type: TileType.Tree,
+      rules: [
+        {
+          result: 'thriving',
+          combineConditions: 'AND',
+          priority: 1,
+          conditions: [
+            {
+              kind: 'single',
+              type: TileType.Tree,
+              count: 3,
+              evaluation: 'gteq',
+              useCalculated: true,
+            },
+          ],
+        },
+      ],
+      results: [],
+    };
+    const neighborCounts = {
+      [TileType.Tree]: {
+        raw: 1,
+        calculated: 3,
+      },
+    };
+
+    // Act
+    const result = evaluateRules(neighborCounts, mockRules);
+
+    // Assert
+    expect(result).toBe('thriving');
+  });
+
+  it('should handle checking calculated counts on combined rules', () => {
+    // Arrange
+    const mockRules: TileRuleConfig = {
+      type: TileType.Farm,
+      rules: [
+        {
+          result: 'struggling',
+          combineConditions: 'AND',
+          priority: 1,
+          conditions: [
+            {
+              kind: 'comparison',
+              leftType: TileType.People,
+              rightType: TileType.Farm,
+              difference: 5,
+              evaluation: 'gteq',
+              useCalculated: true,
+            },
+          ],
+        },
+      ],
+      results: [],
+    };
+    const neighborCounts = {
+      [TileType.People]: {
+        raw: 1,
+        calculated: 8,
+      },
+      [TileType.Farm]: {
+        raw: 1,
+        calculated: 2,
+      },
+    };
+
+    // Act
+    const result = evaluateRules(neighborCounts, mockRules);
+
+    // Assert
+    expect(result).toBe('struggling');
   });
 
   describe('executeTileBoardUpdate', () => {
@@ -221,6 +304,37 @@ describe('TileRules', () => {
       expect(mockTile.setState).not.toHaveBeenCalled();
       expect(mockBoardSpace.placeTile).not.toHaveBeenCalled();
       expect(mockBoardSpace.removeTile).not.toHaveBeenCalled();
+    });
+
+    it('should use default action if action is null', () => {
+      // Arrange
+      const action = null;
+      const config = [
+        {
+          name: 'struggling',
+          remove: true,
+        },
+        {
+          name: 'default',
+          updateState: {
+            unhealthy: TileState.Dead,
+            neutral: TileState.Unhealthy,
+            healthy: TileState.Neutral,
+          },
+        },
+      ] as TileActionResult[];
+      mockTile.state = TileState.Healthy;
+
+      // Act
+      executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+      // Assert
+      expect(mockTile.upgrade).not.toHaveBeenCalled();
+      expect(mockTile.downgrade).not.toHaveBeenCalled();
+      expect(mockBoardSpace.placeTile).not.toHaveBeenCalled();
+      expect(mockBoardSpace.removeTile).not.toHaveBeenCalled();
+
+      expect(mockTile.setState).toHaveBeenCalled();
     });
 
     it('should handle removing a tile', () => {
@@ -419,6 +533,38 @@ describe('TileRules', () => {
         // Assert
         expect(tile.state).toBe(TileState.Unhealthy);
         expect(mockBoardSpace.removeTile).not.toHaveBeenCalled();
+      });
+
+      it('should replace a tile if atMin.replace option exists', () => {
+        // Arrange
+        const action: TileRuleAction = 'struggling';
+        const config = [
+          {
+            name: 'struggling',
+            downgrade: {
+              conditions: {
+                status: TileState.Unhealthy,
+              },
+              atMin: {
+                replace: {
+                  type: TileType.Waste,
+                  level: 1,
+                  state: TileState.Neutral,
+                },
+              },
+            },
+          },
+        ] as TileActionResult[];
+        mockTile.state = TileState.Unhealthy;
+        (mockTile.downgrade as Mock).mockReturnValue(false);
+
+        // Act
+        executeTileBoardUpdate(action, mockTile, mockBoardSpace, config);
+
+        // Assert
+        expect(mockTile.downgrade).toHaveBeenCalled();
+        expect(mockBoardSpace.removeTile).toHaveBeenCalled();
+        expect(mockBoardSpace.placeTile).toHaveBeenCalled();
       });
     });
 

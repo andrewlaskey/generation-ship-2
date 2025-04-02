@@ -48,6 +48,14 @@
   ],
   "results": [
     {
+      "name": "default",
+      "updateState": {
+        "neutral": "neutral",
+        "unhealthy": "neutral",
+        "healthy": "neutral"
+      }
+    },
+    {
       "name": "thriving",
       "updateState": {
         "neutral": "healthy",

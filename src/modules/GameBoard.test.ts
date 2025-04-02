@@ -424,19 +424,19 @@ describe('GameBoard', () => {
       board.placeTileAt(1, 2, new Tile(TileType.People, 2, TileState.Neutral));
 
       board.placeTileAt(2, 0, new Tile(TileType.Waste, 2, TileState.Neutral));
-      board.placeTileAt(2, 1, new Tile(TileType.Waste, 2, TileState.Neutral));
-      board.placeTileAt(2, 2, new Tile(TileType.Farm, 2, TileState.Neutral));
+      board.placeTileAt(2, 1, new Tile(TileType.Waste, 1, TileState.Neutral));
+      board.placeTileAt(2, 2, new Tile(TileType.Farm, 3, TileState.Neutral));
 
       // Act
       const neighborCount = board.getNeighborCounts(1, 1);
 
       // Assert
       expect(neighborCount).toStrictEqual({
-        tree: 3,
-        power: 1,
-        people: 1,
-        waste: 2,
-        farm: 1,
+        tree: { raw: 3, calculated: 6 },
+        power: { raw: 1, calculated: 2 },
+        people: { raw: 1, calculated: 2 },
+        waste: { raw: 2, calculated: 3 },
+        farm: { raw: 1, calculated: 3 },
       });
     });
   });
