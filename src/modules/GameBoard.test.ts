@@ -4,7 +4,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameBoard, GameBoardRenderFn } from './GameBoard';
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
-import { SpaceChange, SpaceUpdate } from './TileHandler';
 import { TileRuleConfig } from './TileRules';
 
 describe('GameBoard', () => {
