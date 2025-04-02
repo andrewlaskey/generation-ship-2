@@ -1,6 +1,5 @@
 import { Tile, TileState, TileType } from './Tile';
 import { BoardSpace } from './BoardSpace';
-import { SpaceChange, SpaceUpdate } from './TileHandler';
 import { evaluateRules, executeTileBoardUpdate, NeighborCounts, TileRuleConfig } from './TileRules';
 
 export type GameBoardRenderFn<T> = (space: BoardSpace) => T;
