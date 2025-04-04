@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import { ABOUT_HTML } from '@/utils/constants';
 

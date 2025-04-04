@@ -4,6 +4,7 @@ import { GameManager } from '@/modules/GameManager';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import { LocalStorage } from '@/modules/LocalStorage';
 import { useConfig } from '@/react/hooks/TileConfig';
+import GameView from '@/react/components/GameView';
 
 // Initialize the game services
 const localStorage = new LocalStorage(window.localStorage);
@@ -29,7 +30,9 @@ function App() {
     <div className="app">
       {currentView === 'menu' && <MainMenu gameManager={gameManager} onSwitchView={switchView} />}
 
-      {(currentView === 'daily' || currentView === 'custom') && <div>Game View</div>}
+      {(currentView === 'daily' || currentView === 'custom') && (
+        <GameView gameManager={gameManager} onSwitchView={switchView} />
+      )}
     </div>
   );
 }
