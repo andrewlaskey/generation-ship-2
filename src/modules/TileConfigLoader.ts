@@ -1,7 +1,8 @@
 import { TileRuleConfig } from './TileRules';
 
+export type TileRulesMap = Map<string, TileRuleConfig>;
 export class TileConfigLoader {
-  private configs: Map<string, TileRuleConfig> = new Map();
+  private configs: TileRulesMap = new Map();
   private loaded: boolean = false;
 
   constructor(private basePath: string = import.meta.env.BASE_URL + 'config/') {}
