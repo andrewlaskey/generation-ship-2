@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import { ABOUT_HTML } from '@/utils/constants';
+import Scoreboard from './Scoreboard';
 
 interface GameViewProps {
   gameManager: GameManager;
@@ -38,7 +39,10 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
               </svg>
             </button>
           </div>
-          <div id="scoreboard" className="scoreboard"></div>
+          <Scoreboard
+            ecology={gameManager.getPlayerScore('ecology')}
+            population={gameManager.getPlayerScore('population')}
+          />
         </div>
         <div className="grid-container">
           <div className="grid-border">
