@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TileConfigLoader, TileRulesMap } from '@/modules/TileConfigLoader';
 
 const configLoader = new TileConfigLoader();
+let globalConfigPromise: Promise<TileRulesMap> | null = null;
 
 export function useConfig() {
   const [config, setConfig] = useState<TileRulesMap>(new Map());
@@ -11,12 +12,16 @@ export function useConfig() {
   useEffect(() => {
     async function fetchConfig() {
       try {
-        if (configLoader.configsLoaded()) {
-          setConfig(configLoader.getRules());
-        } else {
-          const configs = await configLoader.load();
-          setConfig(configs);
+        if (!globalConfigPromise) {
+          if (configLoader.configsLoaded()) {
+            globalConfigPromise = Promise.resolve(configLoader.getRules());
+          } else {
+            globalConfigPromise = configLoader.load();
+          }
         }
+
+        const configs = await globalConfigPromise;
+        setConfig(configs);
       } catch (error) {
         console.error(error);
         setError('Failed to load tile rules.');

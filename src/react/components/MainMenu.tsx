@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import { ABOUT_HTML } from '@/utils/constants';
+import { ViewTypes } from '../App';
 
 interface MainMenuProps {
   gameManager: GameManager;
-  onSwitchView: (view: string, gameType?: 'daily' | 'custom') => void;
+  onSwitchView: (view: ViewTypes, newGame: boolean) => void;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
@@ -55,7 +56,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
         ...gameManager.optionDefaults,
         seed: new Date().toISOString().split('T')[0], // Current date as seed
       });
-      onSwitchView(gameType, gameType);
+      onSwitchView(gameType, true);
     } else {
       // Validate custom game settings
       const gridSizeValidation = { min: 5, max: 15 };
@@ -99,7 +100,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
         maxHandSize: customGameSettings.handSize,
         initialDeckSize: customGameSettings.deckSize,
       });
-      onSwitchView(gameType, gameType);
+      onSwitchView(gameType, true);
     }
   };
 
