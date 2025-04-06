@@ -7,9 +7,15 @@ interface PlayerHandProps {
   items: HandItem[];
   selectedIndex: number;
   deckCount: number;
+  handleHandItemClick: (index: number) => void;
 }
 
-const PlayerHand: React.FC<PlayerHandProps> = ({ items, selectedIndex, deckCount }) => {
+const PlayerHand: React.FC<PlayerHandProps> = ({
+  items,
+  selectedIndex,
+  deckCount,
+  handleHandItemClick,
+}) => {
   return (
     <div className="card-display">
       <div className="hand">
@@ -23,7 +29,12 @@ const PlayerHand: React.FC<PlayerHandProps> = ({ items, selectedIndex, deckCount
                 const layout = item.getLayout();
 
                 return (
-                  <div className={`hand-item ${selectedClass}`} data-index={index} key={index}>
+                  <div
+                    className={`hand-item ${selectedClass}`}
+                    data-index={index}
+                    key={index}
+                    onClick={() => handleHandItemClick(index)}
+                  >
                     <div className="hand-row">
                       <div className={getTileCellClassList(layout.tiles[0])}></div>
                       <div className={getTileCellClassList(layout.tiles[1])}></div>

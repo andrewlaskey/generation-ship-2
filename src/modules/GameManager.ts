@@ -320,6 +320,12 @@ export class GameManager {
     return this.playerHand.getSelectedItemIndex();
   }
 
+  getSelectedItem(): HandItem {
+    const handItems: HandItem[] = this.getPlayerHand();
+    const selectedIndex = this.getSelectedItemIndex();
+    return handItems[selectedIndex];
+  }
+
   rotateSelectedItem(): void {
     this.playerHand.rotateSelected();
   }

@@ -4,11 +4,12 @@ import { ABOUT_HTML } from '@/utils/constants';
 import Scoreboard from './Scoreboard';
 import PlayerControls from './PlayerControls';
 import { ViewTypes } from '../App';
-import GameBoard from './GameBoardGrid';
+import GameBoardGrid from './GameBoardGrid';
 import { Tile } from '@/modules/Tile';
+import { HandItem } from '@/modules/PlayerHand';
 
 export type ControlViewOption = 'default' | 'inspect' | '3d' | 'graph';
-interface GridCell {
+export interface GridCell {
   x: number;
   y: number;
 }
@@ -21,7 +22,20 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
   const [showHelp, setShowHelp] = useState(false);
   const [activeTool, setActiveTool] = useState<ControlViewOption>('default');
   const [selectedGridCell, setSelectedGridCell] = useState<GridCell | null>(null);
+  const [selectedHandItem, setSelectedHandItem] = useState<HandItem | null>(null);
   const [inspectTile, setInspectTile] = useState<Tile | null>(null);
+  const [showPlayerActions, setShowPlayerActions] = useState(false);
+
+  const ecoScore = gameManager.getPlayerScore('ecology');
+  const popScore = gameManager.getPlayerScore('population');
+
+  const resetSelected = () => {
+    if (selectedGridCell) {
+      gameManager.removeBoardHighlight(selectedGridCell.x, selectedGridCell.y);
+    }
+    setSelectedHandItem(null);
+    setShowPlayerActions(false);
+  };
 
   const handleOpenHelp = () => {
     setShowHelp(true);
@@ -33,6 +47,17 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
 
   const handleQuit = () => {
     onSwitchView('menu', false);
+  };
+
+  const handleToolChangeClick = (newTool: ControlViewOption) => {
+    resetSelected();
+    setActiveTool(prev => {
+      if (prev === newTool) {
+        return 'default';
+      }
+
+      return newTool;
+    });
   };
 
   const handleCellClick = (x: number, y: number) => {
@@ -65,9 +90,38 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
         gameManager.addBoardHighlight(x, y);
         //   this.gameView.showPlayerActions();
       }
+
+      setSelectedHandItem(gameManager.getSelectedItem());
+      setShowPlayerActions(true);
     }
 
     setSelectedGridCell({ x, y });
+  };
+
+  const handleConfirmPlaceCell = () => {
+    if (selectedGridCell) {
+      const selectedHandIndex = gameManager.getSelectedItemIndex(); // Get selected item index from hand
+      const success = gameManager.placeTileBlock(
+        selectedGridCell.x,
+        selectedGridCell.y,
+        selectedHandIndex
+      );
+
+      resetSelected();
+
+      if (!success) {
+        console.error(
+          `Failed to place tile block at (${selectedGridCell.x}, ${selectedGridCell.y}). Invalid placement or non-tile item.`
+        );
+      } else {
+        // Advance the players turn after making a placement
+        gameManager.advanceTurn();
+      }
+    }
+  };
+
+  const handleDeclinePlaceCell = () => {
+    resetSelected();
   };
 
   return (
@@ -86,17 +140,22 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
               </svg>
             </button>
           </div>
-          <Scoreboard
-            ecology={gameManager.getPlayerScore('ecology')}
-            population={gameManager.getPlayerScore('population')}
-          />
+          <Scoreboard ecology={ecoScore} population={popScore} />
         </div>
-        <GameBoard gameBoard={gameManager.gameBoard} handleCellClick={handleCellClick} />
+        <GameBoardGrid
+          gameBoard={gameManager.gameBoard}
+          handleCellClick={handleCellClick}
+          selectedHandItem={selectedHandItem}
+          selectedGridCell={selectedGridCell}
+        />
         <PlayerControls
           gameManager={gameManager}
           activeTool={activeTool}
-          setActiveTool={setActiveTool}
+          setActiveTool={handleToolChangeClick}
           inspectTile={inspectTile}
+          showPlayerActions={showPlayerActions}
+          confirmPlacement={handleConfirmPlaceCell}
+          declinePlacement={handleDeclinePlaceCell}
         />
         <div id="about" className={`about ${showHelp ? 'is-visible' : ''}`}>
           ${ABOUT_HTML}
