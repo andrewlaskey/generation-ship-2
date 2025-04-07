@@ -49,7 +49,12 @@ function App() {
       {currentView === 'menu' && <MainMenu gameManager={gameManager} onSwitchView={switchView} />}
 
       {(currentView === 'daily' || currentView === 'custom') && (
-        <GameView gameManager={gameManager} onSwitchView={switchView} />
+        <GameView
+          gameManager={gameManager}
+          onSwitchView={switchView}
+          userScoreHistory={userScoreHistory}
+          gameType={currentView}
+        />
       )}
     </div>
   );

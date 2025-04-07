@@ -8,6 +8,8 @@ import GameBoardGrid from './GameBoardGrid';
 import { Tile } from '@/modules/Tile';
 import { HandItem } from '@/modules/PlayerHand';
 import { getCurrentDate } from '@/utils/getCurrentDate';
+import { UserScoreHistory } from '@/modules/UserScoreHistory';
+import EndGameRecap from './EndGameRecap';
 
 export type ControlViewOption = 'default' | 'inspect' | '3d' | 'graph';
 export interface GridCell {
@@ -17,9 +19,16 @@ export interface GridCell {
 interface GameViewProps {
   gameManager: GameManager;
   onSwitchView: (view: ViewTypes, newGame: boolean) => void;
+  userScoreHistory?: UserScoreHistory;
+  gameType: 'daily' | 'custom';
 }
 
-const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
+const GameView: React.FC<GameViewProps> = ({
+  gameManager,
+  onSwitchView,
+  userScoreHistory,
+  gameType,
+}) => {
   const [showHelp, setShowHelp] = useState(false);
   const [activeTool, setActiveTool] = useState<ControlViewOption>('default');
   const [selectedGridCell, setSelectedGridCell] = useState<GridCell | null>(null);
@@ -27,7 +36,6 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
   const [inspectTile, setInspectTile] = useState<Tile | null>(null);
   const [showPlayerActions, setShowPlayerActions] = useState(false);
   const [gameState, setGameState] = useState<GameState>(gameManager.state);
-  const [showPopup, setShowPopup] = useState(false);
 
   const ecoScore = gameManager.getPlayerScore('ecology');
   const popScore = gameManager.getPlayerScore('population');
@@ -118,8 +126,7 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
         );
       } else {
         // Advance the players turn after making a placement
-        gameManager.advanceTurn();
-        setGameState(gameManager.state);
+        advanceTurn();
       }
     }
   };
@@ -134,35 +141,28 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
     setGameState(gameManager.state);
   };
 
-  const handleShareScoreClick = async () => {
-    const ecoScore = gameManager.getPlayerScore('ecology');
-    const popScore = gameManager.getPlayerScore('population');
-    const totalScore = gameManager.getCalculatedPlayerScore();
-    const popupDisplayDurationMs = 3 * 1000;
+  const advanceTurn = () => {
+    gameManager.advanceTurn();
 
-    try {
-      const text = `Generation Ship 2 - Daily Challenge ${getCurrentDate()}
-    🌲 ${ecoScore.toLocaleString()}
-    👤 ${popScore.toLocaleString()}
-    🧮 ${totalScore.toLocaleString()}`;
-
-      await navigator.clipboard.writeText(text);
-
-      setShowPopup(true);
-
-      setTimeout(() => {
-        setShowPopup(false);
-      }, popupDisplayDurationMs);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
+    if (gameManager.state === GameState.Complete || gameManager.state === GameState.GameOver) {
+      if (gameType == 'daily' && userScoreHistory) {
+        const finalScore = gameManager.getCalculatedPlayerScore();
+        let allScores = [];
+        allScores = userScoreHistory.getFinalScoreHistory();
+        userScoreHistory.saveGameResult({
+          score: finalScore,
+          result: gameManager.state,
+        });
+      }
     }
+
+    setGameState(gameManager.state);
   };
 
   return (
     <div className="html-game-view-wrapper">
       <div className="html-game-view-inner">
         <div className="info-bar">
-          <p>{gameState}</p>
           <div className="help">
             <button className="button warn" onClick={handleQuit}>
               <svg id="icon-arrow_back_ios" viewBox="0 0 24 24">
@@ -195,41 +195,12 @@ const GameView: React.FC<GameViewProps> = ({ gameManager, onSwitchView }) => {
           />
         )}
         {(gameState === GameState.Complete || gameState === GameState.GameOver) && (
-          <div className="endgame-controls">
-            {gameState === GameState.GameOver && (
-              <div className="player-notice">
-                <h3>Game Over</h3>
-                <p>
-                  The ship's population has died.&nbsp;It will continue to drift through space empty
-                  for eons.
-                </p>
-              </div>
-            )}
-            {gameState === GameState.Complete && (
-              <div className="player-notice">
-                <h3>Success!</h3>
-                <p>
-                  After centuries traveling through space the ship has reached a suitable planet for
-                  permanent colonization.
-                </p>
-                <p>Player Score</p>
-              </div>
-            )}
-            <div className="player-actions">
-              <button className="button" onClick={handlePlayAgainClick}>
-                Play Again
-              </button>
-              {gameState === GameState.Complete && (
-                <button className="button" onClick={handleShareScoreClick}>
-                  <span>Share Score</span>
-                  <span className={`popup ${showPopup ? 'active' : ''}`}>Copied to clipboard!</span>
-                </button>
-              )}
-              <a href="https://ko-fi.com/timbertales" className="button" target="_blank">
-                Support the Game
-              </a>
-            </div>
-          </div>
+          <EndGameRecap
+            gameManager={gameManager}
+            gameState={gameState}
+            handlePlayAgainClick={handlePlayAgainClick}
+            userScoreHistory={userScoreHistory}
+          />
         )}
         <div id="about" className={`about ${showHelp ? 'is-visible' : ''}`}>
           ${ABOUT_HTML}

@@ -4,6 +4,8 @@ import PlayerHand from './PlayerHand';
 import { ControlViewOption } from './GameView';
 import { Tile } from '@/modules/Tile';
 import { toTitleCase } from '@/utils/stringHelpers';
+import ScoreHistory from './ScoreHistory';
+import { ScoreGraphLines } from '@/views/GraphsView';
 
 interface PlayerControlsProps {
   gameManager: GameManager;
@@ -29,6 +31,25 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   const selectedIndex = gameManager.getSelectedItemIndex();
   const handItems = gameManager.getPlayerHand();
   const deckCount = gameManager.getDeckItemCount();
+
+  const popScore = gameManager.getPlayerScoreObj('population');
+  const ecoScore = gameManager.getPlayerScoreObj('ecology');
+
+  const lines: ScoreGraphLines[] = [];
+
+  if (popScore) {
+    lines.push({
+      score: popScore,
+      color: 'steelblue',
+    });
+  }
+
+  if (ecoScore) {
+    lines.push({
+      score: ecoScore,
+      color: '#1b9416',
+    });
+  }
 
   const handleHandItemClick = (index: number) => {
     const currentIndex = gameManager.getSelectedItemIndex();
@@ -83,6 +104,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
         </div>
         <div className={`score-history-wrapper ${activeTool === 'graph' ? '' : 'hidden'}`}>
           <h3>Score History</h3>
+          <ScoreHistory lines={lines} />
         </div>
         <div className={activeTool === 'default' ? '' : 'hidden'}>
           <PlayerHand
