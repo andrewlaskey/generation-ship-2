@@ -7,7 +7,6 @@ import { ViewTypes } from '../App';
 import GameBoardGrid from './GameBoardGrid';
 import { Tile } from '@/modules/Tile';
 import { HandItem } from '@/modules/PlayerHand';
-import { getCurrentDate } from '@/utils/getCurrentDate';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import EndGameRecap from './EndGameRecap';
 import ThreeDView from './ThreedView';
@@ -148,8 +147,6 @@ const GameView: React.FC<GameViewProps> = ({
     if (gameManager.state === GameState.Complete || gameManager.state === GameState.GameOver) {
       if (gameType == 'daily' && userScoreHistory) {
         const finalScore = gameManager.getCalculatedPlayerScore();
-        let allScores = [];
-        allScores = userScoreHistory.getFinalScoreHistory();
         userScoreHistory.saveGameResult({
           score: finalScore,
           result: gameManager.state,

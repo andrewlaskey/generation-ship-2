@@ -5,8 +5,6 @@ import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import { LocalStorage } from '@/modules/LocalStorage';
 import { useConfig } from '@/react/hooks/TileConfig';
 import GameView from '@/react/components/GameView';
-import { useTextures } from './hooks/Textures';
-import { useModels } from './hooks/Models';
 
 export type ViewTypes = 'menu' | 'daily' | 'custom';
 

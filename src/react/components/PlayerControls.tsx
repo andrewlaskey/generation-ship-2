@@ -26,7 +26,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   confirmPlacement,
   declinePlacement,
 }) => {
-  const [handUpdateCounter, setHandUpdateCounter] = useState(0);
+  const [_handUpdateCounter, setHandUpdateCounter] = useState(0);
 
   const selectedIndex = gameManager.getSelectedItemIndex();
   const handItems = gameManager.getPlayerHand();

@@ -15,7 +15,7 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
   const containerRef = useRef<HTMLDivElement>(null);
   const { textureLibrary, loading: textureLoading } = useTextures();
   const { modelLibrary, loading: modelLoading } = useModels();
-  const [worldManager, setWorldManager] = useState<ThreeWorldManager | null>(null);
+  // const [_worldManager, setWorldManager] = useState<ThreeWorldManager | null>(null);
 
   // Use refs to store movement state
   const movementStateRef = useRef({
@@ -154,7 +154,7 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
       );
 
       manager.init();
-      setWorldManager(manager);
+      // setWorldManager(manager);
 
       // Set up mouse and touch controls for the container
       const canvas = containerRef.current.querySelector('canvas');
