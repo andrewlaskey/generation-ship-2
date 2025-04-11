@@ -87,6 +87,7 @@ export class ThreeWorldManager {
     this.createWorldPlane();
     this.createWorldBorderRing();
     this.createSunArc();
+    this.updateGrid();
   }
 
   createBaseScene(): void {
@@ -229,10 +230,7 @@ export class ThreeWorldManager {
     newPosition.y = this.cameraHeight; // Lock y-position
 
     // Check that the new position is within bounds
-    const gameSize = this.gameManager.gameBoard.size;
-    const worldSize = gameSize * this.tileSize;
-    const outerWorldSize = worldSize * Math.SQRT2;
-    const outerWorldSizeRadius = outerWorldSize * 0.5;
+    const outerWorldSizeRadius = this.outerWorldSize * 0.5;
     const centerPoint = new THREE.Vector3();
 
     if (centerPoint.distanceTo(newPosition) > outerWorldSizeRadius) {
@@ -249,5 +247,28 @@ export class ThreeWorldManager {
 
     // Update the camera position
     this.camera.position.copy(newPosition);
+  }
+
+  updateGrid(): void {
+    for (let x = 0; x < this.gridSize; x++) {
+      for (let y = 0; y < this.gridSize; y++) {
+        const space = this.gameManager.gameBoard.getSpace(x, y);
+        const tile = space?.tile;
+
+        const meshX = x * this.tileSize - (this.gridSize * this.tileSize) / 2;
+        const meshZ = y * this.tileSize - (this.gridSize * this.tileSize) / 2; // grid plane is on z axis
+        const meshPos = new THREE.Vector3(meshX, 0, meshZ);
+
+        if (tile) {
+          const handler = this.tileHandlerRegistry.getHandler(tile.type);
+
+          if (handler) {
+            handler.updateScene(this.scene, meshPos, this.modelLibrary, this.textureLibrary, tile);
+          }
+        }
+      }
+    }
+
+    this.instanceManager.updateScene(this.scene);
   }
 }
