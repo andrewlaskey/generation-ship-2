@@ -5,14 +5,13 @@ import { ThreeInstanceManager } from './ThreeInstanceManager';
 export class ThreeDayNightCycle {
   public cycleDurationMinutes = 5;
   private tl: gsap.core.Timeline;
+  private sunArc: THREE.Group | null = null;
+  private ambientLight: THREE.AmbientLight | null = null;
+  private fog: THREE.Fog | null = null;
+  private sunLight: THREE.DirectionalLight | null = null;
+  private instanceManager: ThreeInstanceManager | null = null;
 
-  constructor(
-    private sunArc: THREE.Group,
-    private ambientLight: THREE.AmbientLight,
-    private fog: THREE.Fog,
-    private sunLight: THREE.DirectionalLight,
-    private instanceManager: ThreeInstanceManager
-  ) {
+  constructor() {
     this.tl = gsap.timeline({ repeat: -1 });
     this.setupTimeline();
   }
@@ -56,7 +55,13 @@ export class ThreeDayNightCycle {
     this.tl.play(0);
   }
 
+  addSunArc(sunArc: THREE.Group): void {
+    this.sunArc = sunArc;
+  }
+
   private rotateSunArc(fullCycleDuration: number): void {
+    if (!this.sunArc) return;
+
     this.tl.to(
       this.sunArc.rotation,
       {
@@ -68,7 +73,13 @@ export class ThreeDayNightCycle {
     ); // Start at the beginning of the timeline
   }
 
+  addSunLight(light: THREE.DirectionalLight): void {
+    this.sunLight = light;
+  }
+
   private updateSun(): void {
+    if (!this.sunLight) return;
+
     const colorObject = {
       r: 255,
       g: 252,
@@ -76,6 +87,8 @@ export class ThreeDayNightCycle {
     };
 
     const setSunLightColorFromRgb = (): void => {
+      if (!this.sunLight) return;
+
       this.sunLight.color.setRGB(
         this.convertColorVal(colorObject.r),
         this.convertColorVal(colorObject.g),
@@ -168,6 +181,13 @@ export class ThreeDayNightCycle {
     );
   }
 
+  addAmbientLight(light: THREE.AmbientLight): void {
+    this.ambientLight = light;
+  }
+
+  addFog(fog: THREE.Fog): void {
+    this.fog = fog;
+  }
   private updateAmbientLight(): void {
     const colorObject = {
       r: 255,
@@ -176,16 +196,21 @@ export class ThreeDayNightCycle {
     };
 
     const updateColors = () => {
-      this.ambientLight.color.setRGB(
-        this.convertColorVal(colorObject.r),
-        this.convertColorVal(colorObject.g),
-        this.convertColorVal(colorObject.b)
-      );
-      this.fog.color.setRGB(
-        this.convertColorVal(colorObject.r),
-        this.convertColorVal(colorObject.g),
-        this.convertColorVal(colorObject.b)
-      );
+      if (this.ambientLight) {
+        this.ambientLight.color.setRGB(
+          this.convertColorVal(colorObject.r),
+          this.convertColorVal(colorObject.g),
+          this.convertColorVal(colorObject.b)
+        );
+      }
+
+      if (this.fog) {
+        this.fog.color.setRGB(
+          this.convertColorVal(colorObject.r),
+          this.convertColorVal(colorObject.g),
+          this.convertColorVal(colorObject.b)
+        );
+      }
     };
 
     // Noon to sunset (shift to orange)
@@ -282,7 +307,13 @@ export class ThreeDayNightCycle {
     return val / 255;
   }
 
+  addInstanceManager(manager: ThreeInstanceManager): void {
+    this.instanceManager = manager;
+  }
+
   private updateHabitatLights(): void {
+    if (!this.instanceManager) return;
+
     const collection = this.instanceManager.getInstanceCollection();
 
     this.tl.call(

@@ -15,13 +15,11 @@ export class ThreeWorldManager {
   public camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
 
-  private sunArc = new THREE.Group();
-
   private tileHandlerRegistry: ThreeTileHandlerRegistry;
   private instanceManager: ThreeInstanceManager;
   private modelLibrary: ThreeModelLibrary;
   private textureLibrary: ThreeTextureLibrary;
-  // private dayNightController: ThreeDayNightCycle | null;
+  private dayNightController: ThreeDayNightCycle;
 
   private pitch = 0;
   private yaw = 0;
@@ -48,7 +46,7 @@ export class ThreeWorldManager {
     this.tileHandlerRegistry = new ThreeTileHandlerRegistry(this.tileSize, this.instanceManager);
     this.modelLibrary = modelLibrary;
     this.textureLibrary = textureLibrary;
-    // this.dayNightController = null;
+    this.dayNightController = new ThreeDayNightCycle();
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
@@ -67,8 +65,6 @@ export class ThreeWorldManager {
 
   init(): void {
     this.createWorld();
-
-    console.log(this.containerEl);
     this.containerEl.appendChild(this.renderer.domElement);
   }
 
@@ -88,14 +84,19 @@ export class ThreeWorldManager {
     this.createWorldBorderRing();
     this.createSunArc();
     this.updateGrid();
+
+    this.dayNightController.addInstanceManager(this.instanceManager);
+    this.dayNightController.start();
   }
 
   createBaseScene(): void {
     const ambientLight = new THREE.AmbientLight('#ffffff', 0.25);
     this.scene.add(ambientLight);
+    this.dayNightController.addAmbientLight(ambientLight);
 
     const fog = new THREE.Fog(0xffa07a, 10, 100); // Light haze
     this.scene.fog = fog;
+    this.dayNightController.addFog(fog);
 
     this.scene.background = this.textureLibrary.skybox;
   }
@@ -147,6 +148,8 @@ export class ThreeWorldManager {
   }
 
   createSunArc(): void {
+    const sunArc = new THREE.Group();
+
     // Add the model
     const texture = this.textureLibrary.get('SunArc_map.png');
     const model = this.modelLibrary.get('SunArc.glb');
@@ -170,7 +173,7 @@ export class ThreeWorldManager {
       }
     });
 
-    this.sunArc.add(model);
+    sunArc.add(model);
 
     // Add the directional light for the artificial sun
     const sunLight = new THREE.DirectionalLight(0xfbebc4, 1.0);
@@ -186,12 +189,17 @@ export class ThreeWorldManager {
     sunLight.shadow.camera.top = 50;
     sunLight.shadow.camera.bottom = -50;
 
-    this.sunArc.add(sunLight);
+    sunArc.add(sunLight);
 
     // if (this.debugOn) {
     //   const sunHelper = new THREE.DirectionalLightHelper(directionalLight);
     //   this.sunArc.add(sunHelper);
     // }
+
+    this.scene.add(sunArc);
+
+    this.dayNightController.addSunArc(sunArc);
+    this.dayNightController.addSunLight(sunLight);
   }
 
   public moveCamera(
