@@ -5,6 +5,8 @@ import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import { LocalStorage } from '@/modules/LocalStorage';
 import { useConfig } from '@/react/hooks/TileConfig';
 import GameView from '@/react/components/GameView';
+import { useTextures } from './hooks/Textures';
+import { useModels } from './hooks/Models';
 
 export type ViewTypes = 'menu' | 'daily' | 'custom';
 
@@ -13,12 +15,14 @@ const localStorage = new LocalStorage(window.localStorage);
 const userScoreHistory = new UserScoreHistory(localStorage);
 
 function App() {
-  const { config, loading } = useConfig();
+  const { config, loading: configLoading } = useConfig();
   const [currentView, setCurrentView] = useState<ViewTypes>('menu');
   const [gameManager, setGameManager] = useState<GameManager | null>(null);
 
+  const isLoading = configLoading;
+
   useEffect(() => {
-    if (!loading && config.size > 0) {
+    if (!isLoading && config.size > 0) {
       if (gameManager) {
         gameManager.tileRuleConfigs = config;
         console.log('Updated game manager with rules:', config.size);
@@ -29,7 +33,7 @@ function App() {
         console.log('Created new game manager with rules:', config.size);
       }
     }
-  }, [loading, config]);
+  }, [isLoading, config]);
 
   const switchView = (viewName: ViewTypes, newGame: boolean) => {
     setCurrentView(viewName);
@@ -40,8 +44,8 @@ function App() {
     }
   };
 
-  if (loading || !gameManager) {
-    return <div>Loading game rules...</div>;
+  if (isLoading || !gameManager) {
+    return <div>Loading...</div>;
   }
 
   return (

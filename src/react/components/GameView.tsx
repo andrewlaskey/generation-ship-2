@@ -10,6 +10,7 @@ import { HandItem } from '@/modules/PlayerHand';
 import { getCurrentDate } from '@/utils/getCurrentDate';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import EndGameRecap from './EndGameRecap';
+import ThreeDView from './ThreedView';
 
 export type ControlViewOption = 'default' | 'inspect' | '3d' | 'graph';
 export interface GridCell {
@@ -160,55 +161,62 @@ const GameView: React.FC<GameViewProps> = ({
   };
 
   return (
-    <div className="html-game-view-wrapper">
-      <div className="html-game-view-inner">
-        <div className="info-bar">
-          <div className="help">
-            <button className="button warn" onClick={handleQuit}>
-              <svg id="icon-arrow_back_ios" viewBox="0 0 24 24">
-                <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
-              </svg>
-            </button>
-            <button className="button" onClick={handleOpenHelp}>
-              <svg id="icon-info" viewBox="0 0 24 24">
-                <path d="M12.984 9v-2.016h-1.969v2.016h1.969zM12.984 17.016v-6h-1.969v6h1.969zM12 2.016q4.125 0 7.055 2.93t2.93 7.055-2.93 7.055-7.055 2.93-7.055-2.93-2.93-7.055 2.93-7.055 7.055-2.93z"></path>
-              </svg>
-            </button>
+    <div className="game-view">
+      {activeTool !== '3d' && (
+        <div className="html-game-view-wrapper">
+          <div className="html-game-view-inner">
+            <div className="info-bar">
+              <div className="help">
+                <button className="button warn" onClick={handleQuit}>
+                  <svg id="icon-arrow_back_ios" viewBox="0 0 24 24">
+                    <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
+                  </svg>
+                </button>
+                <button className="button" onClick={handleOpenHelp}>
+                  <svg id="icon-info" viewBox="0 0 24 24">
+                    <path d="M12.984 9v-2.016h-1.969v2.016h1.969zM12.984 17.016v-6h-1.969v6h1.969zM12 2.016q4.125 0 7.055 2.93t2.93 7.055-2.93 7.055-7.055 2.93-7.055-2.93-2.93-7.055 2.93-7.055 7.055-2.93z"></path>
+                  </svg>
+                </button>
+              </div>
+              <Scoreboard ecology={ecoScore} population={popScore} />
+            </div>
+            <GameBoardGrid
+              gameBoard={gameManager.gameBoard}
+              handleCellClick={handleCellClick}
+              selectedHandItem={selectedHandItem}
+              selectedGridCell={selectedGridCell}
+            />
+            {gameState === GameState.Playing && (
+              <PlayerControls
+                gameManager={gameManager}
+                activeTool={activeTool}
+                setActiveTool={handleToolChangeClick}
+                inspectTile={inspectTile}
+                showPlayerActions={showPlayerActions}
+                confirmPlacement={handleConfirmPlaceCell}
+                declinePlacement={handleDeclinePlaceCell}
+              />
+            )}
+            {(gameState === GameState.Complete || gameState === GameState.GameOver) && (
+              <EndGameRecap
+                gameManager={gameManager}
+                gameState={gameState}
+                handlePlayAgainClick={handlePlayAgainClick}
+                userScoreHistory={userScoreHistory}
+              />
+            )}
+            <div id="about" className={`about ${showHelp ? 'is-visible' : ''}`}>
+              ${ABOUT_HTML}
+              <button className="button" onClick={handleCloseHelp}>
+                ✓
+              </button>
+            </div>
           </div>
-          <Scoreboard ecology={ecoScore} population={popScore} />
         </div>
-        <GameBoardGrid
-          gameBoard={gameManager.gameBoard}
-          handleCellClick={handleCellClick}
-          selectedHandItem={selectedHandItem}
-          selectedGridCell={selectedGridCell}
-        />
-        {gameState === GameState.Playing && (
-          <PlayerControls
-            gameManager={gameManager}
-            activeTool={activeTool}
-            setActiveTool={handleToolChangeClick}
-            inspectTile={inspectTile}
-            showPlayerActions={showPlayerActions}
-            confirmPlacement={handleConfirmPlaceCell}
-            declinePlacement={handleDeclinePlaceCell}
-          />
-        )}
-        {(gameState === GameState.Complete || gameState === GameState.GameOver) && (
-          <EndGameRecap
-            gameManager={gameManager}
-            gameState={gameState}
-            handlePlayAgainClick={handlePlayAgainClick}
-            userScoreHistory={userScoreHistory}
-          />
-        )}
-        <div id="about" className={`about ${showHelp ? 'is-visible' : ''}`}>
-          ${ABOUT_HTML}
-          <button className="button" onClick={handleCloseHelp}>
-            ✓
-          </button>
-        </div>
-      </div>
+      )}
+      {activeTool === '3d' && (
+        <ThreeDView gameManager={gameManager} setActiveTool={handleToolChangeClick} />
+      )}
     </div>
   );
 };
