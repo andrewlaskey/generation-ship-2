@@ -5,6 +5,7 @@ import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import { LocalStorage } from '@/modules/LocalStorage';
 import { useConfig } from '@/react/hooks/TileConfig';
 import GameView from '@/react/components/GameView';
+import Loading from './components/Loading';
 
 export type ViewTypes = 'menu' | 'daily' | 'custom';
 
@@ -43,7 +44,11 @@ function App() {
   };
 
   if (isLoading || !gameManager) {
-    return <div>Loading...</div>;
+    return (
+      <div className="app">
+        <Loading isLoading={isLoading} />
+      </div>
+    );
   }
 
   return (

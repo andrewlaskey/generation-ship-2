@@ -5,6 +5,7 @@ import { useTextures } from '../hooks/Textures';
 import { useModels } from '../hooks/Models';
 import { GameManager } from '@/modules/GameManager';
 import { ControlViewOption } from './GameView';
+import Loading from './Loading';
 
 export interface ThreeDViewProps {
   gameManager: GameManager;
@@ -272,7 +273,7 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
   }, [isLoading, textureLibrary, modelLibrary, gameManager]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading isLoading={isLoading} />;
   }
 
   return (
