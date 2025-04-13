@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import { ABOUT_HTML } from '@/utils/constants';
 import { ViewTypes } from '../App';
+import AutoPlayerView from './AutoPlayerView';
 
 interface MainMenuProps {
   gameManager: GameManager;
@@ -106,6 +107,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
 
   return (
     <div className="main-menu-container">
+      <div className="background-player-wrapper">
+        <div className="background-player">
+          <AutoPlayerView />
+        </div>
+        <button className="button" id="closeMeditation" data-action="toggleMeditation">
+          ⬅
+        </button>
+      </div>
       <div className={`main-menu ${isMeditationMode ? 'hidden' : ''}`}>
         <h1 className="title">Generation Ship 2</h1>
 

@@ -10,8 +10,9 @@ import { Tile } from '@/modules/Tile';
 interface GameBoardGridProps {
   gameBoard: GameBoard;
   handleCellClick: (x: number, y: number) => void;
-  selectedHandItem: HandItem | null;
-  selectedGridCell: GridCell | null;
+  selectedHandItem?: HandItem | null;
+  selectedGridCell?: GridCell | null;
+  forceUpdate?: number;
 }
 
 const GameBoardGrid: React.FC<GameBoardGridProps> = ({
