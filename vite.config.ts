@@ -21,4 +21,10 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+      generateScopedName: '[name]_[local]_[hash:base64:5]',
+    },
+  },
 });
