@@ -134,8 +134,6 @@ export function evaluateRules(
         }
         const actualDifference = actualLeftCount - actualRightCount;
 
-        console.log(actualDifference);
-
         switch (condition.evaluation) {
           case 'eq':
             return actualDifference === condition.difference;

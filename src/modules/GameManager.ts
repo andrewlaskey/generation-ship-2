@@ -320,6 +320,12 @@ export class GameManager {
     return this.playerHand.getSelectedItemIndex();
   }
 
+  getSelectedItem(): HandItem {
+    const handItems: HandItem[] = this.getPlayerHand();
+    const selectedIndex = this.getSelectedItemIndex();
+    return handItems[selectedIndex];
+  }
+
   rotateSelectedItem(): void {
     this.playerHand.rotateSelected();
   }
@@ -354,7 +360,7 @@ export class GameManager {
     const survivalBonus = habitatAges.reduce((sum, age) => {
       return sum + age * survivalBonusMultiplier;
     }, 0);
-    scoreElements.set('Survival bonus', survivalBonus);
+    scoreElements.set('Habitat survival bonus', survivalBonus);
 
     return scoreElements;
   }

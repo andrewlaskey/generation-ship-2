@@ -1,0 +1,28 @@
+.scoreboard {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 2rem;
+}
+
+.score {
+  padding: 3px 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.icon-leaf,
+.icon-group {
+  padding-right: 0.2em;
+  width: 1em;
+  height: 1em;
+}
+
+.icon-leaf {
+  fill: #1b9416;
+}
+
+.icon-group {
+  fill: steelblue;
+}

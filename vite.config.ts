@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 const deployTarget = process.env.DEPLOY_TARGET || 'github';
 
@@ -14,4 +15,16 @@ const getBasePath = () => {
 
 export default defineConfig({
   base: getBasePath(),
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+      generateScopedName: '[name]_[local]_[hash:base64:5]',
+    },
+  },
 });

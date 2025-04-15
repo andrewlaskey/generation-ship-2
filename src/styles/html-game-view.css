@@ -1,12 +1,12 @@
 :root {
-    --tile-edge-color: #c3afaf;
-    --tile-hl-color: #ffbb00;
-    --cell-size-desk: 3em;
-    --cell-healthy-color: #175314;
-    --cell-unhealthy-color: #741518;
+  --tile-edge-color: #c3afaf;
+  --tile-hl-color: #ffbb00;
+  --cell-size-desk: 3em;
+  --cell-healthy-color: #175314;
+  --cell-unhealthy-color: #741518;
 
-    --hand-tile-size-mobile: 2.5rem;
-    --hand-tile-size-desk: 3rem;
+  --hand-tile-size-mobile: 2.5rem;
+  --hand-tile-size-desk: 3rem;
 }
 
 .html-game-view-wrapper {
@@ -32,7 +32,7 @@
 .dynamic-display,
 .toolbar,
 .grid-container {
-  width: 100%;  
+  width: 100%;
 }
 
 .grid-container {
@@ -74,15 +74,15 @@
   border-right: 1px dashed #505050;
 }
 
-.html-game-view-wrapper .grid[data-size="10"],
-.html-game-view-wrapper .grid[data-size="11"],
-.html-game-view-wrapper .grid[data-size="12"] {
+.html-game-view-wrapper .grid[data-size='10'],
+.html-game-view-wrapper .grid[data-size='11'],
+.html-game-view-wrapper .grid[data-size='12'] {
   font-size: 0.8em;
 }
 
-.html-game-view-wrapper .grid[data-size="13"],
-.html-game-view-wrapper .grid[data-size="14"],
-.html-game-view-wrapper .grid[data-size="15"]{
+.html-game-view-wrapper .grid[data-size='13'],
+.html-game-view-wrapper .grid[data-size='14'],
+.html-game-view-wrapper .grid[data-size='15'] {
   font-size: 0.5em;
 }
 
@@ -93,26 +93,6 @@
   perspective: 1200px;
   overflow: auto;
 }
-
-.grid-inner-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  transform: rotateX(30deg) scale(0.8);
-  margin-top: -2rem; /* compensate for scale and perspective transform */
-  margin-bottom: -2rem; /* compensate for scale and perspective transform */
-}
-
-@media (min-width: 500px) {
-  .grid-inner-wrap {
-    transform: rotateX(30deg);
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-}
-
 
 /* Player Hand Styling */
 .hand-grid {
@@ -148,11 +128,11 @@
   background: black;
   box-shadow:
     0 2px 0 black,
-    0 4px 0 var(--tile-edge-color),    
+    0 4px 0 var(--tile-edge-color),
     0 6px 0 black,
     0 8px 0 var(--tile-edge-color),
-    0 10px 0 black,    
-    0 12px 0 var(--tile-edge-color);   
+    0 10px 0 black,
+    0 12px 0 var(--tile-edge-color);
   height: var(--hand-tile-size-mobile);
   width: calc(var(--hand-tile-size-mobile) * 2);
   font-size: 2rem;
@@ -162,7 +142,7 @@
 .deck-counter .deck.is-empty {
   border: 1px dashed var(--tile-edge-color);
   box-shadow: none;
-  transform: translateY(0)
+  transform: translateY(0);
 }
 
 @media (min-width: 500px) {
@@ -181,50 +161,15 @@
   }
 }
 
-.preview-item {
-  display: flex;
-  flex-direction: column;
-  animation-name: pop-in;
-  animation-timing-function: ease-out;
-  animation-duration: 150ms;
-}
-
-@keyframes pop-in {
-  0% {
-    transform: scale(0.85);
-  }
-
-  60% {
-    transform: scale(1.1);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.preview-item-inner.rotate-180 {
-  transform: translateX(-50%);
-}
-
-.preview-item-inner.rotate-270 {
-  transform: translateY(-50%);
-}
-
-.preview-item .cell {
-  background-color: rgba(255, 187, 0, 0.15);
-  border: 1px solid var(--tile-hl-color);
-}
-
-.html-game-view-wrapper .grid[data-size="10"] + .tile-preview .cell,
-.html-game-view-wrapper .grid[data-size="11"] + .tile-preview .cell,
-.html-game-view-wrapper .grid[data-size="12"] + .tile-preview .cell{
+.html-game-view-wrapper .grid[data-size='10'] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size='11'] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size='12'] + .tile-preview .cell {
   font-size: 0.8em;
 }
 
-.html-game-view-wrapper .grid[data-size="13"] + .tile-preview .cell,
-.html-game-view-wrapper .grid[data-size="14"] + .tile-preview .cell,
-.html-game-view-wrapper .grid[data-size="15"] + .tile-preview .cell{
+.html-game-view-wrapper .grid[data-size='13'] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size='14'] + .tile-preview .cell,
+.html-game-view-wrapper .grid[data-size='15'] + .tile-preview .cell {
   font-size: 0.5em;
 }
 

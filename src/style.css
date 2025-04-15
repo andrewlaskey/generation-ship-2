@@ -13,7 +13,7 @@
   --button-warn-color: #741518;
   --button-enabled-color: #175314;
 
-  --font-family-default: "VT323", monospace;
+  --font-family-default: 'VT323', monospace;
 
   --global-bg-color: rgba(11, 11, 11, 1);
 
@@ -22,9 +22,10 @@
   --farm-color: #ffd522;
   --people-color: #7c4e10;
   --power-color: #00f1ff;
+  --waste-color: #9b9e9e;
 
   /* global styles */
-  font-family: "VT323", monospace;
+  font-family: 'VT323', monospace;
   font-weight: 400;
   font-style: normal;
   color-scheme: light dark;
@@ -34,6 +35,26 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.text-tree {
+  color: var(--tree-color);
+}
+
+.text-farm {
+  color: var(--farm-color);
+}
+
+.text-people {
+  color: var(--people-color);
+}
+
+.text-power {
+  color: var(--power-color);
+}
+
+.text-waste {
+  color: var(--waste-color);
 }
 
 *,
@@ -62,7 +83,7 @@ h1 {
 
 .button {
   position: relative;
-  padding: .6em 2em;
+  padding: 0.6em 2em;
   background-color: var(--button-background-color);
   border: 2px solid var(--button-color);
   border-radius: 3px;
@@ -75,18 +96,19 @@ h1 {
 
 .button:hover,
 .button:active,
-.button:focus {
-  box-shadow: 
-      inset 0 0 0 4px var(--button-background-color),
-      inset 0 0 0 6px var(--button-color);
+.button:focus,
+.button.active {
+  box-shadow:
+    inset 0 0 0 4px var(--button-background-color),
+    inset 0 0 0 6px var(--button-color);
 }
 
-.button:active {
+.button:active .button.active {
   border-color: var(--button-active-color);
   color: var(--button-active-color);
-  box-shadow: 
-      inset 0 0 0 4px var(--button-background-color),
-      inset 0 0 0 6px var(--button-active-color);
+  box-shadow:
+    inset 0 0 0 4px var(--button-background-color),
+    inset 0 0 0 6px var(--button-active-color);
   transform: scale(0.95);
 }
 
@@ -105,36 +127,39 @@ h1 {
 .button.small:hover,
 .button.small:active,
 .button.small:focus {
-  box-shadow: 
-      inset 0 0 0 2px var(--button-background-color),
-      inset 0 0 0 3px var(--button-color);
+  box-shadow:
+    inset 0 0 0 2px var(--button-background-color),
+    inset 0 0 0 3px var(--button-color);
 }
 
-.button.small:active {
+.button.small:active,
+.button.small.active {
   border-color: var(--button-active-color);
   color: var(--button-active-color);
-  box-shadow: 
-      inset 0 0 0 2px var(--button-background-color),
-      inset 0 0 0 3px var(--button-active-color);
+  box-shadow:
+    inset 0 0 0 2px var(--button-background-color),
+    inset 0 0 0 3px var(--button-active-color);
   transform: scale(0.95);
 }
 
 .button.warn:hover,
 .button.warn:active,
-.button.warn:focus {
+.button.warn:focus,
+.button.warn.active {
   border-color: var(--button-warn-color);
-  box-shadow: 
-      inset 0 0 0 2px var(--button-background-color),
-      inset 0 0 0 3px var(--button-warn-color);
+  box-shadow:
+    inset 0 0 0 2px var(--button-background-color),
+    inset 0 0 0 3px var(--button-warn-color);
   color: var(--button-warn-color);
 }
 
+.button.warn:active,
 .button.warn:active {
   border-color: var(--button-warn-color);
   color: var(--button-warn-color);
-  box-shadow: 
-      inset 0 0 0 2px var(--button-background-color),
-      inset 0 0 0 3px var(--button-warn-color);
+  box-shadow:
+    inset 0 0 0 2px var(--button-background-color),
+    inset 0 0 0 3px var(--button-warn-color);
   transform: scale(0.95);
 }
 
@@ -144,11 +169,12 @@ h1 {
 
 .button.enabled:hover,
 .button.enabled:active,
-.button.enabled:focus {
+.button.enabled:focus,
+.button.enabled.active {
   border-color: var(--button-enabled-color);
-  box-shadow: 
-      inset 0 0 0 2px var(--button-background-color),
-      inset 0 0 0 3px var(--button-enabled-color);
+  box-shadow:
+    inset 0 0 0 2px var(--button-background-color),
+    inset 0 0 0 3px var(--button-enabled-color);
 }
 
 .button .popup {
@@ -184,40 +210,4 @@ h1 {
   fill: currentColor;
   width: 1em;
   height: 1em;
-}
-
-.loading {
-  position: absolute;
-  top: 25vh;
-  left: 50vw;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.loading-icons {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.loading-icons div {
-  padding: 0 10px;
-}
-
-.loading-icons .tree {
-  color: var(--tree-color);
-}
-
-.loading-icons .farm {
-  color: var(--farm-color);
-}
-
-.loading-icons .people {
-  color: var(--people-color);
-}
-
-.loading-icons .power {
-  color: var(--power-color);
 }

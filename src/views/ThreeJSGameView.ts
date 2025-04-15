@@ -256,13 +256,12 @@ export class ThreeJSGameView implements GameView {
     this.scene.add(this.sunArc);
 
     // Update Day Night Cycle Controller
-    this.dayNightController = new ThreeDayNightCycle(
-      this.sunArc,
-      ambientLight,
-      fog,
-      directionalLight,
-      this.instanceManager
-    );
+    this.dayNightController = new ThreeDayNightCycle();
+    this.dayNightController.addAmbientLight(ambientLight);
+    this.dayNightController.addFog(fog);
+    this.dayNightController.addSunArc(this.sunArc);
+    this.dayNightController.addSunLight(directionalLight);
+    this.dayNightController.addInstanceManager(this.instanceManager);
   }
 
   private addSunArc(outerWorldSize: number): void {

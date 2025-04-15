@@ -1,0 +1,16 @@
+.button {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  opacity: 0;
+
+  &:hover,
+  &:focus,
+  &:active {
+    opacity: 1;
+  }
+}
+
+.enabled {
+  opacity: 0.5;
+}
