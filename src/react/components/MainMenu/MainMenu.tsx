@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import { ViewTypes } from '../../App';
-import AutoPlayerView from '../AutoPlayerView/AutoPlayerView';
 import AboutModal from '../AboutModal';
 import BackgroundPlayer from '../BackgroundPlayer/BackgroundPlayer';
 

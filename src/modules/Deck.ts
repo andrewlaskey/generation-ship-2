@@ -69,7 +69,7 @@ export class Deck {
   }
 
   // Helper method to check if two arrays have the same order
-  private isSameOrder(arr1: any[], arr2: any[]): boolean {
+  private isSameOrder(arr1: HandItem[], arr2: HandItem[]): boolean {
     if (arr1.length !== arr2.length) return false;
     for (let i = 0; i < arr1.length; i++) {
       if (arr1[i] !== arr2[i]) return false;
