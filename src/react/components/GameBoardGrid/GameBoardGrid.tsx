@@ -4,8 +4,9 @@ import { HandItem } from '@/modules/PlayerHand';
 import { TileBlock, TileBlockLayout } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React from 'react';
-import { GridCell } from './GameView';
+import { GridCell } from '../GameView';
 import { Tile } from '@/modules/Tile';
+import styles from './GameBoardGrid.module.scss';
 
 interface GameBoardGridProps {
   gameBoard: GameBoard;
@@ -13,6 +14,7 @@ interface GameBoardGridProps {
   selectedHandItem?: HandItem | null;
   selectedGridCell?: GridCell | null;
   forceUpdate?: number;
+  usePerspective?: boolean;
 }
 
 const GameBoardGrid: React.FC<GameBoardGridProps> = ({
@@ -20,6 +22,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
   handleCellClick,
   selectedHandItem,
   selectedGridCell,
+  usePerspective = true,
 }) => {
   const rows = Array.from({ length: gameBoard.size }, (_, i) => i);
 
@@ -93,7 +96,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
   return (
     <div className="grid-container">
       <div className="grid-border">
-        <div className="grid-inner-wrap">
+        <div className={`${styles.gridInnerWrap} ${usePerspective ? styles.perspective : ''}`}>
           <div id="gridContainer" className="grid" data-size={gameBoard.size}>
             {rows.map(row => (
               <div key={`row-${row}`} className="row">
@@ -110,13 +113,17 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
                         onClick={() => handleCellClick(col, row)}
                       >
                         {selectedHandItem && layout && isSelectedCell(col, row) && (
-                          <div className="preview-item">
-                            <div className={getTileCellClassList(getLayoutTile(true))}></div>
+                          <div className={styles.previewItem}>
+                            <div
+                              className={`${styles.previewItemCell} ${getTileCellClassList(getLayoutTile(true))}`}
+                            ></div>
                           </div>
                         )}
                         {layout && isPreviewTileSecondGridCell(col, row) && (
-                          <div className="preview-item">
-                            <div className={getTileCellClassList(getLayoutTile(false))}></div>
+                          <div className={styles.previewItem}>
+                            <div
+                              className={`${styles.previewItemCell} ${getTileCellClassList(getLayoutTile(false))}`}
+                            ></div>
                           </div>
                         )}
                       </div>

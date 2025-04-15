@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
-import PlayerHand from './PlayerHand';
-import { ControlViewOption } from './GameView';
+import PlayerHand from '../PlayerHand';
+import { ControlViewOption } from '../GameView';
 import { Tile } from '@/modules/Tile';
 import { toTitleCase } from '@/utils/stringHelpers';
-import ScoreHistory from './ScoreHistory';
+import ScoreHistory from '../ScoreHistory';
 import { ScoreGraphLines } from '@/views/GraphsView';
+import styles from './PlayerControls.module.scss';
 
 interface PlayerControlsProps {
   gameManager: GameManager;
@@ -64,7 +65,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   };
 
   return (
-    <div className="player-controls">
+    <div className={styles.playerControls}>
       <div className="game-updates">
         <div id="playerNotice"></div>
         {showPlayerActions && (
@@ -117,22 +118,22 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
       </div>
       <div className="toolbar" id="toolbar">
         <h3>Tools</h3>
-        <div className="tools">
+        <div className={styles.tools}>
           <button
-            className={`button ${activeTool === 'inspect' ? 'enabled' : ''}`}
+            className={`button ${styles.toolsButton} ${activeTool === 'inspect' ? 'enabled' : ''}`}
             onClick={() => setActiveTool('inspect')}
           >
             <svg id="icon-search" viewBox="0 0 32 32">
               <path d="M31.715 28.953c0.381 0.381 0.381 0.999 0 1.381l-1.381 1.381c-0.382 0.381-1 0.381-1.381 0l-9.668-9.668c-0.105-0.105-0.175-0.229-0.222-0.361-1.983 1.449-4.418 2.314-7.063 2.314-6.627 0-12-5.373-12-12s5.373-12 12-12c6.627 0 12 5.373 12 12 0 2.645-0.865 5.080-2.314 7.063 0.132 0.047 0.256 0.116 0.361 0.222l9.668 9.668zM12 4c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8c0-4.418-3.582-8-8-8z"></path>
             </svg>
           </button>
-          <button className="button" onClick={() => setActiveTool('3d')}>
+          <button className={`button ${styles.toolsButton}`} onClick={() => setActiveTool('3d')}>
             <svg id="icon-cube" viewBox="0 0 26 28">
               <path d="M14 25.453l10-5.453v-9.938l-10 3.641v11.75zM13 11.937l10.906-3.969-10.906-3.969-10.906 3.969zM26 8v12c0 0.734-0.406 1.406-1.047 1.75l-11 6c-0.297 0.172-0.625 0.25-0.953 0.25s-0.656-0.078-0.953-0.25l-11-6c-0.641-0.344-1.047-1.016-1.047-1.75v-12c0-0.844 0.531-1.594 1.313-1.875l11-4c0.219-0.078 0.453-0.125 0.688-0.125s0.469 0.047 0.688 0.125l11 4c0.781 0.281 1.313 1.031 1.313 1.875z"></path>
             </svg>
           </button>
           <button
-            className={`button ${activeTool === 'graph' ? 'enabled' : ''}`}
+            className={`button ${styles.toolsButton} ${activeTool === 'graph' ? 'enabled' : ''}`}
             onClick={() => setActiveTool('graph')}
           >
             <svg viewBox="0 0 20 20">

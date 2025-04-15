@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useConfig } from '../hooks/TileConfig';
+import { useConfig } from '../../hooks/TileConfig';
 import { GameManager, GameState } from '@/modules/GameManager';
-import GameBoardGrid from './GameBoardGrid';
+import GameBoardGrid from '../GameBoardGrid/GameBoardGrid';
 import { AutoPlayer } from '@/modules/AutoPlayer';
 import { Tile, TileState, TileType } from '@/modules/Tile';
 import { GameBoard } from '@/modules/GameBoard';
+import styles from './AutoPlayerView.module.scss';
 
-const AutoPlayerView: React.FC = () => {
+interface AutoPlayerViewProps {
+  showControls: boolean;
+}
+
+const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   const { config, loading: configLoading } = useConfig();
   const [gameManager, setGameManager] = useState<GameManager | null>(null);
   const [gameBoard, setGameBoard] = useState<GameBoard | null>(null);
@@ -96,8 +101,12 @@ const AutoPlayerView: React.FC = () => {
         gameBoard={gameBoard}
         handleCellClick={handleCellClick}
         forceUpdate={forceUpdate}
+        usePerspective={false}
       />
-      <button className="button" onClick={togglePause}>
+      <button
+        className={`button ${styles.button} ${showControls ? styles.enabled : ''}`}
+        onClick={togglePause}
+      >
         {isPausedState}
         {!isPausedState && (
           <svg viewBox="0 0 24 24">

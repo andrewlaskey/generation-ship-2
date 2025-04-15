@@ -22,6 +22,7 @@
   --farm-color: #ffd522;
   --people-color: #7c4e10;
   --power-color: #00f1ff;
+  --waste-color: #9b9e9e;
 
   /* global styles */
   font-family: 'VT323', monospace;
@@ -34,6 +35,26 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.text-tree {
+  color: var(--tree-color);
+}
+
+.text-farm {
+  color: var(--farm-color);
+}
+
+.text-people {
+  color: var(--people-color);
+}
+
+.text-power {
+  color: var(--power-color);
+}
+
+.text-waste {
+  color: var(--waste-color);
 }
 
 *,

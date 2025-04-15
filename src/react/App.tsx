@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import MainMenu from '@/react/components/MainMenu';
+import MainMenu from '@/react/components/MainMenu/MainMenu';
 import { GameManager } from '@/modules/GameManager';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import { LocalStorage } from '@/modules/LocalStorage';

@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { GameManager, GameState } from '@/modules/GameManager';
-import { ABOUT_HTML } from '@/utils/constants';
 import Scoreboard from './Scoreboard';
-import PlayerControls from './PlayerControls';
+import PlayerControls from './PlayerControls/PlayerControls';
 import { ViewTypes } from '../App';
-import GameBoardGrid from './GameBoardGrid';
+import GameBoardGrid from './GameBoardGrid/GameBoardGrid';
 import { Tile } from '@/modules/Tile';
 import { HandItem } from '@/modules/PlayerHand';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import EndGameRecap from './EndGameRecap';
 import ThreeDView from './ThreedView';
+import AboutModal from './AboutModal';
 
 export type ControlViewOption = 'default' | 'inspect' | '3d' | 'graph';
 export interface GridCell {
@@ -202,12 +202,7 @@ const GameView: React.FC<GameViewProps> = ({
                 userScoreHistory={userScoreHistory}
               />
             )}
-            <div id="about" className={`about ${showHelp ? 'is-visible' : ''}`}>
-              ${ABOUT_HTML}
-              <button className="button" onClick={handleCloseHelp}>
-                ✓
-              </button>
-            </div>
+            <AboutModal isShowing={showHelp} handleClose={handleCloseHelp} />
           </div>
         </div>
       )}

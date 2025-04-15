@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
-import { ABOUT_HTML } from '@/utils/constants';
-import { ViewTypes } from '../App';
-import AutoPlayerView from './AutoPlayerView';
+import { ViewTypes } from '../../App';
+import AutoPlayerView from '../AutoPlayerView/AutoPlayerView';
+import AboutModal from '../AboutModal';
+import BackgroundPlayer from '../BackgroundPlayer/BackgroundPlayer';
 
 interface MainMenuProps {
   gameManager: GameManager;
@@ -107,16 +108,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
 
   return (
     <div className="main-menu-container">
-      <div className={`background-player-wrapper ${isMeditationMode ? 'enabled' : ''}`}>
-        <div className="background-player">
-          <AutoPlayerView />
-        </div>
-        <button className="button" onClick={toggleMeditationMode}>
-          <svg id="icon-arrow_back_ios" viewBox="0 0 24 24">
-            <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
-          </svg>
-        </button>
-      </div>
+      <BackgroundPlayer isActive={isMeditationMode} handleToggleClick={toggleMeditationMode} />
       <div className={`main-menu ${isMeditationMode ? 'hidden' : ''}`}>
         <h1 className="title">Generation Ship 2</h1>
 
@@ -214,11 +206,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
         </div>
 
         {/* About Submenu */}
-        <div className={`submenu ${activeSubmenu === 'about' ? '' : 'hidden'}`} id="about">
-          <div dangerouslySetInnerHTML={{ __html: ABOUT_HTML }} />
-          <button className="button" onClick={handleCloseSubmenu}>
-            ✓
-          </button>
+        <AboutModal isShowing={activeSubmenu === 'about'} handleClose={handleCloseSubmenu}>
           <p>
             vALPHA (frequent, possibly breaking changes)
             <br />
@@ -232,7 +220,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
               🦋 Bluesky
             </a>
           </p>
-        </div>
+        </AboutModal>
 
         <div className="main-menu-footer">
           <button className="button small" onClick={toggleMeditationMode}>
