@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GameManager } from '../modules/GameManager';
+import { GameManager } from '../../modules/GameManager';
 import { HtmlGameView } from './HtmlGameView';
 import { JSDOM } from 'jsdom';
-import { Tile, TileState, TileType } from '../modules/Tile';
-import { GameBoard } from '../modules/GameBoard';
+import { Tile, TileState, TileType } from '../../modules/Tile';
+import { GameBoard } from '../../modules/GameBoard';
 
 // Create a mock GameManager for testing
 const createMockGameManager = (gameSize: number) => {

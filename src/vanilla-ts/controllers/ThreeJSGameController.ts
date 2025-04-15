@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GameManager } from '../modules/GameManager';
-import { SwitchViewFn } from '../types/SwitchViewFn';
+import { GameManager } from '../../modules/GameManager';
+import { SwitchViewFn } from '../../types/SwitchViewFn';
 import { ThreeJSGameView } from '../views/ThreeJSGameView';
 
 export class ThreeJSGameController {

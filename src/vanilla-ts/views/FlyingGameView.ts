@@ -1,6 +1,6 @@
-import { GameView } from '../types/GameViewInterface';
-import { GameManager } from '../modules/GameManager';
-import { BoardSpace } from '../modules/BoardSpace';
+import { GameView } from '../../types/GameViewInterface';
+import { GameManager } from '../../modules/GameManager';
+import { BoardSpace } from '../../modules/BoardSpace';
 
 export class FlyingGameView implements GameView {
   private gameManager: GameManager;

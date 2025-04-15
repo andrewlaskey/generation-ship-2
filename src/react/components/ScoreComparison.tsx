@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { GraphsView } from '@/views/GraphsView';
+import { GraphsView } from '@/vanilla-ts/views/GraphsView';
 
 interface ScoreComparisonProps {
   score: number;

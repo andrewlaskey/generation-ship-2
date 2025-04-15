@@ -5,7 +5,7 @@ import { ControlViewOption, GridCell } from '../GameView';
 import { Tile } from '@/modules/Tile';
 import { toTitleCase } from '@/utils/stringHelpers';
 import ScoreHistory from '../ScoreHistory';
-import { ScoreGraphLines } from '@/views/GraphsView';
+import { ScoreGraphLines } from '@/vanilla-ts/views/GraphsView';
 import styles from './PlayerControls.module.scss';
 
 interface PlayerControlsProps {

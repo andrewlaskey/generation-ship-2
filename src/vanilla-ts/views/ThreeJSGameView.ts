@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
-import { GameManager } from '../modules/GameManager';
-import { GameView } from '../types/GameViewInterface';
-import { clearElementChildren, insertHtml } from '../utils/htmlUtils';
-import { ThreeTileHandlerRegistry } from '../modules/Three/ThreeTileHandlerRegistry';
-import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
-import { ThreeInstanceManager } from '../modules/Three/ThreeInstanceManager';
-import { ThreeTextureLibrary } from '../modules/Three/ThreeTextureLibrary';
-import { ThreeDayNightCycle } from '../modules/Three/ThreeDayNightCycle';
+import { GameManager } from '../../modules/GameManager';
+import { GameView } from '../../types/GameViewInterface';
+import { clearElementChildren, insertHtml } from '../../utils/htmlUtils';
+import { ThreeTileHandlerRegistry } from '../../modules/Three/ThreeTileHandlerRegistry';
+import { ThreeModelLibrary } from '../../modules/Three/ThreeModelLibrary';
+import { ThreeInstanceManager } from '../../modules/Three/ThreeInstanceManager';
+import { ThreeTextureLibrary } from '../../modules/Three/ThreeTextureLibrary';
+import { ThreeDayNightCycle } from '../../modules/Three/ThreeDayNightCycle';
 
 export type ThreeJSGameViewOptions = {
   debug?: boolean;

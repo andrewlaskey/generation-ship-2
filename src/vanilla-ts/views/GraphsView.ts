@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { View } from '../types/ViewInterface';
-import { ScoreObject } from '../modules/ScoreObject';
+import { View } from '../../types/ViewInterface';
+import { ScoreObject } from '../../modules/ScoreObject';
 
 export type ScoreGraphLines = {
   score: ScoreObject;

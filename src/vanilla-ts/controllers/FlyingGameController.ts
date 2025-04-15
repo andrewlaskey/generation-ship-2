@@ -1,7 +1,7 @@
-import { GameManager } from '../modules/GameManager';
+import { GameManager } from '../../modules/GameManager';
 import { FlyingGameView } from '../views/FlyingGameView';
-import { ViewController } from '../types/ViewControllerInterface';
-import { SwitchViewFn } from '../types/SwitchViewFn';
+import { ViewController } from '../../types/ViewControllerInterface';
+import { SwitchViewFn } from '../../types/SwitchViewFn';
 
 export class FlyingGameController implements ViewController {
   // private gameManager: GameManager;

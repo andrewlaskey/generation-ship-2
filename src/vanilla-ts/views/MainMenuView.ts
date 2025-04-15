@@ -1,7 +1,7 @@
-import { VisualAutoPlayerController } from '../controllers/VisualAutoPlayerController';
-import { TileRuleConfig } from '../modules/TileRules';
-import { View } from '../types/ViewInterface';
-import { ABOUT_HTML } from '../utils/constants';
+import { VisualAutoPlayerController } from '../../controllers/VisualAutoPlayerController';
+import { TileRuleConfig } from '../../modules/TileRules';
+import { View } from '../../types/ViewInterface';
+import { ABOUT_HTML } from '../../utils/constants';
 
 export class MainMenuView implements View {
   public document: Document;

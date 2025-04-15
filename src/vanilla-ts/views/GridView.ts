@@ -1,8 +1,8 @@
-import { BoardSpace } from '../modules/BoardSpace';
-import { GameBoard } from '../modules/GameBoard';
-import { Tile } from '../modules/Tile';
-import { GameView } from '../types/GameViewInterface';
-import { getTileCellClassList } from '../utils/getTileCellClassList';
+import { BoardSpace } from '../../modules/BoardSpace';
+import { GameBoard } from '../../modules/GameBoard';
+import { Tile } from '../../modules/Tile';
+import { GameView } from '../../types/GameViewInterface';
+import { getTileCellClassList } from '../../utils/getTileCellClassList';
 
 export class GridView implements GameView {
   public document: Document;

@@ -2,7 +2,7 @@ import { GameManager, GameState } from '@/modules/GameManager';
 import { getCurrentDate } from '@/utils/getCurrentDate';
 import React, { useState } from 'react';
 import ScoreHistory from './ScoreHistory';
-import { ScoreGraphLines } from '@/views/GraphsView';
+import { ScoreGraphLines } from '@/vanilla-ts/views/GraphsView';
 import ScoreComparison from './ScoreComparison';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import FinalScore from './FinalScore/FinalScore';

@@ -1,14 +1,14 @@
-import { GameManager, GameState } from '../modules/GameManager'; // Import the GameManager class
-import { HandItem } from '../modules/PlayerHand'; // Assuming HandItem is the base interface for items in the hand
-import { TileBlock, TileBlockLayout } from '../modules/TileBlock';
-import { GameView } from '../types/GameViewInterface';
-import { ABOUT_HTML } from '../utils/constants';
-import { Tile } from '../modules/Tile';
+import { GameManager, GameState } from '../../modules/GameManager'; // Import the GameManager class
+import { HandItem } from '../../modules/PlayerHand'; // Assuming HandItem is the base interface for items in the hand
+import { TileBlock, TileBlockLayout } from '../../modules/TileBlock';
+import { GameView } from '../../types/GameViewInterface';
+import { ABOUT_HTML } from '../../utils/constants';
+import { Tile } from '../../modules/Tile';
 import { GridView } from './GridView';
-import { getTileCellClassList } from '../utils/getTileCellClassList';
-import { clearElementChildren, getRelativePosition, insertHtml } from '../utils/htmlUtils';
+import { getTileCellClassList } from '../../utils/getTileCellClassList';
+import { clearElementChildren, getRelativePosition, insertHtml } from '../../utils/htmlUtils';
 import { GraphsView, ScoreGraphLines } from './GraphsView';
-import { toTitleCase } from '../utils/stringHelpers';
+import { toTitleCase } from '../../utils/stringHelpers';
 
 export class HtmlGameView implements GameView {
   private gameManager: GameManager;

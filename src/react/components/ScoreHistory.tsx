@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { GraphsView, ScoreGraphLines } from '@/views/GraphsView';
+import { GraphsView, ScoreGraphLines } from '@/vanilla-ts/views/GraphsView';
 
 interface ScoreHistoryProps {
   lines: ScoreGraphLines[];

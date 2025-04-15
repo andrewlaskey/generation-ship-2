@@ -1,7 +1,7 @@
-import { GameManager } from '../modules/GameManager';
-import { SwitchViewFn } from '../types/SwitchViewFn';
-import { ViewController } from '../types/ViewControllerInterface';
-import { getCurrentDate } from '../utils/getCurrentDate';
+import { GameManager } from '../../modules/GameManager';
+import { SwitchViewFn } from '../../types/SwitchViewFn';
+import { ViewController } from '../../types/ViewControllerInterface';
+import { getCurrentDate } from '../../utils/getCurrentDate';
 import { MainMenuView } from '../views/MainMenuView';
 
 export interface NumberValidation {

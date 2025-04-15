@@ -1,9 +1,9 @@
-import { AutoPlayer, GameResults } from '../modules/AutoPlayer';
-import { GameManager, GameState } from '../modules/GameManager';
-import { UserScoreHistory } from '../modules/UserScoreHistory';
-import { SwitchViewFn } from '../types/SwitchViewFn';
-import { ViewController } from '../types/ViewControllerInterface';
-import { getCurrentDate } from '../utils/getCurrentDate';
+import { AutoPlayer, GameResults } from '../../modules/AutoPlayer';
+import { GameManager, GameState } from '../../modules/GameManager';
+import { UserScoreHistory } from '../../modules/UserScoreHistory';
+import { SwitchViewFn } from '../../types/SwitchViewFn';
+import { ViewController } from '../../types/ViewControllerInterface';
+import { getCurrentDate } from '../../utils/getCurrentDate';
 import { HtmlGameView } from '../views/HtmlGameView';
 
 export class HtmlGameController implements ViewController {

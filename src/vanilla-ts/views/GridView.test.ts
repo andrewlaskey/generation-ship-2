@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { GridView } from './GridView';
-import { GameBoard } from '../modules/GameBoard';
-import { Tile, TileState, TileType } from '../modules/Tile';
+import { GameBoard } from '../../modules/GameBoard';
+import { Tile, TileState, TileType } from '../../modules/Tile';
 
 describe('GridView', () => {
   const gridSize = 4;

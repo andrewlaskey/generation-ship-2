@@ -1,5 +1,5 @@
 import './style.css';
-import { GameManager } from './modules/GameManager';
+import { GameManager } from '../modules/GameManager';
 import { HtmlGameView } from './views/HtmlGameView';
 import { HtmlGameController } from './controllers/HtmlGameController';
 import { ThreeJSGameView } from './views/ThreeJSGameView';
@@ -8,14 +8,14 @@ import { FlyingGameView } from './views/FlyingGameView';
 import { FlyingGameController } from './controllers/FlyingGameController';
 import { MainMenuView } from './views/MainMenuView';
 import { MainMenuController } from './controllers/MainMenuController';
-import { SwitchViewFn } from './types/SwitchViewFn';
-import { LocalStorage } from './modules/LocalStorage';
-import { UserScoreHistory } from './modules/UserScoreHistory';
-import { ThreeModelLibrary } from './modules/Three/ThreeModelLibrary';
-import { LoadingIcon } from './modules/LoadingIcon';
-import { ThreeTextureLibrary } from './modules/Three/ThreeTextureLibrary';
-import { clearElementChildren } from './utils/htmlUtils';
-import { TileConfigLoader } from './modules/TileConfigLoader';
+import { SwitchViewFn } from '../types/SwitchViewFn';
+import { LocalStorage } from '../modules/LocalStorage';
+import { UserScoreHistory } from '../modules/UserScoreHistory';
+import { ThreeModelLibrary } from '../modules/Three/ThreeModelLibrary';
+import { LoadingIcon } from '../modules/LoadingIcon';
+import { ThreeTextureLibrary } from '../modules/Three/ThreeTextureLibrary';
+import { clearElementChildren } from '../utils/htmlUtils';
+import { TileConfigLoader } from '../modules/TileConfigLoader';
 
 let gameType: 'daily' | 'custom' = 'daily';
 

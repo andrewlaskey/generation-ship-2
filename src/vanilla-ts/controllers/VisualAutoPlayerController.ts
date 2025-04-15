@@ -1,8 +1,8 @@
-import { AutoPlayer } from '../modules/AutoPlayer';
-import { GameManager, GameState } from '../modules/GameManager';
-import { Tile, TileState, TileType } from '../modules/Tile';
-import { TileRuleConfig } from '../modules/TileRules';
-import { ViewController } from '../types/ViewControllerInterface';
+import { AutoPlayer } from '../../modules/AutoPlayer';
+import { GameManager, GameState } from '../../modules/GameManager';
+import { Tile, TileState, TileType } from '../../modules/Tile';
+import { TileRuleConfig } from '../../modules/TileRules';
+import { ViewController } from '../../types/ViewControllerInterface';
 import { GridView } from '../views/GridView';
 
 export class VisualAutoPlayerController implements ViewController {
