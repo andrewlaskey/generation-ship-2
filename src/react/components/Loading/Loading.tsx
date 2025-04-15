@@ -14,12 +14,16 @@ const Loading: React.FC<LoadingProps> = ({ isLoading }) => {
     });
 
     if (containerRef.current) {
-      gsap.set('.loading-icons div', {
+      const iconElements = (containerRef.current as HTMLDivElement).querySelectorAll(
+        `.${styles.icon}`
+      );
+
+      gsap.set(iconElements, {
         yPercent: 100,
         opacity: 0,
       });
 
-      tl.to('.loading-icons div', {
+      tl.to(iconElements, {
         duration: 0.6,
         yPercent: 0,
         opacity: 1,
@@ -28,7 +32,7 @@ const Loading: React.FC<LoadingProps> = ({ isLoading }) => {
           from: 'start',
         },
       }).to(
-        '.loading-icons div',
+        iconElements,
         {
           duration: 0.6,
           yPercent: -100,
