@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameManager, GameState } from '@/modules/GameManager';
-import Scoreboard from './Scoreboard';
+import Scoreboard from './Scoreboard/Scoreboard';
 import PlayerControls from './PlayerControls/PlayerControls';
 import { ViewTypes } from '../App';
 import GameBoardGrid from './GameBoardGrid/GameBoardGrid';
