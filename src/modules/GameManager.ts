@@ -360,7 +360,7 @@ export class GameManager {
     const survivalBonus = habitatAges.reduce((sum, age) => {
       return sum + age * survivalBonusMultiplier;
     }, 0);
-    scoreElements.set('Survival bonus', survivalBonus);
+    scoreElements.set('Habitat survival bonus', survivalBonus);
 
     return scoreElements;
   }

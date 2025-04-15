@@ -448,7 +448,7 @@ describe('GameManager', () => {
     const result = gameManager.getFinalPlayerScoreElements();
 
     // Assert
-    expect(result.get('Survival bonus')).toBe(50);
+    expect(result.get('Habitat survival bonus')).toBe(50);
   });
 
   it.skip('should correctly multiply calculated player score by the time factor', () => {

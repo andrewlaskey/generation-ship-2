@@ -5,7 +5,7 @@ import ScoreHistory from './ScoreHistory';
 import { ScoreGraphLines } from '@/views/GraphsView';
 import ScoreComparison from './ScoreComparison';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
-import FinalScore from './FinalScore';
+import FinalScore from './FinalScore/FinalScore';
 
 interface EndGameRecapProps {
   gameManager: GameManager;

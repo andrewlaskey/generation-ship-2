@@ -192,6 +192,7 @@ const GameView: React.FC<GameViewProps> = ({
                 showPlayerActions={showPlayerActions}
                 confirmPlacement={handleConfirmPlaceCell}
                 declinePlacement={handleDeclinePlaceCell}
+                selectedGridCell={selectedGridCell}
               />
             )}
             {(gameState === GameState.Complete || gameState === GameState.GameOver) && (

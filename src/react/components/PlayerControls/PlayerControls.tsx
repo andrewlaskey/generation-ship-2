@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import PlayerHand from '../PlayerHand';
-import { ControlViewOption } from '../GameView';
+import { ControlViewOption, GridCell } from '../GameView';
 import { Tile } from '@/modules/Tile';
 import { toTitleCase } from '@/utils/stringHelpers';
 import ScoreHistory from '../ScoreHistory';
@@ -16,6 +16,7 @@ interface PlayerControlsProps {
   showPlayerActions: boolean;
   confirmPlacement: () => void;
   declinePlacement: () => void;
+  selectedGridCell: GridCell | null;
 }
 
 const PlayerControls: React.FC<PlayerControlsProps> = ({
@@ -26,6 +27,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   showPlayerActions,
   confirmPlacement,
   declinePlacement,
+  selectedGridCell,
 }) => {
   const [_handUpdateCounter, setHandUpdateCounter] = useState(0);
 
@@ -85,6 +87,8 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
         <div className={`inspect-window ${activeTool === 'inspect' ? '' : 'hidden'}`}>
           <h3>Inspect Mode</h3>
           <div className="cell-details">
+            {!selectedGridCell && !inspectTile && <p>Select a grid cell</p>}
+            {selectedGridCell && !inspectTile && <p>Empty cell</p>}
             {inspectTile && (
               <ul>
                 <li>
