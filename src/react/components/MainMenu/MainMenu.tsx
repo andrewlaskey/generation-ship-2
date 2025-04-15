@@ -205,6 +205,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
           </p>
         </div>
 
+        <div className="main-menu-footer">
+          <button className="button small" onClick={toggleMeditationMode}>
+            Meditation Mode
+          </button>
+        </div>
+
         {/* About Submenu */}
         <AboutModal isShowing={activeSubmenu === 'about'} handleClose={handleCloseSubmenu}>
           <p>
@@ -221,12 +227,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
             </a>
           </p>
         </AboutModal>
-
-        <div className="main-menu-footer">
-          <button className="button small" onClick={toggleMeditationMode}>
-            Meditation Mode
-          </button>
-        </div>
       </div>
     </div>
   );

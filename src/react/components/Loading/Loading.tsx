@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import styles from './Loading.module.scss';
 
 export interface LoadingProps {
   isLoading: boolean;
@@ -61,14 +62,14 @@ const Loading: React.FC<LoadingProps> = ({ isLoading }) => {
   }
 
   return (
-    <div ref={containerRef}>
-      <div className="loading-icons">
-        <div className="tree">ᚫ</div>
-        <div className="people">ᨊ</div>
-        <div className="farm">፠</div>
-        <div className="power">ᚢ</div>
+    <div ref={containerRef} className={styles.loadingWidget}>
+      <div className={styles.loadingIcons}>
+        <div className={`${styles.icon} ${styles.tree}`}>ᚫ</div>
+        <div className={`${styles.icon} ${styles.people}`}>ᨊ</div>
+        <div className={`${styles.icon} ${styles.farm}`}>፠</div>
+        <div className={`${styles.icon} ${styles.power}`}>ᚢ</div>
       </div>
-      <p className="loading-text">Loading...</p>
+      <p>Loading...</p>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { useTextures } from '../hooks/Textures';
 import { useModels } from '../hooks/Models';
 import { GameManager } from '@/modules/GameManager';
 import { ControlViewOption } from './GameView';
-import Loading from './Loading';
+import Loading from './Loading/Loading';
 
 export interface ThreeDViewProps {
   gameManager: GameManager;
