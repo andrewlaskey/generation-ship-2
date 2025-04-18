@@ -1,0 +1,31 @@
+.infinite-grid {
+  position: relative;
+}
+
+.infinite-grid-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &:first-child {
+    top: -1440px;
+  }
+
+  &:last-child {
+    top: 1440px;
+  }
+}
+
+.game-board {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &:first-child {
+    left: -1440px;
+  }
+
+  &:last-child {
+    left: 1440px;
+  }
+}

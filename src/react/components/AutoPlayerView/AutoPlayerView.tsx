@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useConfig } from '../../hooks/TileConfig';
 import { GameManager, GameState } from '@/modules/GameManager';
-import GameBoardGrid from '../GameBoardGrid/GameBoardGrid';
 import { AutoPlayer } from '@/modules/AutoPlayer';
 import { Tile, TileState, TileType } from '@/modules/Tile';
 import { GameBoard } from '@/modules/GameBoard';
 import styles from './AutoPlayerView.module.scss';
+import InfiniteGameBoard from '../InfiniteGameBoard/InfiniteGameBoard';
 
 interface AutoPlayerViewProps {
   showControls: boolean;
@@ -97,11 +97,10 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
 
   return (
     <div className="autoplayer-view">
-      <GameBoardGrid
+      <InfiniteGameBoard
         gameBoard={gameBoard}
         handleCellClick={handleCellClick}
         forceUpdate={forceUpdate}
-        usePerspective={false}
       />
       <button
         className={`button ${styles.button} ${showControls ? styles.enabled : ''}`}
