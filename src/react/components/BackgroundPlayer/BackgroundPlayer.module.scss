@@ -16,10 +16,6 @@
 .background-player {
   margin: 0 auto;
   width: fit-content;
-
-  :global(.cell.waste::before) {
-    content: '';
-  }
 }
 
 .background-player-button {

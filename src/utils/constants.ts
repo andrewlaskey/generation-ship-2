@@ -21,3 +21,8 @@ export const ABOUT_HTML = `
     <dd>Waste is created when farms or habitats die. Excess waste will produce more waste</dd>
 </dl>
 `;
+
+export const TREE_GLYPH = 'ᚫ';
+export const PEOPLE_GLYPH = 'ᨊ';
+export const FARM_GLYPH = '፠';
+export const POWER_GLYPH = 'ᚢ';

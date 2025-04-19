@@ -103,7 +103,8 @@ h1 {
     inset 0 0 0 6px var(--button-color);
 }
 
-.button:active .button.active {
+.button:active,
+.button.active {
   border-color: var(--button-active-color);
   color: var(--button-active-color);
   box-shadow:
@@ -154,7 +155,7 @@ h1 {
 }
 
 .button.warn:active,
-.button.warn:active {
+.button.warn.active {
   border-color: var(--button-warn-color);
   color: var(--button-warn-color);
   box-shadow:

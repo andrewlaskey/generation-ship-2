@@ -1,4 +1,4 @@
-.button {
+.menu {
   position: absolute;
   top: 2rem;
   right: 2rem;
@@ -14,4 +14,18 @@
 .enabled {
   opacity: 0.5;
   z-index: 10;
+}
+
+.paint-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 0.5em;
+  padding-top: 2rem;
+}
+
+.paint-menu-button {
+  padding: 0.6em;
+  width: 2.5em;
+  height: 2.5em;
 }

@@ -6,6 +6,7 @@ import { Tile, TileState, TileType } from '@/modules/Tile';
 import { GameBoard } from '@/modules/GameBoard';
 import styles from './AutoPlayerView.module.scss';
 import InfiniteGameBoard from '../InfiniteGameBoard/InfiniteGameBoard';
+import { FARM_GLYPH, PEOPLE_GLYPH, POWER_GLYPH, TREE_GLYPH } from '@/utils/constants';
 
 interface AutoPlayerViewProps {
   showControls: boolean;
@@ -18,6 +19,8 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   const [forceUpdate, setForceUpdate] = useState(0);
   const isPaused = useRef(false);
   const [isPausedState, setIsPausedState] = useState(false);
+  const [paintTile, setPaintTile] = useState<TileType | null>(null);
+  const isPainting = useRef(false);
 
   const isLoading = configLoading;
 
@@ -55,11 +58,13 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
     };
 
     const placeTrees = (): void => {
-      for (let i = 0; i < numTrees; i++) {
-        const x = Math.floor(Math.random() * gridSize);
-        const y = Math.floor(Math.random() * gridSize);
+      if (!isPainting.current) {
+        for (let i = 0; i < numTrees; i++) {
+          const x = Math.floor(Math.random() * gridSize);
+          const y = Math.floor(Math.random() * gridSize);
 
-        gameManager.gameBoard.placeTileAt(x, y, new Tile(TileType.Tree, 1, TileState.Neutral));
+          gameManager.gameBoard.placeTileAt(x, y, new Tile(TileType.Tree, 1, TileState.Neutral));
+        }
       }
     };
 
@@ -84,7 +89,22 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
     };
   }, [gameManager, gameBoard]);
 
-  const handleCellClick = () => {};
+  const handleCellClick = (x: number, y: number) => {
+    if (paintTile) {
+      gameManager?.gameBoard.placeTileAt(x, y, new Tile(paintTile, 1, TileState.Neutral));
+      setForceUpdate(prev => prev + 1);
+
+      isPainting.current = true;
+    }
+  };
+
+  const handlePaintSelect = (type: TileType): void => {
+    if (type === paintTile) {
+      setPaintTile(null);
+    } else {
+      setPaintTile(type);
+    }
+  };
 
   const togglePause = () => {
     isPaused.current = !isPaused.current;
@@ -102,22 +122,48 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
         handleCellClick={handleCellClick}
         forceUpdate={forceUpdate}
       />
-      <button
-        className={`button ${styles.button} ${showControls ? styles.enabled : ''}`}
-        onClick={togglePause}
-      >
-        {isPausedState}
-        {!isPausedState && (
-          <svg viewBox="0 0 24 24">
-            <path d="M8.016 5.016l10.969 6.984-10.969 6.984v-13.969z"></path>
-          </svg>
-        )}
+      <div className={`${styles.menu} ${showControls ? styles.enabled : ''}`}>
+        <button className="button" onClick={togglePause}>
+          {!isPausedState && (
+            <svg viewBox="0 0 24 24">
+              <path d="M8.016 5.016l10.969 6.984-10.969 6.984v-13.969z"></path>
+            </svg>
+          )}
+          {isPausedState && (
+            <svg viewBox="0 0 24 24">
+              <path d="M14.016 5.016h3.984v13.969h-3.984v-13.969zM6 18.984v-13.969h3.984v13.969h-3.984z"></path>
+            </svg>
+          )}
+        </button>
         {isPausedState && (
-          <svg viewBox="0 0 24 24">
-            <path d="M14.016 5.016h3.984v13.969h-3.984v-13.969zM6 18.984v-13.969h3.984v13.969h-3.984z"></path>
-          </svg>
+          <div className={styles.paintMenu}>
+            <button
+              className={`button ${styles.paintMenuButton} ${paintTile === TileType.Tree ? 'active' : ''}`}
+              onClick={() => handlePaintSelect(TileType.Tree)}
+            >
+              <span className="text-tree">{TREE_GLYPH}</span>
+            </button>
+            <button
+              className={`button ${styles.paintMenuButton} ${paintTile === TileType.People ? 'active' : ''}`}
+              onClick={() => handlePaintSelect(TileType.People)}
+            >
+              <span className="text-people">{PEOPLE_GLYPH}</span>
+            </button>
+            <button
+              className={`button ${styles.paintMenuButton} ${paintTile === TileType.Farm ? 'active' : ''}`}
+              onClick={() => handlePaintSelect(TileType.Farm)}
+            >
+              <span className="text-farm">{FARM_GLYPH}</span>
+            </button>
+            <button
+              className={`button ${styles.paintMenuButton} ${paintTile === TileType.Power ? 'active' : ''}`}
+              onClick={() => handlePaintSelect(TileType.Power)}
+            >
+              <span className="text-power">{POWER_GLYPH}</span>
+            </button>
+          </div>
         )}
-      </button>
+      </div>
     </div>
   );
 };

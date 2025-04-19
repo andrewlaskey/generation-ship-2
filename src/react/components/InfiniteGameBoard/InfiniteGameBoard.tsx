@@ -7,7 +7,7 @@ import styles from './InfiniteGameBoard.module.scss';
 
 interface InfiniteGameBoardProps {
   gameBoard: GameBoard;
-  handleCellClick: () => void;
+  handleCellClick: (x: number, y: number) => void;
   forceUpdate: number;
 }
 
@@ -31,6 +31,11 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
       Draggable.zIndex = 1;
       Draggable.create(draggableRef.current, {
         zIndexBoost: false,
+        onClick: function (event: MouseEvent): boolean | void {
+          if (event.target !== draggableRef.current) {
+            return false;
+          }
+        } as GSAPCallback,
         onDrag: function () {
           const currentX = this.x;
           const currentY = this.y;
