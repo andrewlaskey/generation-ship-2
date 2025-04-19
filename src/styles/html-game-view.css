@@ -94,73 +94,6 @@
   overflow: auto;
 }
 
-/* Player Hand Styling */
-.hand-grid {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start; /* Ensure vertical tiles align to the top */
-}
-
-.hand-item {
-  display: flex;
-  flex-direction: column;
-  height: calc(var(--hand-tile-size-mobile) * 2);
-  width: calc(var(--hand-tile-size-mobile) * 2);
-}
-
-.hand-item:active {
-  transform: scale(0.95);
-}
-
-.card-display {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.deck-counter .deck {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--tile-edge-color);
-  background: black;
-  box-shadow:
-    0 2px 0 black,
-    0 4px 0 var(--tile-edge-color),
-    0 6px 0 black,
-    0 8px 0 var(--tile-edge-color),
-    0 10px 0 black,
-    0 12px 0 var(--tile-edge-color);
-  height: var(--hand-tile-size-mobile);
-  width: calc(var(--hand-tile-size-mobile) * 2);
-  font-size: 2rem;
-  transform: translateY(-12px);
-}
-
-.deck-counter .deck.is-empty {
-  border: 1px dashed var(--tile-edge-color);
-  box-shadow: none;
-  transform: translateY(0);
-}
-
-@media (min-width: 500px) {
-  .card-display {
-    flex-direction: row;
-  }
-
-  .hand-item {
-    height: var(--hand-tile-size-desk);
-    width: calc(var(--hand-tile-size-desk) * 2);
-  }
-
-  .deck-counter .deck {
-    height: var(--hand-tile-size-desk);
-    width: calc(var(--hand-tile-size-desk) * 2);
-  }
-}
-
 .html-game-view-wrapper .grid[data-size='10'] + .tile-preview .cell,
 .html-game-view-wrapper .grid[data-size='11'] + .tile-preview .cell,
 .html-game-view-wrapper .grid[data-size='12'] + .tile-preview .cell {
@@ -171,48 +104,6 @@
 .html-game-view-wrapper .grid[data-size='14'] + .tile-preview .cell,
 .html-game-view-wrapper .grid[data-size='15'] + .tile-preview .cell {
   font-size: 0.5em;
-}
-
-.hand-row,
-.preview-item-row {
-  display: flex;
-}
-
-.hand-row {
-  border-bottom: 2px solid var(--tile-edge-color);
-}
-
-/* Cell inside the hand-item */
-.hand-item .cell {
-  width: var(--hand-tile-size-mobile);
-  height: var(--hand-tile-size-mobile);
-  font-size: 1.15rem;
-  border: 1px solid black;
-}
-
-@media (min-width: 500px) {
-  .hand-item .cell {
-    width: var(--hand-tile-size-desk);
-    height: var(--hand-tile-size-desk);
-  }
-}
-
-.hand-item.selected .hand-row {
-  border-bottom: 2px solid var(--tile-hl-color);
-}
-
-.hand-item.selected .hand-row .cell {
-  border-bottom: 1px solid var(--tile-hl-color);
-}
-
-/* Only apply the yellow border to the selected cell, not the entire hand item */
-.hand-item.selected .cell {
-  border: 1px solid var(--tile-hl-color);
-}
-
-.hand-item .cell.power:not(.dead):after,
-.preview-item .cell.power:not(.dead):after {
-  content: '';
 }
 
 /* Info Bar */

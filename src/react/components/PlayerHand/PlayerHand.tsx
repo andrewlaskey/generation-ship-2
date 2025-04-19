@@ -2,6 +2,7 @@ import { HandItem } from '@/modules/PlayerHand';
 import { TileBlock } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React from 'react';
+import styles from './PlayerHand.module.scss';
 
 interface PlayerHandProps {
   items: HandItem[];
@@ -17,27 +18,31 @@ const PlayerHand: React.FC<PlayerHandProps> = ({
   handleHandItemClick,
 }) => {
   return (
-    <div className="card-display">
-      <div className="hand">
+    <div className={styles.cardDisplay}>
+      <div className={styles.hand}>
         {items.length === 0 && <p>No items in hand</p>}
 
         {items.length > 0 && (
-          <div className="hand-grid">
+          <div className={styles.handGrid}>
             {items.map((item, index) => {
               if (item instanceof TileBlock) {
-                const selectedClass = index === selectedIndex ? 'selected' : '';
+                const selectedClass = index === selectedIndex ? styles.selected : '';
                 const layout = item.getLayout();
 
                 return (
                   <div
-                    className={`hand-item ${selectedClass}`}
+                    className={`${styles.handItem} ${selectedClass}`}
                     data-index={index}
                     key={index}
                     onClick={() => handleHandItemClick(index)}
                   >
-                    <div className="hand-row">
-                      <div className={getTileCellClassList(layout.tiles[0])}></div>
-                      <div className={getTileCellClassList(layout.tiles[1])}></div>
+                    <div className={styles.handRow}>
+                      <div
+                        className={`${styles.handItemCell} ${getTileCellClassList(layout.tiles[0])}`}
+                      ></div>
+                      <div
+                        className={`${styles.handItemCell} ${getTileCellClassList(layout.tiles[1])}`}
+                      ></div>
                     </div>
                   </div>
                 );
@@ -48,8 +53,10 @@ const PlayerHand: React.FC<PlayerHandProps> = ({
           </div>
         )}
       </div>
-      <div className="deck-counter">
-        <div className={`deck ${deckCount === 0 ? 'is-empty' : ''}`}>{deckCount}</div>
+      <div className={styles.deckCounter}>
+        <div className={`${styles.deckCounterDeck} ${deckCount === 0 ? 'is-empty' : ''}`}>
+          {deckCount}
+        </div>
       </div>
     </div>
   );

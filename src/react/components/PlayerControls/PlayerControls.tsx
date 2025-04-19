@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameManager } from '@/modules/GameManager';
-import PlayerHand from '../PlayerHand';
+import PlayerHand from '../PlayerHand/PlayerHand';
 import { ControlViewOption, GridCell } from '../GameView';
 import { Tile } from '@/modules/Tile';
 import { toTitleCase } from '@/utils/stringHelpers';
