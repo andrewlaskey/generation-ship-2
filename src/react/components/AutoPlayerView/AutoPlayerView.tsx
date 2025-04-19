@@ -122,7 +122,9 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
         handleCellClick={handleCellClick}
         forceUpdate={forceUpdate}
       />
-      <div className={`${styles.menu} ${showControls ? styles.enabled : ''}`}>
+      <div
+        className={`${styles.menu} ${showControls ? styles.enabled : ''} ${isPausedState ? styles.paused : ''}`}
+      >
         <button className="button" onClick={togglePause}>
           {!isPausedState && (
             <svg viewBox="0 0 24 24">

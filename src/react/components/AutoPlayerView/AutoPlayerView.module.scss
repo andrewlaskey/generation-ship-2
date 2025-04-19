@@ -16,6 +16,10 @@
   z-index: 10;
 }
 
+.paused {
+  opacity: 1;
+}
+
 .paint-menu {
   display: flex;
   flex-direction: column;
