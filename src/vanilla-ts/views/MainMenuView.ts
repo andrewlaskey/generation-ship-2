@@ -1,4 +1,4 @@
-import { VisualAutoPlayerController } from '../../controllers/VisualAutoPlayerController';
+import { VisualAutoPlayerController } from '../controllers/VisualAutoPlayerController';
 import { TileRuleConfig } from '../../modules/TileRules';
 import { View } from '../../types/ViewInterface';
 import { ABOUT_HTML } from '../../utils/constants';
