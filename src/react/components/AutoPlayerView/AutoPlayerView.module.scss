@@ -2,7 +2,11 @@
   position: absolute;
   top: 2rem;
   right: 2rem;
+  bottom: 2rem;
   opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
 
   &:hover,
   &:focus,
@@ -32,4 +36,13 @@
   padding: 0.6em;
   width: 2.5em;
   height: 2.5em;
+}
+
+.zoom-menu {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: end;
+  gap: 0.5em;
 }

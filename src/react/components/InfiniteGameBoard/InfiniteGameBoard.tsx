@@ -9,6 +9,7 @@ interface InfiniteGameBoardProps {
   gameBoard: GameBoard;
   handleCellClick: (x: number, y: number) => void;
   forceUpdate: number;
+  zoomFactor: number;
 }
 
 gsap.registerPlugin(Draggable);
@@ -17,17 +18,24 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
   gameBoard,
   handleCellClick,
   forceUpdate,
+  zoomFactor,
 }) => {
   const draggableRef = useRef(null);
   const rows = 3;
   const cols = 3;
+  const zoomRef = useRef(zoomFactor);
 
   useEffect(() => {
     if (draggableRef.current) {
       const gridEl = (draggableRef.current as HTMLDivElement).querySelector<HTMLDivElement>(
-        `.${styles.gameBoar}`
+        '.gameboard-wrap'
       );
-      const gridWidth = gridEl?.offsetWidth || 1440;
+      console.log(gridEl);
+
+      zoomRef.current = zoomFactor;
+
+      gsap.to(draggableRef.current, { scale: zoomRef.current });
+
       Draggable.zIndex = 1;
       Draggable.create(draggableRef.current, {
         zIndexBoost: false,
@@ -37,44 +45,49 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
           }
         } as GSAPCallback,
         onDrag: function () {
+          const gridWidth = gridEl?.getBoundingClientRect().width || 1440;
           const currentX = this.x;
           const currentY = this.y;
 
+          console.log(gridEl, gridWidth);
+
           if (currentX > gridWidth / 2) {
             this.x = currentX - gridWidth;
-            gsap.set(this.target, { x: this.x });
+            gsap.set(this.target, { x: this.x, zIndex: 1, scale: zoomRef.current });
           } else if (currentX < -gridWidth / 2) {
             this.x = currentX + gridWidth;
-            gsap.set(this.target, { x: this.x, zIndex: 1 });
+            gsap.set(this.target, { x: this.x, zIndex: 1, scale: zoomRef.current });
           }
 
           if (currentY > gridWidth / 2) {
             this.y = currentY - gridWidth;
-            gsap.set(this.target, { y: this.y });
+            gsap.set(this.target, { y: this.y, zIndex: 1, scale: zoomRef.current });
           } else if (currentY < -gridWidth / 2) {
             this.y = currentY + gridWidth;
-            gsap.set(this.target, { y: this.y, zIndex: 1 });
+            gsap.set(this.target, { y: this.y, zIndex: 1, scale: zoomRef.current });
           }
         },
       });
     }
-  }, []);
+  }, [zoomFactor]);
   return (
-    <div ref={draggableRef} className={styles.infiniteGrid}>
-      {Array.from({ length: rows }, (_, rowIndex) => (
-        <div className={styles.infiniteGridRow} key={rowIndex}>
-          {Array.from({ length: cols }, (_, colIndex) => (
-            <div className={styles.gameBoard} key={colIndex}>
-              <GameBoardGrid
-                gameBoard={gameBoard}
-                handleCellClick={handleCellClick}
-                forceUpdate={forceUpdate}
-                usePerspective={false}
-              />
-            </div>
-          ))}
-        </div>
-      ))}
+    <div className={styles.infiniteGridWrap}>
+      <div ref={draggableRef} className={styles.infiniteGrid}>
+        {Array.from({ length: rows }, (_, rowIndex) => (
+          <div className={styles.infiniteGridRow} key={rowIndex}>
+            {Array.from({ length: cols }, (_, colIndex) => (
+              <div className="gameboard-wrap" key={colIndex}>
+                <GameBoardGrid
+                  gameBoard={gameBoard}
+                  handleCellClick={handleCellClick}
+                  forceUpdate={forceUpdate}
+                  usePerspective={false}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

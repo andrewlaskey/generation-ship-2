@@ -21,6 +21,7 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   const [isPausedState, setIsPausedState] = useState(false);
   const [paintTile, setPaintTile] = useState<TileType | null>(null);
   const isPainting = useRef(false);
+  const [zoomFactor, setZoomFactor] = useState(1);
 
   const isLoading = configLoading;
 
@@ -106,6 +107,17 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
     }
   };
 
+  const handleZoomInClick = () => {
+    if (zoomFactor < 1.75) {
+      setZoomFactor(zoomFactor + 0.25);
+    }
+  };
+  const handleZoomOutClick = () => {
+    if (zoomFactor > 0.5) {
+      setZoomFactor(zoomFactor - 0.25);
+    }
+  };
+
   const togglePause = () => {
     isPaused.current = !isPaused.current;
     setIsPausedState(prev => !prev);
@@ -121,6 +133,7 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
         gameBoard={gameBoard}
         handleCellClick={handleCellClick}
         forceUpdate={forceUpdate}
+        zoomFactor={zoomFactor}
       />
       <div
         className={`${styles.menu} ${showControls ? styles.enabled : ''} ${isPausedState ? styles.paused : ''}`}
@@ -162,6 +175,16 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
               onClick={() => handlePaintSelect(TileType.Power)}
             >
               <span className="text-power">{POWER_GLYPH}</span>
+            </button>
+          </div>
+        )}
+        {isPausedState && (
+          <div className={styles.zoomMenu}>
+            <button className={`button ${styles.paintMenuButton}`} onClick={handleZoomInClick}>
+              <span>+</span>
+            </button>
+            <button className={`button ${styles.paintMenuButton}`} onClick={handleZoomOutClick}>
+              <span>-</span>
             </button>
           </div>
         )}
