@@ -103,6 +103,12 @@ export class GameBoard {
     }
   }
 
+  clearHighlights(): void {
+    this.grid.forEach(space => {
+      space.isHighlighted = false;
+    });
+  }
+
   // Method to place a tile at a specific coordinate
   placeTileAt(x: number, y: number, tile: Tile): boolean {
     const space = this.getSpace(x, y);

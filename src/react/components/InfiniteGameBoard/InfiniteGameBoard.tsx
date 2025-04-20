@@ -30,7 +30,6 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
       const gridEl = (draggableRef.current as HTMLDivElement).querySelector<HTMLDivElement>(
         '.gameboard-wrap'
       );
-      console.log(gridEl);
 
       zoomRef.current = zoomFactor;
 
@@ -48,8 +47,6 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
           const gridWidth = gridEl?.getBoundingClientRect().width || 1440;
           const currentX = this.x;
           const currentY = this.y;
-
-          console.log(gridEl, gridWidth);
 
           if (currentX > gridWidth / 2) {
             this.x = currentX - gridWidth;

@@ -67,6 +67,18 @@ describe('GameBoard', () => {
     expect(space?.isHighlighted).toBe(true);
   });
 
+  it('should clear all highlights', () => {
+    // Arrange
+    board.toggleSpaceHighlight(1, 1);
+
+    // Act
+    board.clearHighlights();
+
+    // Assert
+    const space = board.getSpace(1, 1);
+    expect(space?.isHighlighted).toBe(false);
+  });
+
   it('should remove highlight if board space already highlighted', () => {
     // toggle once
     board.toggleSpaceHighlight(2, 2);

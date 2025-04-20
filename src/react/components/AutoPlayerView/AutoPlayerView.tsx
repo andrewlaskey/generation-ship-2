@@ -7,6 +7,7 @@ import { GameBoard } from '@/modules/GameBoard';
 import styles from './AutoPlayerView.module.scss';
 import InfiniteGameBoard from '../InfiniteGameBoard/InfiniteGameBoard';
 import { FARM_GLYPH, PEOPLE_GLYPH, POWER_GLYPH, TREE_GLYPH } from '@/utils/constants';
+import { toTitleCase } from '@/utils/stringHelpers';
 
 interface AutoPlayerViewProps {
   showControls: boolean;
@@ -20,8 +21,10 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   const isPaused = useRef(false);
   const [isPausedState, setIsPausedState] = useState(false);
   const [paintTile, setPaintTile] = useState<TileType | null>(null);
-  const isPainting = useRef(false);
+  const hasInteracted = useRef(false);
   const [zoomFactor, setZoomFactor] = useState(1);
+  const [inspectToolSelected, setInspectToolSelected] = useState(false);
+  const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
 
   const isLoading = configLoading;
 
@@ -59,7 +62,7 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
     };
 
     const placeTrees = (): void => {
-      if (!isPainting.current) {
+      if (!hasInteracted.current) {
         for (let i = 0; i < numTrees; i++) {
           const x = Math.floor(Math.random() * gridSize);
           const y = Math.floor(Math.random() * gridSize);
@@ -91,15 +94,30 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   }, [gameManager, gameBoard]);
 
   const handleCellClick = (x: number, y: number) => {
+    gameManager?.clearHighlights();
+
+    if (inspectToolSelected) {
+      const space = gameManager?.gameBoard.getSpace(x, y);
+      if (space && space.tile) {
+        setSelectedTile(space.tile);
+        gameManager?.addBoardHighlight(x, y);
+      } else {
+        setSelectedTile(null);
+      }
+    }
+
     if (paintTile) {
       gameManager?.gameBoard.placeTileAt(x, y, new Tile(paintTile, 1, TileState.Neutral));
       setForceUpdate(prev => prev + 1);
 
-      isPainting.current = true;
+      hasInteracted.current = true;
     }
   };
 
   const handlePaintSelect = (type: TileType): void => {
+    setInspectToolSelected(false);
+    gameManager?.clearHighlights();
+
     if (type === paintTile) {
       setPaintTile(null);
     } else {
@@ -108,14 +126,23 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
   };
 
   const handleZoomInClick = () => {
+    setInspectToolSelected(false);
     if (zoomFactor < 1.75) {
       setZoomFactor(zoomFactor + 0.25);
     }
   };
   const handleZoomOutClick = () => {
+    setInspectToolSelected(false);
     if (zoomFactor > 0.5) {
       setZoomFactor(zoomFactor - 0.25);
     }
+  };
+
+  const handleSelectInspectTool = () => {
+    setPaintTile(null);
+    setSelectedTile(null);
+    gameManager?.clearHighlights();
+    setInspectToolSelected(prev => !prev);
   };
 
   const togglePause = () => {
@@ -180,12 +207,38 @@ const AutoPlayerView: React.FC<AutoPlayerViewProps> = ({ showControls }) => {
         )}
         {isPausedState && (
           <div className={styles.zoomMenu}>
+            <button
+              className={`button ${styles.paintMenuButton} ${inspectToolSelected ? 'active' : ''}`}
+              onClick={handleSelectInspectTool}
+            >
+              <svg id="icon-search" viewBox="0 0 32 32">
+                <path d="M31.715 28.953c0.381 0.381 0.381 0.999 0 1.381l-1.381 1.381c-0.382 0.381-1 0.381-1.381 0l-9.668-9.668c-0.105-0.105-0.175-0.229-0.222-0.361-1.983 1.449-4.418 2.314-7.063 2.314-6.627 0-12-5.373-12-12s5.373-12 12-12c6.627 0 12 5.373 12 12 0 2.645-0.865 5.080-2.314 7.063 0.132 0.047 0.256 0.116 0.361 0.222l9.668 9.668zM12 4c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8c0-4.418-3.582-8-8-8z"></path>
+              </svg>
+            </button>
             <button className={`button ${styles.paintMenuButton}`} onClick={handleZoomInClick}>
               <span>+</span>
             </button>
             <button className={`button ${styles.paintMenuButton}`} onClick={handleZoomOutClick}>
               <span>-</span>
             </button>
+          </div>
+        )}
+        {isPausedState && inspectToolSelected && selectedTile && (
+          <div className={styles.tileDetails}>
+            <ul className={styles.tileDetailsList}>
+              <li>
+                <strong>Type:</strong> {toTitleCase(selectedTile.type)}
+              </li>
+              <li>
+                <strong>Status:</strong> {toTitleCase(selectedTile.state)}
+              </li>
+              <li>
+                <strong>Level:</strong> {selectedTile.level}
+              </li>
+              <li>
+                <strong>Age:</strong> {selectedTile.age}
+              </li>
+            </ul>
           </div>
         )}
       </div>

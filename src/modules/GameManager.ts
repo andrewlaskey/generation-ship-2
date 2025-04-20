@@ -166,6 +166,11 @@ export class GameManager {
   removeBoardHighlight(x: number, y: number): void {
     this.gameBoard.toggleSpaceHighlight(x, y, false);
   }
+
+  clearHighlights(): void {
+    this.gameBoard.clearHighlights();
+  }
+
   // Get the current state of the player's hand
   getPlayerHand(): HandItem[] {
     return this.playerHand.getItems(); // Return the items in the player's hand
