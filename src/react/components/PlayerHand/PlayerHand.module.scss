@@ -79,7 +79,7 @@
   transform: translateY(-12px);
 
   @media (min-width: 500px) {
-    height: cal(var(--hand-tile-size-desk) + 4px);
+    height: calc(var(--hand-tile-size-desk) + 4px);
     width: calc(var(--hand-tile-size-desk) * 2);
   }
 
