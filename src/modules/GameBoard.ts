@@ -11,6 +11,8 @@ export type BoardSpaceAction = {
   config: TileRuleConfig;
 };
 
+export type TileWithCoordinates = { x: number; y: number; tile: Tile };
+
 // Class to represent the GameBoard
 export class GameBoard {
   private grid: BoardSpace[];
@@ -252,6 +254,33 @@ export class GameBoard {
       const neighbor = this.getSpace(x + dx, y + dy);
       if (neighbor && neighbor.tile) {
         neighborTiles.push(neighbor.tile);
+      }
+    });
+
+    return neighborTiles;
+  }
+
+  public getNeighborsWithCoords(x: number, y: number): TileWithCoordinates[] {
+    const neighborTiles: TileWithCoordinates[] = [];
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1], // Cardinal directions (N, S, W, E)
+      [-1, -1],
+      [1, 1],
+      [-1, 1],
+      [1, -1], // Diagonal directions
+    ];
+
+    directions.forEach(([dx, dy]) => {
+      const neighbor = this.getSpace(x + dx, y + dy);
+      if (neighbor && neighbor.tile) {
+        neighborTiles.push({
+          x: x + dx,
+          y: y + dy,
+          tile: neighbor.tile,
+        });
       }
     });
 

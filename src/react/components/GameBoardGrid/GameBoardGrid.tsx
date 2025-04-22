@@ -5,8 +5,9 @@ import { TileBlock, TileBlockLayout } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React from 'react';
 import { GridCell } from '../GameView';
-import { Tile } from '@/modules/Tile';
+import { Tile, TileType } from '@/modules/Tile';
 import styles from './GameBoardGrid.module.scss';
+import GridPeople from '../GridPeople/GridPeople';
 
 interface GameBoardGridProps {
   gameBoard: GameBoard;
@@ -23,6 +24,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
   selectedHandItem,
   selectedGridCell,
   usePerspective = true,
+  forceUpdate,
 }) => {
   const rows = Array.from({ length: gameBoard.size }, (_, i) => i);
 
@@ -112,6 +114,15 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
                         className={getCellClassList(space)}
                         onClick={() => handleCellClick(col, row)}
                       >
+                        {space.tile && space.tile.type === TileType.People && (
+                          <GridPeople
+                            tile={space.tile}
+                            x={col}
+                            y={row}
+                            gameBoard={gameBoard}
+                            forceUpdate={forceUpdate}
+                          />
+                        )}
                         {selectedHandItem && layout && isSelectedCell(col, row) && (
                           <div className={styles.previewItem}>
                             <div

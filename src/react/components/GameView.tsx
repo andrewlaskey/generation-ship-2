@@ -36,6 +36,7 @@ const GameView: React.FC<GameViewProps> = ({
   const [inspectTile, setInspectTile] = useState<Tile | null>(null);
   const [showPlayerActions, setShowPlayerActions] = useState(false);
   const [gameState, setGameState] = useState<GameState>(gameManager.state);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const ecoScore = gameManager.getPlayerScore('ecology');
   const popScore = gameManager.getPlayerScore('population');
@@ -143,6 +144,7 @@ const GameView: React.FC<GameViewProps> = ({
 
   const advanceTurn = () => {
     gameManager.advanceTurn();
+    setForceUpdate(prev => prev + 1);
 
     if (gameManager.state === GameState.Complete || gameManager.state === GameState.GameOver) {
       if (gameType == 'daily' && userScoreHistory) {
@@ -182,6 +184,7 @@ const GameView: React.FC<GameViewProps> = ({
               handleCellClick={handleCellClick}
               selectedHandItem={selectedHandItem}
               selectedGridCell={selectedGridCell}
+              forceUpdate={forceUpdate}
             />
             {gameState === GameState.Playing && (
               <PlayerControls

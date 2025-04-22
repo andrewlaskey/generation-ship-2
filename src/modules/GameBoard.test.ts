@@ -371,6 +371,25 @@ describe('GameBoard', () => {
     });
   });
 
+  describe('getNeighborsWithCoords', () => {
+    it('should return neighbor tiles with coordinates', () => {
+      // Arrange
+      board = new GameBoard(3);
+      const treeTile = new Tile(TileType.Tree, 2, TileState.Neutral);
+      const farmTile = new Tile(TileType.Farm, 2, TileState.Neutral);
+      board.placeTileAt(0, 0, treeTile);
+      board.placeTileAt(0, 1, farmTile);
+
+      // Act
+      const neighbors = board.getNeighborsWithCoords(1, 1);
+
+      expect(neighbors).toStrictEqual([
+        { x: 0, y: 1, tile: farmTile },
+        { x: 0, y: 0, tile: treeTile },
+      ]);
+    });
+  });
+
   describe('updateBoard', () => {
     it('should update the board', () => {
       // Arrange
