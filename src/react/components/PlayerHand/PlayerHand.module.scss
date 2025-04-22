@@ -1,8 +1,8 @@
 .card-display {
   display: flex;
   justify-content: space-between;
-  flex-direction: column;
-  padding-top: 0.5rem;
+  flex-direction: row;
+  padding-top: 1rem;
   padding-bottom: 0.5rem;
 
   @media (min-width: 500px) {
@@ -19,7 +19,7 @@
 .hand-item {
   display: flex;
   flex-direction: column;
-  height: calc((var(--hand-tile-size-mobile) * 2) + 4px);
+  height: calc((var(--hand-tile-size-mobile)) + 4px);
   width: calc((var(--hand-tile-size-mobile) * 2) + 2px);
   border: 1px solid var(--tile-edge-color);
   border-bottom: 3px solid var(--tile-edge-color);
@@ -73,13 +73,13 @@
     0 8px 0 var(--tile-edge-color),
     0 10px 0 black,
     0 12px 0 var(--tile-edge-color);
-  height: var(--hand-tile-size-mobile);
+  height: calc((var(--hand-tile-size-mobile)) + 4px);
   width: calc(var(--hand-tile-size-mobile) * 2);
   font-size: 2rem;
   transform: translateY(-12px);
 
   @media (min-width: 500px) {
-    height: var(--hand-tile-size-desk);
+    height: cal(var(--hand-tile-size-desk) + 4px);
     width: calc(var(--hand-tile-size-desk) * 2);
   }
 
