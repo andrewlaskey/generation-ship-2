@@ -13,9 +13,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
   const [isMeditationMode, setIsMeditationMode] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [customGameSettings, setCustomGameSettings] = useState({
-    gridSize: 9,
-    handSize: 3,
-    deckSize: 40,
+    gridSize: '9',
+    handSize: '3',
+    deckSize: '40',
     seed: '',
   });
   const [warningNotice, setWarningNotice] = useState('');
@@ -37,13 +37,22 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
 
     switch (id) {
       case 'gridSizeInput':
-        setCustomGameSettings(prev => ({ ...prev, gridSize: parseInt(value) || 9 }));
+        setCustomGameSettings(prev => ({
+          ...prev,
+          gridSize: value === '' ? '' : value || prev.gridSize,
+        }));
         break;
       case 'handSizeInput':
-        setCustomGameSettings(prev => ({ ...prev, handSize: parseInt(value) || 3 }));
+        setCustomGameSettings(prev => ({
+          ...prev,
+          handSize: value === '' ? '' : value || prev.handSize,
+        }));
         break;
       case 'deckSizeInput':
-        setCustomGameSettings(prev => ({ ...prev, deckSize: parseInt(value) || 40 }));
+        setCustomGameSettings(prev => ({
+          ...prev,
+          deckSize: value === '' ? '' : value || prev.deckSize,
+        }));
         break;
       case 'seedInputStr':
         setCustomGameSettings(prev => ({ ...prev, seed: value }));
@@ -64,30 +73,25 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
       const handSizeValidation = { min: 1, max: 3 };
       const deckSizeValidation = { min: 10, max: 100 };
 
-      if (
-        customGameSettings.gridSize < gridSizeValidation.min ||
-        customGameSettings.gridSize > gridSizeValidation.max
-      ) {
+      const gridSizeInt = parseInt(customGameSettings.gridSize, 10);
+      const handSizeInt = parseInt(customGameSettings.handSize, 10);
+      const deckSizeInt = parseInt(customGameSettings.deckSize, 10);
+
+      if (gridSizeInt < gridSizeValidation.min || gridSizeInt > gridSizeValidation.max) {
         setWarningNotice(
           `Grid size must be between ${gridSizeValidation.min} and ${gridSizeValidation.max}`
         );
         return;
       }
 
-      if (
-        customGameSettings.handSize < handSizeValidation.min ||
-        customGameSettings.handSize > handSizeValidation.max
-      ) {
+      if (handSizeInt < handSizeValidation.min || handSizeInt > handSizeValidation.max) {
         setWarningNotice(
           `Hand size must be between ${handSizeValidation.min} and ${handSizeValidation.max}`
         );
         return;
       }
 
-      if (
-        customGameSettings.deckSize < deckSizeValidation.min ||
-        customGameSettings.deckSize > deckSizeValidation.max
-      ) {
+      if (deckSizeInt < deckSizeValidation.min || deckSizeInt > deckSizeValidation.max) {
         setWarningNotice(
           `Deck size must be between ${deckSizeValidation.min} and ${deckSizeValidation.max}`
         );
@@ -97,9 +101,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
       // Apply settings and start game
       gameManager.configGame({
         seed: customGameSettings.seed || undefined,
-        size: customGameSettings.gridSize,
-        maxHandSize: customGameSettings.handSize,
-        initialDeckSize: customGameSettings.deckSize,
+        size: gridSizeInt,
+        maxHandSize: handSizeInt,
+        initialDeckSize: deckSizeInt,
       });
       onSwitchView(gameType, true);
     }
