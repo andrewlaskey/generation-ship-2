@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GameManager } from '@/modules/GameManager';
 import PlayerHand from '../PlayerHand/PlayerHand';
 import { ControlViewOption, GridCell } from '../GameView';
@@ -17,6 +17,8 @@ interface PlayerControlsProps {
   confirmPlacement: () => void;
   declinePlacement: () => void;
   selectedGridCell: GridCell | null;
+  forceUpdate?: number;
+  gameViewUpdateTrigger: () => void;
 }
 
 const PlayerControls: React.FC<PlayerControlsProps> = ({
@@ -28,42 +30,46 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   confirmPlacement,
   declinePlacement,
   selectedGridCell,
+  forceUpdate,
+  gameViewUpdateTrigger,
 }) => {
   const [_handUpdateCounter, setHandUpdateCounter] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(gameManager.getSelectedItemIndex());
+  const [handItems, setHandItems] = useState(gameManager.getPlayerHand());
+  const [deckCount, setDeckCount] = useState(gameManager.getDeckItemCount());
+  const [scoreLines, setScoreLines] = useState<ScoreGraphLines[]>([]);
 
-  const selectedIndex = gameManager.getSelectedItemIndex();
-  const handItems = gameManager.getPlayerHand();
-  const deckCount = gameManager.getDeckItemCount();
+  useEffect(() => {
+    const popScore = gameManager.getPlayerScoreObj('population');
+    const ecoScore = gameManager.getPlayerScoreObj('ecology');
+    const lines: ScoreGraphLines[] = [];
 
-  const popScore = gameManager.getPlayerScoreObj('population');
-  const ecoScore = gameManager.getPlayerScoreObj('ecology');
-
-  const lines: ScoreGraphLines[] = [];
-
-  if (popScore) {
-    lines.push({
-      score: popScore,
-      color: 'steelblue',
-    });
-  }
-
-  if (ecoScore) {
-    lines.push({
-      score: ecoScore,
-      color: '#1b9416',
-    });
-  }
-
-  const handleHandItemClick = (index: number) => {
-    const currentIndex = gameManager.getSelectedItemIndex();
-
-    if (currentIndex === index) {
-      gameManager.rotateSelectedItem();
-    } else {
-      gameManager.selectItemFromHand(index); // Select the clicked item from hand
+    if (popScore) {
+      lines.push({
+        score: popScore,
+        color: 'steelblue',
+      });
     }
 
+    if (ecoScore) {
+      lines.push({
+        score: ecoScore,
+        color: '#1b9416',
+      });
+    }
+
+    setScoreLines(lines);
+    setSelectedIndex(gameManager.getSelectedItemIndex());
+    setHandItems(gameManager.getPlayerHand());
+    setDeckCount(gameManager.getDeckItemCount());
     setHandUpdateCounter(prev => prev + 1);
+  }, [gameManager, forceUpdate]);
+
+  const handleHandItemClick = (index: number) => {
+    gameManager.selectItemFromHand(index);
+
+    setHandUpdateCounter(prev => prev + 1);
+    gameViewUpdateTrigger();
   };
 
   return (
@@ -109,7 +115,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
         </div>
         <div className={`score-history-wrapper ${activeTool === 'graph' ? '' : 'hidden'}`}>
           <h3>Score History</h3>
-          <ScoreHistory lines={lines} />
+          <ScoreHistory lines={scoreLines} />
         </div>
         <div className={activeTool === 'default' ? '' : 'hidden'}>
           <PlayerHand

@@ -13,7 +13,7 @@ const ScoreHistory: React.FC<ScoreHistoryProps> = ({ lines }) => {
     if (containerRef.current) {
       graphsView.appendScoreGraph(containerRef.current, lines);
     }
-  }, []);
+  }, [lines]);
 
   return <div ref={containerRef}></div>;
 };

@@ -159,6 +159,10 @@ const GameView: React.FC<GameViewProps> = ({
     setGameState(gameManager.state);
   };
 
+  const childUpdate = () => {
+    setForceUpdate(prev => prev + 1);
+  };
+
   return (
     <div className="game-view">
       {activeTool !== '3d' && (
@@ -196,6 +200,8 @@ const GameView: React.FC<GameViewProps> = ({
                 confirmPlacement={handleConfirmPlaceCell}
                 declinePlacement={handleDeclinePlaceCell}
                 selectedGridCell={selectedGridCell}
+                forceUpdate={forceUpdate}
+                gameViewUpdateTrigger={childUpdate}
               />
             )}
             {(gameState === GameState.Complete || gameState === GameState.GameOver) && (
