@@ -71,6 +71,7 @@ export class GameManager {
     this.playerScore = {
       ecology: new ScoreObject('ecology', 0),
       population: new ScoreObject('population', 0),
+      waste: new ScoreObject('waste', 0),
     };
     this.state = GameState.Ready;
   }
@@ -97,6 +98,7 @@ export class GameManager {
     this.playerScore = {
       ecology: new ScoreObject('ecology', 0),
       population: new ScoreObject('population', 0),
+      waste: new ScoreObject('waste', 0),
     };
     this.state = GameState.Ready;
   }
@@ -208,6 +210,7 @@ export class GameManager {
     this.playerScore = {
       ecology: new ScoreObject('ecology', 0),
       population: new ScoreObject('population', 0),
+      waste: new ScoreObject('waste', 0),
     };
     this.updatePlayerScore();
     this.state = GameState.Ready;
@@ -263,16 +266,28 @@ export class GameManager {
     const tileTypeCounts = this.gameBoard.countTileTypes(true);
     const peopleScoreMultiplier = 5;
 
-    if (Object.hasOwn(tileTypeCounts, 'tree')) {
-      this.playerScore.ecology.update(tileTypeCounts['tree']);
+    if (
+      Object.hasOwn(tileTypeCounts, TileType.Tree) &&
+      Object.hasOwn(this.playerScore, 'ecology')
+    ) {
+      this.playerScore.ecology.update(tileTypeCounts[TileType.Tree]);
     } else {
       this.playerScore.ecology.update(0);
     }
 
-    if (Object.hasOwn(tileTypeCounts, 'people')) {
-      this.playerScore.population.update(tileTypeCounts['people'] * peopleScoreMultiplier);
+    if (
+      Object.hasOwn(tileTypeCounts, TileType.People) &&
+      Object.hasOwn(this.playerScore, 'population')
+    ) {
+      this.playerScore.population.update(tileTypeCounts[TileType.People] * peopleScoreMultiplier);
     } else {
       this.playerScore.population.update(0);
+    }
+
+    if (Object.hasOwn(tileTypeCounts, TileType.Waste) && Object.hasOwn(this.playerScore, 'waste')) {
+      this.playerScore.waste.update(tileTypeCounts[TileType.Waste]);
+    } else {
+      this.playerScore.waste.update(0);
     }
   }
 
@@ -339,7 +354,7 @@ export class GameManager {
     const scoreElements = new Map<string, number>();
     const eco = this.getPlayerScore('ecology');
     const pop = this.getPlayerScore('population');
-    const tileTypeCounts = this.gameBoard.countTileTypes();
+    const waste = this.getPlayerScore('waste');
     const habitatAges = this.gameBoard.getHabitatAges();
     const baseScoreMultiplier = 100;
     const wastePenaltyMultiplier = -10;
@@ -356,11 +371,7 @@ export class GameManager {
 
     scoreElements.set('Remaining deck penalty', this.getDeckItemCount() * -1);
 
-    if (Object.hasOwn(tileTypeCounts, TileType.Waste)) {
-      const wasteCount = tileTypeCounts[TileType.Waste];
-
-      scoreElements.set('Waste tiles penalty', wasteCount * wastePenaltyMultiplier);
-    }
+    scoreElements.set('Waste tiles penalty', waste * wastePenaltyMultiplier);
 
     const survivalBonus = habitatAges.reduce((sum, age) => {
       return sum + age * survivalBonusMultiplier;

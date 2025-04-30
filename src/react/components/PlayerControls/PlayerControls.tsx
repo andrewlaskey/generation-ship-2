@@ -42,6 +42,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   useEffect(() => {
     const popScore = gameManager.getPlayerScoreObj('population');
     const ecoScore = gameManager.getPlayerScoreObj('ecology');
+    const wasteScore = gameManager.getPlayerScoreObj('waste');
     const lines: ScoreGraphLines[] = [];
 
     if (popScore) {
@@ -55,6 +56,13 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
       lines.push({
         score: ecoScore,
         color: '#1b9416',
+      });
+    }
+
+    if (wasteScore) {
+      lines.push({
+        score: wasteScore,
+        color: '#9b9e9e',
       });
     }
 

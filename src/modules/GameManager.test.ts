@@ -332,6 +332,7 @@ describe('GameManager', () => {
     freeplayGameManager.playerScore = {
       ecology: new ScoreObject('ecology', 0),
       population: new ScoreObject('population', 0),
+      waste: new ScoreObject('waste', 0),
     };
 
     (gameBoard.countTileTypes as Mock).mockReturnValueOnce({
