@@ -160,6 +160,7 @@ const GameView: React.FC<GameViewProps> = ({
   };
 
   const childUpdate = () => {
+    setSelectedHandItem(gameManager.getSelectedItem());
     setForceUpdate(prev => prev + 1);
   };
 
