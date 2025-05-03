@@ -47,6 +47,7 @@ const GameView: React.FC<GameViewProps> = ({
     }
     setSelectedHandItem(null);
     setShowPlayerActions(false);
+    setSelectedGridCell(null);
   };
 
   const handleOpenHelp = () => {
