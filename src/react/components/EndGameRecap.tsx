@@ -48,10 +48,10 @@ const EndGameRecap: React.FC<EndGameRecapProps> = ({
     const popupDisplayDurationMs = 3 * 1000;
 
     try {
-      const text = `Generation Ship 2 - Daily Challenge ${getCurrentDate()}
-        🌲 ${ecoScore?.value.toLocaleString() ?? 0}
-        👤 ${popScore?.value.toLocaleString() ?? 0}
-        🧮 ${finalScore.toLocaleString()}`;
+      const text = `#GenerationShip2 - Daily Challenge ${getCurrentDate()}
+🌲 ${ecoScore?.value.toLocaleString() ?? 0}
+👤 ${popScore?.value.toLocaleString() ?? 0}
+🧮 ${finalScore.toLocaleString()}`;
 
       await navigator.clipboard.writeText(text);
 
