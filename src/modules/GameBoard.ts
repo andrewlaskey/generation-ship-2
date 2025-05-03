@@ -302,4 +302,22 @@ export class GameBoard {
 
     return ages;
   }
+
+  public getOldestTree(): number {
+    let oldestAge = 0;
+
+    for (let x = 0; x < this.gridSize; x++) {
+      for (let y = 0; y < this.gridSize; y++) {
+        const space = this.getSpace(x, y);
+
+        if (space && space.tile && space.tile.type === TileType.Tree) {
+          if (space.tile.age > oldestAge) {
+            oldestAge = space.tile.age;
+          }
+        }
+      }
+    }
+
+    return oldestAge;
+  }
 }

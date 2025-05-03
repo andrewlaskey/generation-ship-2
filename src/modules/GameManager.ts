@@ -356,11 +356,13 @@ export class GameManager {
     const pop = this.getPlayerScore('population');
     const waste = this.getPlayerScore('waste');
     const habitatAges = this.gameBoard.getHabitatAges();
+    const oldestTree = this.gameBoard.getOldestTree();
     const baseScoreMultiplier = 100;
     const wastePenaltyMultiplier = -10;
     const ecoRatioMultiplier = 1000;
     const ecoRatioNoPopBase = 100;
     const survivalBonusMultiplier = 10;
+    const oldestTreeBonusMultiplier = 10;
 
     scoreElements.set('Base', baseScoreMultiplier * (eco + pop));
 
@@ -377,6 +379,11 @@ export class GameManager {
       return sum + age * survivalBonusMultiplier;
     }, 0);
     scoreElements.set('Habitat survival bonus', survivalBonus);
+
+    scoreElements.set(
+      'Old growth tree bonus',
+      oldestTree > 20 ? oldestTree * oldestTreeBonusMultiplier : 0
+    );
 
     return scoreElements;
   }
