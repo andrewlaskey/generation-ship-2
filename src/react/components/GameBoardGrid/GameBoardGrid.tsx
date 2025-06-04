@@ -3,7 +3,7 @@ import { GameBoard } from '@/modules/GameBoard';
 import { HandItem } from '@/modules/PlayerHand';
 import { TileBlock, TileBlockLayout } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
-import React from 'react';
+import React, { useRef } from 'react';
 import { GridCell } from '../GameView';
 import { Tile, TileType } from '@/modules/Tile';
 import styles from './GameBoardGrid.module.scss';
@@ -26,6 +26,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
   usePerspective = true,
   forceUpdate,
 }) => {
+  const gridRef = useRef<HTMLDivElement | null>(null);
   const rows = Array.from({ length: gameBoard.size }, (_, i) => i);
 
   const layout: TileBlockLayout | null =
@@ -99,7 +100,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
     <div className="grid-container">
       <div className="grid-border">
         <div className={`${styles.gridInnerWrap} ${usePerspective ? styles.perspective : ''}`}>
-          <div id="gridContainer" className="grid" data-size={gameBoard.size}>
+          <div ref={gridRef} className="grid" data-size={gameBoard.size}>
             {rows.map(row => (
               <div key={`row-${row}`} className="row">
                 {Array.from({ length: gameBoard.size }, (_, col) => {
@@ -121,6 +122,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
                             y={row}
                             gameBoard={gameBoard}
                             forceUpdate={forceUpdate}
+                            gridRef={gridRef}
                           />
                         )}
                         {selectedHandItem && layout && isSelectedCell(col, row) && (

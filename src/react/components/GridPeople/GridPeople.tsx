@@ -10,9 +10,10 @@ interface GridPeopleProps {
   y: number;
   gameBoard: GameBoard;
   forceUpdate?: number;
+  gridRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const GridPeople: React.FC<GridPeopleProps> = ({ tile, x, y, gameBoard, forceUpdate }) => {
+const GridPeople: React.FC<GridPeopleProps> = ({ tile, x, y, gameBoard, forceUpdate, gridRef }) => {
   const containerRef = useRef(null);
   const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
 
@@ -45,6 +46,7 @@ const GridPeople: React.FC<GridPeopleProps> = ({ tile, x, y, gameBoard, forceUpd
             gameBoard={gameBoard}
             forceUpdate={forceUpdate}
             parentRect={containerRect}
+            gridRef={gridRef}
           />
         ))}
     </div>

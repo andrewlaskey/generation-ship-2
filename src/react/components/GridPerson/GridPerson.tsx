@@ -11,9 +11,17 @@ interface GridPersonProps {
   gameBoard: GameBoard;
   forceUpdate?: number;
   parentRect: DOMRect;
+  gridRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const GridPerson: React.FC<GridPersonProps> = ({ x, y, gameBoard, forceUpdate, parentRect }) => {
+const GridPerson: React.FC<GridPersonProps> = ({
+  x,
+  y,
+  gameBoard,
+  forceUpdate,
+  parentRect,
+  gridRef,
+}) => {
   const divRef = useRef(null);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
   const timeline = useRef<gsap.core.Timeline | null>(null);
@@ -49,7 +57,7 @@ const GridPerson: React.FC<GridPersonProps> = ({ x, y, gameBoard, forceUpdate, p
 
   // Update target position when gameBoard or forceUpdate changes
   useEffect(() => {
-    if (divRef.current && isInitialized && timeline.current) {
+    if (divRef.current && gridRef.current && isInitialized && timeline.current) {
       if (timeline.current) {
         timeline.current.kill();
         timeline.current = gsap.timeline();
@@ -67,7 +75,7 @@ const GridPerson: React.FC<GridPersonProps> = ({ x, y, gameBoard, forceUpdate, p
       const fromY = gsap.utils.random(0, parentRect.height) - personRect.height / 2;
 
       if (farmTile) {
-        const el = document.querySelector<HTMLDivElement>(
+        const el = gridRef.current.querySelector<HTMLDivElement>(
           `.cell[data-x="${farmTile.x}"][data-y="${farmTile.y}"]`
         );
 
