@@ -34,15 +34,15 @@ export class ThreeTextureLibrary {
     const basePath = `${import.meta.env.BASE_URL}textures/`;
     const texturesToLoad = [
       'Power3.png',
-      'SmallHouse.png',
+      'SmallHouse2.png',
       'MidHouse.png',
       'BigHouse.png',
       'grass.png',
       'Power3_map.png',
       'SunArc_map.png',
       'tree1.png',
-      'Tree2.png',
-      'Tree3.png',
+      'Tree2-alt.png',
+      'Tree3-alt.png',
       'BigHouse_emissive.png',
       'MidHouse_emissive.png',
       'SmallHouse_emissive.png',

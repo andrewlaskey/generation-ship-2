@@ -114,9 +114,9 @@ export class ThreeDayNightCycle {
     this.tl.to(
       colorObject,
       {
-        r: 245,
-        g: 105,
-        b: 34,
+        r: 249,
+        g: 65,
+        b: 68,
         duration: 60 * this.cycleDurationMinutes * 0.125,
         onUpdate: () => setSunLightColorFromRgb(),
       },
@@ -231,9 +231,9 @@ export class ThreeDayNightCycle {
     this.tl.to(
       colorObject,
       {
-        r: 163,
-        g: 63,
-        b: 235,
+        r: 249,
+        g: 65,
+        b: 68,
         duration: 60 * this.cycleDurationMinutes * 0.125,
         ease: 'power1.inOut',
         onUpdate: updateColors,

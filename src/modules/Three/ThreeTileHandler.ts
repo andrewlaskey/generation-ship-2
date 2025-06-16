@@ -197,8 +197,8 @@ export class ThreeTreeTileHandler implements ThreeTileHandler {
       const tree2 = library.get(tree2FileName);
       const tree3 = library.get(tree3FileName);
       const tree1Texture = textures.get('tree1.png');
-      const tree2Texture = textures.get('Tree2.png');
-      const tree3Texture = textures.get('Tree3.png');
+      const tree2Texture = textures.get('Tree2-alt.png');
+      const tree3Texture = textures.get('Tree3-alt.png');
 
       const treeMap: ModelMapObj[] = [
         {
@@ -326,7 +326,7 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
   ): void {
     try {
       let fileName = 'Smallhouse.glb';
-      let textureFileName = 'SmallHouse.png';
+      let textureFileName = 'SmallHouse2.png';
       let emissiveTexFileName = 'SmallHouse_emissive.png';
 
       if (tile.level === 2) {
@@ -367,15 +367,19 @@ export class ThreePeopleTileHandler implements ThreeTileHandler {
       if (geometry) {
         this.manager.addInstanceKind(fileName, geometry, material);
 
+        const dummy = new THREE.Object3D();
+
         const placePosition = new THREE.Vector3(
           position.x + tileMid,
           position.y,
           position.z + tileMid
         );
-        const matrix = new THREE.Matrix4();
-        matrix.setPosition(placePosition);
+        dummy.position.set(placePosition.x, placePosition.y, placePosition.z);
+        dummy.rotateY(THREE.MathUtils.degToRad(Math.floor(Math.random() * 6) * 60));
 
-        this.manager.addInstance(fileName, matrix);
+        dummy.updateMatrix();
+
+        this.manager.addInstance(fileName, dummy.matrix);
       }
     } catch (e) {
       console.error('Failed to load people tile', e);
