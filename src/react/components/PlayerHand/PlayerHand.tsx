@@ -3,6 +3,13 @@ import { TileBlock } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React from 'react';
 import styles from './PlayerHand.module.scss';
+import { TileType } from '@/modules/Tile';
+import TreeTile from '../Tiles/TreeTile';
+import PeopleTile from '../Tiles/PeopleTile';
+import FarmTile from '../Tiles/FarmTile';
+import PowerTile from '../Tiles/PowerTile';
+import WasteTile from '../Tiles/WasteTile';
+import GridTile from '../Tiles/GridTile';
 
 interface PlayerHandProps {
   items: HandItem[];
@@ -39,10 +46,14 @@ const PlayerHand: React.FC<PlayerHandProps> = ({
                     <div className={styles.handRow}>
                       <div
                         className={`${styles.handItemCell} ${getTileCellClassList(layout.tiles[0])}`}
-                      ></div>
+                      >
+                        {layout.tiles[0] && <GridTile tile={layout.tiles[0]} animate={false} />}
+                      </div>
                       <div
                         className={`${styles.handItemCell} ${getTileCellClassList(layout.tiles[1])}`}
-                      ></div>
+                      >
+                        {layout.tiles[1] && <GridTile tile={layout.tiles[1]} animate={false} />}
+                      </div>
                     </div>
                   </div>
                 );

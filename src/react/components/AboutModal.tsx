@@ -43,7 +43,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isShowing, handleClose, childre
           thrive when next to each other, but will die from overcrowding or too many people nearby.
         </dd>
         <dt>
-          <span className="text-people">ᨊ</span>
+          <span className="text-people">ᕄ</span>
         </dt>
         <dd>
           Habitats are where the human population lives. People require a balance of nature, farms,

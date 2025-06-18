@@ -64,12 +64,12 @@ export class GameBoard {
     }
 
     // Debugging
-    // this.placeTileAt(centerX + 1, centerY + 1, new Tile(TileType.People, 2, TileState.Neutral));
-    // this.placeTileAt(centerX, centerY + 2, new Tile(TileType.People, 3, TileState.Neutral));
-    // this.placeTileAt(centerX, centerY + 1, new Tile(TileType.Farm, 2, TileState.Neutral));
-    // this.placeTileAt(centerX - 1, centerY - 1, new Tile(TileType.Farm, 3, TileState.Neutral));
-    // this.placeTileAt(centerX - 2, centerY - 1, new Tile(TileType.Waste, 1, TileState.Neutral));
-    // this.placeTileAt(centerX - 2, centerY + 2, new Tile(TileType.Power, 1, TileState.Dead));
+    this.placeTileAt(centerX + 1, centerY + 1, new Tile(TileType.People, 2, TileState.Neutral));
+    this.placeTileAt(centerX, centerY + 2, new Tile(TileType.People, 3, TileState.Neutral));
+    this.placeTileAt(centerX, centerY + 1, new Tile(TileType.Farm, 2, TileState.Neutral));
+    this.placeTileAt(centerX - 1, centerY - 1, new Tile(TileType.Farm, 3, TileState.Neutral));
+    this.placeTileAt(centerX - 2, centerY - 1, new Tile(TileType.Waste, 1, TileState.Neutral));
+    this.placeTileAt(centerX - 2, centerY + 2, new Tile(TileType.Power, 1, TileState.Dead));
   }
 
   // Method to get a specific space by coordinates

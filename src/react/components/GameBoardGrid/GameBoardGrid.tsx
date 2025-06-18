@@ -1,13 +1,10 @@
-import { BoardSpace } from '@/modules/BoardSpace';
 import { GameBoard } from '@/modules/GameBoard';
 import { HandItem } from '@/modules/PlayerHand';
 import { TileBlock, TileBlockLayout } from '@/modules/TileBlock';
-import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React, { useRef } from 'react';
 import { GridCell } from '../GameView';
-import { Tile, TileType } from '@/modules/Tile';
 import styles from './GameBoardGrid.module.scss';
-import GridPeople from '../GridPeople/GridPeople';
+import GameBoardCell from '../GameBoardCell/GameBoardCell';
 
 interface GameBoardGridProps {
   gameBoard: GameBoard;
@@ -16,6 +13,7 @@ interface GameBoardGridProps {
   selectedGridCell?: GridCell | null;
   forceUpdate?: number;
   usePerspective?: boolean;
+  animate: boolean;
 }
 
 const GameBoardGrid: React.FC<GameBoardGridProps> = ({
@@ -25,6 +23,7 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
   selectedGridCell,
   usePerspective = true,
   forceUpdate,
+  animate,
 }) => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const rows = Array.from({ length: gameBoard.size }, (_, i) => i);
@@ -33,12 +32,6 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
     selectedHandItem instanceof TileBlock ? selectedHandItem.getLayout() : null;
   const rotation: number =
     selectedHandItem instanceof TileBlock ? selectedHandItem.getRotation() : 0;
-
-  const getCellClassList = (space: BoardSpace) => {
-    const additionalClasses = space && space.isHighlighted ? ['highlight'] : [];
-
-    return getTileCellClassList(space.tile, additionalClasses);
-  };
 
   const isSelectedCell = (x: number, y: number): boolean => {
     return Boolean(selectedGridCell && x === selectedGridCell.x && y === selectedGridCell.y);
@@ -78,24 +71,6 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
     return false;
   };
 
-  const getLayoutTile = (primary: boolean): Tile | null => {
-    if (!layout) {
-      return null;
-    }
-
-    if (primary) {
-      if (rotation === 180 || rotation === 270) {
-        return layout.tiles[1];
-      }
-      return layout.tiles[0];
-    }
-
-    if (rotation === 180 || rotation === 270) {
-      return layout.tiles[0];
-    }
-    return layout.tiles[1];
-  };
-
   return (
     <div className="grid-container">
       <div className="grid-border">
@@ -108,38 +83,21 @@ const GameBoardGrid: React.FC<GameBoardGridProps> = ({
 
                   if (space) {
                     return (
-                      <div
-                        key={`cell-${col}-${row}`}
-                        data-x={col}
-                        data-y={row}
-                        className={getCellClassList(space)}
-                        onClick={() => handleCellClick(col, row)}
-                      >
-                        {space.tile && space.tile.type === TileType.People && (
-                          <GridPeople
-                            tile={space.tile}
-                            x={col}
-                            y={row}
-                            gameBoard={gameBoard}
-                            forceUpdate={forceUpdate}
-                            gridRef={gridRef}
-                          />
-                        )}
-                        {selectedHandItem && layout && isSelectedCell(col, row) && (
-                          <div className={styles.previewItem}>
-                            <div
-                              className={`${styles.previewItemCell} ${getTileCellClassList(getLayoutTile(true))}`}
-                            ></div>
-                          </div>
-                        )}
-                        {layout && isPreviewTileSecondGridCell(col, row) && (
-                          <div className={styles.previewItem}>
-                            <div
-                              className={`${styles.previewItemCell} ${getTileCellClassList(getLayoutTile(false))}`}
-                            ></div>
-                          </div>
-                        )}
-                      </div>
+                      <GameBoardCell
+                        gameBoard={gameBoard}
+                        forceUpdate={forceUpdate}
+                        gridRef={gridRef}
+                        col={col}
+                        row={row}
+                        space={space}
+                        handleCellClick={handleCellClick}
+                        isSelectedCell={isSelectedCell(col, row)}
+                        isPreviewTileSecondGridCell={isPreviewTileSecondGridCell(col, row)}
+                        layout={layout}
+                        rotation={rotation}
+                        key={`${col}-${row}`}
+                        animate={animate}
+                      />
                     );
                   }
                   return null;

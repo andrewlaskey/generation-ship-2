@@ -4,6 +4,10 @@
   left: -1px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   animation-name: pop-in;
   animation-timing-function: ease-out;
   animation-duration: 150ms;
@@ -32,28 +36,13 @@
 }
 
 .preview-item-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   background-color: rgba(255, 187, 0, 0.15);
   border: 1px solid var(--tile-hl-color);
   z-index: 1;
-}
-
-.grid-inner-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  overflow: hidden;
-}
-
-.perspective {
-  transform: rotateX(30deg) scale(0.8);
-  margin-top: -2rem; /* compensate for scale and perspective transform */
-  margin-bottom: -2rem; /* compensate for scale and perspective transform */
-
-  @media (min-width: 500px) {
-    transform: rotateX(30deg);
-    margin-top: 0;
-    margin-bottom: 0;
-  }
 }

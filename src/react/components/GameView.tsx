@@ -191,6 +191,7 @@ const GameView: React.FC<GameViewProps> = ({
               selectedHandItem={selectedHandItem}
               selectedGridCell={selectedGridCell}
               forceUpdate={forceUpdate}
+              animate={true}
             />
             {gameState === GameState.Playing && (
               <PlayerControls

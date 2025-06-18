@@ -79,6 +79,7 @@ const InfiniteGameBoard: React.FC<InfiniteGameBoardProps> = ({
                   handleCellClick={handleCellClick}
                   forceUpdate={forceUpdate}
                   usePerspective={false}
+                  animate={false}
                 />
               </div>
             ))}
