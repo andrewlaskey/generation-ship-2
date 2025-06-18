@@ -321,7 +321,6 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
             ⏵
           </button>
         </div>
-        <p className="threejs-info-text">⚠️ Warning! 3D Mode is a work in progress ⚠️</p>
       </div>
     </div>
   );
