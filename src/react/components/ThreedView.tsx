@@ -6,7 +6,6 @@ import { useModels } from '../hooks/Models';
 import { GameManager } from '@/modules/GameManager';
 import { ControlViewOption } from './GameView';
 import Loading from './Loading/Loading';
-import { gsap } from 'gsap/gsap-core';
 
 export interface ThreeDViewProps {
   gameManager: GameManager;

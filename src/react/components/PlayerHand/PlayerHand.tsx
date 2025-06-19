@@ -3,12 +3,6 @@ import { TileBlock } from '@/modules/TileBlock';
 import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import React from 'react';
 import styles from './PlayerHand.module.scss';
-import { TileType } from '@/modules/Tile';
-import TreeTile from '../Tiles/TreeTile';
-import PeopleTile from '../Tiles/PeopleTile';
-import FarmTile from '../Tiles/FarmTile';
-import PowerTile from '../Tiles/PowerTile';
-import WasteTile from '../Tiles/WasteTile';
 import GridTile from '../Tiles/GridTile';
 
 interface PlayerHandProps {

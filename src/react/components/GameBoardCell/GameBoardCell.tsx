@@ -6,11 +6,6 @@ import { getTileCellClassList } from '@/utils/getTileCellClassList';
 import { TileBlockLayout } from '@/modules/TileBlock';
 import { GameBoard } from '@/modules/GameBoard';
 import styles from './GameBoardCell.module.scss';
-import TreeTile from '../Tiles/TreeTile';
-import PeopleTile from '../Tiles/PeopleTile';
-import FarmTile from '../Tiles/FarmTile';
-import PowerTile from '../Tiles/PowerTile';
-import WasteTile from '../Tiles/WasteTile';
 import GridTile from '../Tiles/GridTile';
 
 interface GameBoardCellProps {
