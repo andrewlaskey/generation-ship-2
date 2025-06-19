@@ -6,6 +6,7 @@ import { useModels } from '../hooks/Models';
 import { GameManager } from '@/modules/GameManager';
 import { ControlViewOption } from './GameView';
 import Loading from './Loading/Loading';
+import { gsap } from 'gsap/gsap-core';
 
 export interface ThreeDViewProps {
   gameManager: GameManager;
@@ -16,7 +17,8 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
   const containerRef = useRef<HTMLDivElement>(null);
   const { textureLibrary, loading: textureLoading } = useTextures();
   const { modelLibrary, loading: modelLoading } = useModels();
-  // const [_worldManager, setWorldManager] = useState<ThreeWorldManager | null>(null);
+  const [isMeditating, setIsMeditating] = useState(false);
+  const [_worldManager, setWorldManager] = useState<ThreeWorldManager | null>();
 
   // Use refs to store movement state
   const movementStateRef = useRef({
@@ -29,7 +31,9 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
     mouseMoveDeltaY: 0,
     lastTouchX: 0,
     lastTouchY: 0,
+    isMovingDisabled: false,
   });
+
   const [activeButtons, setActiveButtons] = useState({
     left: false,
     right: false,
@@ -45,94 +49,141 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
 
   // Movement control functions using refs
   const startMovingLeft = useCallback(() => {
-    movementStateRef.current.movingLeft = true;
-    setActiveButtons(prev => ({ ...prev, left: true }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingLeft = true;
+      setActiveButtons(prev => ({ ...prev, left: true }));
+    }
   }, []);
 
   const stopMovingLeft = useCallback(() => {
-    movementStateRef.current.movingLeft = false;
-    setActiveButtons(prev => ({ ...prev, left: false }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingLeft = false;
+      setActiveButtons(prev => ({ ...prev, left: false }));
+    }
   }, []);
 
   const startMovingRight = useCallback(() => {
-    movementStateRef.current.movingRight = true;
-    setActiveButtons(prev => ({ ...prev, right: true }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingRight = true;
+      setActiveButtons(prev => ({ ...prev, right: true }));
+    }
   }, []);
 
   const stopMovingRight = useCallback(() => {
-    movementStateRef.current.movingRight = false;
-    setActiveButtons(prev => ({ ...prev, right: false }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingRight = false;
+      setActiveButtons(prev => ({ ...prev, right: false }));
+    }
   }, []);
 
   const startMovingForward = useCallback(() => {
-    movementStateRef.current.movingForward = true;
-    setActiveButtons(prev => ({ ...prev, forward: true }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingForward = true;
+      setActiveButtons(prev => ({ ...prev, forward: true }));
+    }
   }, []);
 
   const stopMovingForward = useCallback(() => {
-    movementStateRef.current.movingForward = false;
-    setActiveButtons(prev => ({ ...prev, forward: false }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingForward = false;
+      setActiveButtons(prev => ({ ...prev, forward: false }));
+    }
   }, []);
 
   const startMovingBackward = useCallback(() => {
-    movementStateRef.current.movingBackward = true;
-    setActiveButtons(prev => ({ ...prev, backward: true }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingBackward = true;
+      setActiveButtons(prev => ({ ...prev, backward: true }));
+    }
   }, []);
 
   const stopMovingBackward = useCallback(() => {
-    movementStateRef.current.movingBackward = false;
-    setActiveButtons(prev => ({ ...prev, backward: false }));
+    if (!movementStateRef.current.isMovingDisabled) {
+      movementStateRef.current.movingBackward = false;
+      setActiveButtons(prev => ({ ...prev, backward: false }));
+    }
   }, []);
+
+  const stopMeditating = () => {
+    setIsMeditating(false);
+    movementStateRef.current.isMovingDisabled = false;
+
+    if (_worldManager) {
+      _worldManager.meditator.stopMeditating();
+    }
+  };
+
+  const startMeditating = () => {
+    movementStateRef.current.movingBackward = false;
+    movementStateRef.current.movingForward = false;
+    movementStateRef.current.movingLeft = false;
+    movementStateRef.current.movingRight = false;
+    movementStateRef.current.isDragging = false;
+    movementStateRef.current.mouseMoveDeltaX = 0;
+    movementStateRef.current.mouseMoveDeltaY = 0;
+    movementStateRef.current.isMovingDisabled = true;
+    setIsMeditating(true);
+    setActiveButtons({
+      left: false,
+      right: false,
+      forward: false,
+      backward: false,
+    });
+  };
 
   // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          movementStateRef.current.movingForward = true;
-          setActiveButtons(prev => ({ ...prev, forward: true }));
-          break;
-        case 'ArrowDown':
-        case 'KeyS':
-          movementStateRef.current.movingBackward = true;
-          setActiveButtons(prev => ({ ...prev, backward: true }));
-          break;
-        case 'ArrowLeft':
-        case 'KeyA':
-          movementStateRef.current.movingLeft = true;
-          setActiveButtons(prev => ({ ...prev, left: true }));
-          break;
-        case 'ArrowRight':
-        case 'KeyD':
-          movementStateRef.current.movingRight = true;
-          setActiveButtons(prev => ({ ...prev, right: true }));
-          break;
+      if (!movementStateRef.current.isMovingDisabled) {
+        switch (event.code) {
+          case 'ArrowUp':
+          case 'KeyW':
+            movementStateRef.current.movingForward = true;
+            setActiveButtons(prev => ({ ...prev, forward: true }));
+            break;
+          case 'ArrowDown':
+          case 'KeyS':
+            movementStateRef.current.movingBackward = true;
+            setActiveButtons(prev => ({ ...prev, backward: true }));
+            break;
+          case 'ArrowLeft':
+          case 'KeyA':
+            movementStateRef.current.movingLeft = true;
+            setActiveButtons(prev => ({ ...prev, left: true }));
+            break;
+          case 'ArrowRight':
+          case 'KeyD':
+            movementStateRef.current.movingRight = true;
+            setActiveButtons(prev => ({ ...prev, right: true }));
+            break;
+        }
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          movementStateRef.current.movingForward = false;
-          setActiveButtons(prev => ({ ...prev, forward: false }));
-          break;
-        case 'ArrowDown':
-        case 'KeyS':
-          movementStateRef.current.movingBackward = false;
-          setActiveButtons(prev => ({ ...prev, backward: false }));
-          break;
-        case 'ArrowLeft':
-        case 'KeyA':
-          movementStateRef.current.movingLeft = false;
-          setActiveButtons(prev => ({ ...prev, left: false }));
-          break;
-        case 'ArrowRight':
-        case 'KeyD':
-          movementStateRef.current.movingRight = false;
-          setActiveButtons(prev => ({ ...prev, right: false }));
-          break;
+      if (!movementStateRef.current.isMovingDisabled) {
+        switch (event.code) {
+          case 'ArrowUp':
+          case 'KeyW':
+            movementStateRef.current.movingForward = false;
+            setActiveButtons(prev => ({ ...prev, forward: false }));
+            break;
+          case 'ArrowDown':
+          case 'KeyS':
+            movementStateRef.current.movingBackward = false;
+            setActiveButtons(prev => ({ ...prev, backward: false }));
+            break;
+          case 'ArrowLeft':
+          case 'KeyA':
+            movementStateRef.current.movingLeft = false;
+            setActiveButtons(prev => ({ ...prev, left: false }));
+            break;
+          case 'ArrowRight':
+          case 'KeyD':
+            movementStateRef.current.movingRight = false;
+            setActiveButtons(prev => ({ ...prev, right: false }));
+            break;
+        }
       }
     };
 
@@ -155,7 +206,7 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
       );
 
       manager.init();
-      // setWorldManager(manager);
+      setWorldManager(manager);
 
       // Set up mouse and touch controls for the container
       const canvas = containerRef.current.querySelector('canvas');
@@ -163,17 +214,21 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
       if (canvas) {
         // Mouse controls
         const handleMouseDown = () => {
-          movementStateRef.current.isDragging = true;
+          if (!movementStateRef.current.isMovingDisabled) {
+            movementStateRef.current.isDragging = true;
+          }
         };
 
         const handleMouseUp = () => {
-          movementStateRef.current.isDragging = false;
-          movementStateRef.current.mouseMoveDeltaX = 0;
-          movementStateRef.current.mouseMoveDeltaY = 0;
+          if (!movementStateRef.current.isMovingDisabled) {
+            movementStateRef.current.isDragging = false;
+            movementStateRef.current.mouseMoveDeltaX = 0;
+            movementStateRef.current.mouseMoveDeltaY = 0;
+          }
         };
 
         const handleMouseMove = (event: MouseEvent) => {
-          if (movementStateRef.current.isDragging) {
+          if (movementStateRef.current.isDragging && !movementStateRef.current.isMovingDisabled) {
             movementStateRef.current.mouseMoveDeltaX = event.movementX * mouseSensitivity;
             movementStateRef.current.mouseMoveDeltaY = event.movementY * mouseSensitivity;
           }
@@ -181,21 +236,25 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
 
         // Touch controls
         const handleTouchStart = (event: TouchEvent) => {
-          movementStateRef.current.isDragging = true;
-          const touch = event.touches[0];
-          movementStateRef.current.lastTouchX = touch.clientX;
-          movementStateRef.current.lastTouchY = touch.clientY;
-          event.preventDefault();
+          if (!movementStateRef.current.isMovingDisabled) {
+            movementStateRef.current.isDragging = true;
+            const touch = event.touches[0];
+            movementStateRef.current.lastTouchX = touch.clientX;
+            movementStateRef.current.lastTouchY = touch.clientY;
+            event.preventDefault();
+          }
         };
 
         const handleTouchEnd = () => {
-          movementStateRef.current.isDragging = false;
-          movementStateRef.current.mouseMoveDeltaX = 0;
-          movementStateRef.current.mouseMoveDeltaY = 0;
+          if (!movementStateRef.current.isMovingDisabled) {
+            movementStateRef.current.isDragging = false;
+            movementStateRef.current.mouseMoveDeltaX = 0;
+            movementStateRef.current.mouseMoveDeltaY = 0;
+          }
         };
 
         const handleTouchMove = (event: TouchEvent) => {
-          if (movementStateRef.current.isDragging) {
+          if (movementStateRef.current.isDragging && !movementStateRef.current.isMovingDisabled) {
             const touch = event.touches[0];
             const deltaX = touch.clientX - movementStateRef.current.lastTouchX;
             const deltaY = touch.clientY - movementStateRef.current.lastTouchY;
@@ -236,16 +295,29 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
           if (state.movingRight) direction.x -= 1;
 
           // Apply camera movement
-          manager.moveCamera(
-            direction,
-            movementSpeed * delta,
-            state.mouseMoveDeltaX,
-            state.mouseMoveDeltaY
-          );
+          if (!movementStateRef.current.isMovingDisabled) {
+            manager.moveCamera(
+              direction,
+              movementSpeed * delta,
+              state.mouseMoveDeltaX,
+              state.mouseMoveDeltaY
+            );
+          }
+
+          if (manager.meditator.checkCollision(manager.camera.position)) {
+            startMeditating();
+            manager.meditator.startMeditating(
+              manager.scene,
+              manager.camera.position,
+              manager.dayNightController.sunLight?.position
+            );
+          }
 
           // Reset mouse movement deltas after each frame
           state.mouseMoveDeltaX = 0;
           state.mouseMoveDeltaY = 0;
+
+          manager.meditator.update();
 
           manager.render();
           animationFrameId = requestAnimationFrame(animate);
@@ -287,40 +359,50 @@ const ThreeDView: React.FC<ThreeDViewProps> = ({ gameManager, setActiveTool }) =
         </button>
       </div>
       <div className="threejs-footer">
-        <div className="threejs-controls">
-          <button
-            className={`button left ${activeButtons.left ? 'active' : ''}`}
-            onPointerDown={startMovingLeft}
-            onPointerUp={stopMovingLeft}
-            onPointerLeave={stopMovingLeft}
-          >
-            ⏴
-          </button>
-          <button
-            className={`button forward ${activeButtons.forward ? 'active' : ''}`}
-            onPointerDown={startMovingForward}
-            onPointerUp={stopMovingForward}
-            onPointerLeave={stopMovingForward}
-          >
-            ⏶
-          </button>
-          <button
-            className={`button backward ${activeButtons.backward ? 'active' : ''}`}
-            onPointerDown={startMovingBackward}
-            onPointerUp={stopMovingBackward}
-            onPointerLeave={stopMovingBackward}
-          >
-            ⏷
-          </button>
-          <button
-            className={`button right ${activeButtons.right ? 'active' : ''}`}
-            onPointerDown={startMovingRight}
-            onPointerUp={stopMovingRight}
-            onPointerLeave={stopMovingRight}
-          >
-            ⏵
-          </button>
-        </div>
+        {isMeditating && (
+          <div className="threejs-meditation-controls">
+            <div className="meditation-progress"></div>
+            <button className="button" onClick={stopMeditating}>
+              END
+            </button>
+          </div>
+        )}
+        {!isMeditating && (
+          <div className="threejs-controls">
+            <button
+              className={`button left ${activeButtons.left ? 'active' : ''}`}
+              onPointerDown={startMovingLeft}
+              onPointerUp={stopMovingLeft}
+              onPointerLeave={stopMovingLeft}
+            >
+              ⏴
+            </button>
+            <button
+              className={`button forward ${activeButtons.forward ? 'active' : ''}`}
+              onPointerDown={startMovingForward}
+              onPointerUp={stopMovingForward}
+              onPointerLeave={stopMovingForward}
+            >
+              ⏶
+            </button>
+            <button
+              className={`button backward ${activeButtons.backward ? 'active' : ''}`}
+              onPointerDown={startMovingBackward}
+              onPointerUp={stopMovingBackward}
+              onPointerLeave={stopMovingBackward}
+            >
+              ⏷
+            </button>
+            <button
+              className={`button right ${activeButtons.right ? 'active' : ''}`}
+              onPointerDown={startMovingRight}
+              onPointerUp={stopMovingRight}
+              onPointerLeave={stopMovingRight}
+            >
+              ⏵
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

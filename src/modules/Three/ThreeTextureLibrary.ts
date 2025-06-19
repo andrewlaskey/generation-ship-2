@@ -46,6 +46,7 @@ export class ThreeTextureLibrary {
       'BigHouse_emissive.png',
       'MidHouse_emissive.png',
       'SmallHouse_emissive.png',
+      'flare.png',
     ];
 
     for (const path of texturesToLoad) {

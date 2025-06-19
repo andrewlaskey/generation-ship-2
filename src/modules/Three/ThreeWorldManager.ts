@@ -5,13 +5,14 @@ import { ThreeTextureLibrary } from './ThreeTextureLibrary';
 import { ThreeModelLibrary } from './ThreeModelLibrary';
 import { ThreeDayNightCycle } from './ThreeDayNightCycle';
 import { GameManager } from '../GameManager';
+import ThreeMeditator from './ThreeMeditator';
 
 export class ThreeWorldManager {
   public containerEl: HTMLDivElement;
 
   private gameManager: GameManager;
 
-  private scene: THREE.Scene;
+  public scene: THREE.Scene;
   public camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
 
@@ -19,7 +20,8 @@ export class ThreeWorldManager {
   private instanceManager: ThreeInstanceManager;
   private modelLibrary: ThreeModelLibrary;
   private textureLibrary: ThreeTextureLibrary;
-  private dayNightController: ThreeDayNightCycle;
+  public dayNightController: ThreeDayNightCycle;
+  public meditator: ThreeMeditator;
 
   private pitch = 0;
   private yaw = 0;
@@ -61,6 +63,8 @@ export class ThreeWorldManager {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.camera.position.set(0, this.cameraHeight, 5);
+
+    this.meditator = new ThreeMeditator(this.camera);
   }
 
   init(): void {
@@ -87,6 +91,8 @@ export class ThreeWorldManager {
 
     this.dayNightController.addInstanceManager(this.instanceManager);
     this.dayNightController.start();
+
+    this.meditator.init(this.scene, this.worldSize, this.textureLibrary);
   }
 
   createBaseScene(): void {

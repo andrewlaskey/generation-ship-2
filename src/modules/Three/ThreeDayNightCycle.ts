@@ -8,7 +8,7 @@ export class ThreeDayNightCycle {
   private sunArc: THREE.Group | null = null;
   private ambientLight: THREE.AmbientLight | null = null;
   private fog: THREE.Fog | null = null;
-  private sunLight: THREE.DirectionalLight | null = null;
+  public sunLight: THREE.DirectionalLight | null = null;
   private instanceManager: ThreeInstanceManager | null = null;
 
   constructor() {
