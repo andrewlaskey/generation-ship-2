@@ -49,7 +49,6 @@
   transform: rotateX(30deg) scale(0.8);
   margin-top: -2rem; /* compensate for scale and perspective transform */
   margin-bottom: -2rem; /* compensate for scale and perspective transform */
-  overflow: hidden;
 
   @media (min-width: 500px) {
     transform: rotateX(30deg);

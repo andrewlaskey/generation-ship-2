@@ -196,12 +196,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
             />
           </div>
 
-          <button className="button" onClick={handleCloseSubmenu}>
-            ←
-          </button>
-          <button className="button" onClick={() => handleStartGame('custom')}>
-            Start
-          </button>
+          <div className="custom-actions">
+            <button className="button" onClick={handleCloseSubmenu}>
+              ←
+            </button>
+            <button className="button" onClick={() => handleStartGame('custom')}>
+              Start
+            </button>
+          </div>
 
           <p className="warning" id="warningNotice">
             {warningNotice}

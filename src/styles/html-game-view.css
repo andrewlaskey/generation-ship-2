@@ -91,7 +91,8 @@
   align-items: center;
   justify-content: center;
   perspective: 1200px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .html-game-view-wrapper .grid[data-size='10'] + .tile-preview .cell,
