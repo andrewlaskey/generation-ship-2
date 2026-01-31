@@ -28,6 +28,7 @@ const createMockGameBoard = (size: number): Partial<GameBoard> => {
     clearBoard: vi.fn(),
     updateBoard: vi.fn(),
     getHabitatAges: vi.fn().mockReturnValue([]),
+    getOldestTree: vi.fn().mockReturnValue(0),
   };
 };
 

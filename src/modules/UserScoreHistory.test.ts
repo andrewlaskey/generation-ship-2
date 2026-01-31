@@ -51,4 +51,28 @@ describe('UserScoreHistory', () => {
 
     expect(test).toStrictEqual({ wins: 4, losses: 5 });
   });
+
+  it('should use game type key for storage keys when provided', () => {
+    const gameTypeKey = 'mini';
+    userHistory = new UserScoreHistory(mockStorage, gameTypeKey);
+    (mockStorage.get as Mock)
+      .mockReturnValueOnce([15, 25])
+      .mockReturnValueOnce({ wins: 2, losses: 3 });
+
+    const result: GameResults = {
+      result: GameState.GameOver,
+      score: 5,
+    };
+
+    userHistory.saveGameResult(result);
+
+    expect(mockStorage.get).toHaveBeenNthCalledWith(1, 'scores_mini');
+    expect(mockStorage.set).toHaveBeenNthCalledWith(1, 'scores_mini', [15, 25, 5]);
+
+    expect(mockStorage.get).toHaveBeenNthCalledWith(2, 'winLossRecord_mini');
+    expect(mockStorage.set).toHaveBeenNthCalledWith(2, 'winLossRecord_mini', {
+      wins: 2,
+      losses: 4,
+    });
+  });
 });

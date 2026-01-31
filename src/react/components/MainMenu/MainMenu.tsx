@@ -60,52 +60,66 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
     }
   };
 
-  const handleStartGame = (gameType: 'daily' | 'custom') => {
-    if (gameType === 'daily') {
-      gameManager.configGame({
-        ...gameManager.optionDefaults,
-        seed: new Date().toISOString().split('T')[0], // Current date as seed
-      });
-      onSwitchView(gameType, true);
-    } else {
-      // Validate custom game settings
-      const gridSizeValidation = { min: 5, max: 15 };
-      const handSizeValidation = { min: 1, max: 3 };
-      const deckSizeValidation = { min: 10, max: 100 };
-
-      const gridSizeInt = parseInt(customGameSettings.gridSize, 10);
-      const handSizeInt = parseInt(customGameSettings.handSize, 10);
-      const deckSizeInt = parseInt(customGameSettings.deckSize, 10);
-
-      if (gridSizeInt < gridSizeValidation.min || gridSizeInt > gridSizeValidation.max) {
-        setWarningNotice(
-          `Grid size must be between ${gridSizeValidation.min} and ${gridSizeValidation.max}`
-        );
-        return;
+  const handleStartGame = (gameType: 'daily' | 'custom' | 'mini') => {
+    switch (gameType) {
+      case 'daily': {
+        gameManager.configGame({
+          ...gameManager.optionDefaults,
+          seed: new Date().toISOString().split('T')[0], // Current date as seed
+        });
+        onSwitchView(gameType, true);
+        break;
       }
-
-      if (handSizeInt < handSizeValidation.min || handSizeInt > handSizeValidation.max) {
-        setWarningNotice(
-          `Hand size must be between ${handSizeValidation.min} and ${handSizeValidation.max}`
-        );
-        return;
+      case 'mini': {
+        gameManager.configGame({
+          ...gameManager.optionDefaults,
+          size: 5,
+          initialDeckSize: 20,
+          seed: new Date().toISOString().split('T')[0] + '-mini', // Current date + mini as seed
+        });
+        onSwitchView(gameType, true);
+        break;
       }
+      default: {
+        // Validate custom game settings
+        const gridSizeValidation = { min: 5, max: 15 };
+        const handSizeValidation = { min: 1, max: 3 };
+        const deckSizeValidation = { min: 10, max: 100 };
 
-      if (deckSizeInt < deckSizeValidation.min || deckSizeInt > deckSizeValidation.max) {
-        setWarningNotice(
-          `Deck size must be between ${deckSizeValidation.min} and ${deckSizeValidation.max}`
-        );
-        return;
+        const gridSizeInt = parseInt(customGameSettings.gridSize, 10);
+        const handSizeInt = parseInt(customGameSettings.handSize, 10);
+        const deckSizeInt = parseInt(customGameSettings.deckSize, 10);
+
+        if (gridSizeInt < gridSizeValidation.min || gridSizeInt > gridSizeValidation.max) {
+          setWarningNotice(
+            `Grid size must be between ${gridSizeValidation.min} and ${gridSizeValidation.max}`
+          );
+          return;
+        }
+
+        if (handSizeInt < handSizeValidation.min || handSizeInt > handSizeValidation.max) {
+          setWarningNotice(
+            `Hand size must be between ${handSizeValidation.min} and ${handSizeValidation.max}`
+          );
+          return;
+        }
+
+        if (deckSizeInt < deckSizeValidation.min || deckSizeInt > deckSizeValidation.max) {
+          setWarningNotice(
+            `Deck size must be between ${deckSizeValidation.min} and ${deckSizeValidation.max}`
+          );
+          return;
+        }
+
+        // Apply settings and start game
+        gameManager.configGame({
+          seed: customGameSettings.seed || undefined,
+          size: gridSizeInt,
+          maxHandSize: handSizeInt,
+          initialDeckSize: deckSizeInt,
+        });
+        onSwitchView(gameType, true);
       }
-
-      // Apply settings and start game
-      gameManager.configGame({
-        seed: customGameSettings.seed || undefined,
-        size: gridSizeInt,
-        maxHandSize: handSizeInt,
-        initialDeckSize: deckSizeInt,
-      });
-      onSwitchView(gameType, true);
     }
   };
 
@@ -119,6 +133,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ gameManager, onSwitchView }) => {
           <li>
             <button className="button" onClick={() => handleStartGame('daily')}>
               Daily Challenge
+            </button>
+          </li>
+          <li>
+            <button className="button" onClick={() => handleStartGame('mini')}>
+              Daily Mini
             </button>
           </li>
           <li>

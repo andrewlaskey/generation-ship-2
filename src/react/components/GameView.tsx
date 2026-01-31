@@ -20,7 +20,7 @@ interface GameViewProps {
   gameManager: GameManager;
   onSwitchView: (view: ViewTypes, newGame: boolean) => void;
   userScoreHistory?: UserScoreHistory;
-  gameType: 'daily' | 'custom';
+  gameType: 'daily' | 'custom' | 'mini';
 }
 
 const GameView: React.FC<GameViewProps> = ({
@@ -148,7 +148,7 @@ const GameView: React.FC<GameViewProps> = ({
     setForceUpdate(prev => prev + 1);
 
     if (gameManager.state === GameState.Complete || gameManager.state === GameState.GameOver) {
-      if (gameType == 'daily' && userScoreHistory) {
+      if ((gameType == 'daily' || gameType == 'mini') && userScoreHistory) {
         const finalScore = gameManager.getCalculatedPlayerScore();
         userScoreHistory.saveGameResult({
           score: finalScore,

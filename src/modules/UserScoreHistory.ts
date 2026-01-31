@@ -9,17 +9,26 @@ export type WinLossRecord = {
 
 export class UserScoreHistory {
   private storage: GameStorage;
+  private gameTypeKey?: string;
 
-  constructor(storage: GameStorage) {
+  constructor(storage: GameStorage, gameTypeKey?: string) {
     this.storage = storage;
+    this.gameTypeKey = gameTypeKey;
+  }
+
+  storageKey(key: string): string {
+    if (this.gameTypeKey) {
+      return `${key}_${this.gameTypeKey}`;
+    }
+    return key;
   }
 
   getFinalScoreHistory(): number[] {
-    return this.storage.get('scores') ?? [];
+    return this.storage.get(this.storageKey('scores')) ?? [];
   }
 
   getWinLossRecord(): WinLossRecord {
-    return this.storage.get('winLossRecord') ?? { wins: 0, losses: 0 };
+    return this.storage.get(this.storageKey('winLossRecord')) ?? { wins: 0, losses: 0 };
   }
 
   saveGameResult(result: GameResults): void {
@@ -28,15 +37,18 @@ export class UserScoreHistory {
   }
 
   private saveScoreResult(score: number): void {
-    const allScores = this.storage.get<number[]>('scores') ?? [];
+    const allScores = this.storage.get<number[]>(this.storageKey('scores')) ?? [];
 
     allScores?.push(score);
 
-    this.storage.set('scores', allScores);
+    this.storage.set(this.storageKey('scores'), allScores);
   }
 
   private updateWinLossRecord(gameStateFinal: EndGameResult): void {
-    const record = this.storage.get<WinLossRecord>('winLossRecord') ?? { wins: 0, losses: 0 };
+    const record = this.storage.get<WinLossRecord>(this.storageKey('winLossRecord')) ?? {
+      wins: 0,
+      losses: 0,
+    };
 
     if (gameStateFinal == GameState.Complete) {
       record.wins++;
@@ -44,6 +56,6 @@ export class UserScoreHistory {
       record.losses++;
     }
 
-    this.storage.set('winLossRecord', record);
+    this.storage.set(this.storageKey('winLossRecord'), record);
   }
 }

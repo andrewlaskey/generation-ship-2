@@ -7,11 +7,16 @@ import { useConfig } from '@/react/hooks/TileConfig';
 import GameView from '@/react/components/GameView';
 import Loading from './components/Loading/Loading';
 
-export type ViewTypes = 'menu' | 'daily' | 'custom';
+export type ViewTypes = 'menu' | 'daily' | 'custom' | 'mini';
+type GameViewTypes = Exclude<ViewTypes, 'menu'>;
+
+const isGameViewType = (view: ViewTypes): view is GameViewTypes => {
+  return view === 'daily' || view === 'custom' || view === 'mini';
+};
 
 // Initialize the game services
 const localStorage = new LocalStorage(window.localStorage);
-const userScoreHistory = new UserScoreHistory(localStorage);
+let userScoreHistory = new UserScoreHistory(localStorage);
 
 function App() {
   const { config, loading: configLoading } = useConfig();
@@ -41,6 +46,12 @@ function App() {
       gameManager.resetGame();
       gameManager.startGame();
     }
+
+    if (viewName !== 'daily') {
+      userScoreHistory = new UserScoreHistory(localStorage, viewName);
+    } else {
+      userScoreHistory = new UserScoreHistory(localStorage);
+    }
   };
 
   if (isLoading || !gameManager) {
@@ -55,7 +66,7 @@ function App() {
     <div className="app">
       {currentView === 'menu' && <MainMenu gameManager={gameManager} onSwitchView={switchView} />}
 
-      {(currentView === 'daily' || currentView === 'custom') && (
+      {isGameViewType(currentView) && (
         <GameView
           gameManager={gameManager}
           onSwitchView={switchView}
