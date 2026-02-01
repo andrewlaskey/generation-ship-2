@@ -8,7 +8,7 @@ import GameView from '@/react/components/GameView';
 import Loading from './components/Loading/Loading';
 
 export type ViewTypes = 'menu' | 'daily' | 'custom' | 'mini';
-type GameViewTypes = Exclude<ViewTypes, 'menu'>;
+export type GameViewTypes = Exclude<ViewTypes, 'menu'>;
 
 const isGameViewType = (view: ViewTypes): view is GameViewTypes => {
   return view === 'daily' || view === 'custom' || view === 'mini';

@@ -213,6 +213,7 @@ const GameView: React.FC<GameViewProps> = ({
                 gameState={gameState}
                 handlePlayAgainClick={handlePlayAgainClick}
                 userScoreHistory={userScoreHistory}
+                gameType={gameType}
               />
             )}
             <AboutModal isShowing={showHelp} handleClose={handleCloseHelp} />

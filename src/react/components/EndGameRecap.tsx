@@ -6,12 +6,14 @@ import { ScoreGraphLines } from '@/vanilla-ts/views/GraphsView';
 import ScoreComparison from './ScoreComparison';
 import { UserScoreHistory } from '@/modules/UserScoreHistory';
 import FinalScore from './FinalScore/FinalScore';
+import { GameViewTypes } from '../App';
 
 interface EndGameRecapProps {
   gameManager: GameManager;
   gameState: GameState;
   handlePlayAgainClick: () => void;
   userScoreHistory?: UserScoreHistory;
+  gameType: GameViewTypes;
 }
 
 const EndGameRecap: React.FC<EndGameRecapProps> = ({
@@ -19,6 +21,7 @@ const EndGameRecap: React.FC<EndGameRecapProps> = ({
   gameState,
   handlePlayAgainClick,
   userScoreHistory,
+  gameType,
 }) => {
   const [showPopup, setShowPopup] = useState(false);
 
@@ -46,9 +49,14 @@ const EndGameRecap: React.FC<EndGameRecapProps> = ({
 
   const handleShareScoreClick = async () => {
     const popupDisplayDurationMs = 3 * 1000;
+    const gameModeTitleMap: Record<GameViewTypes, string> = {
+      daily: 'Daily Challenge',
+      custom: 'Custom Game',
+      mini: 'Daily Mini',
+    };
 
     try {
-      const text = `#GenerationShip2 - Daily Challenge ${getCurrentDate()}
+      const text = `#GenerationShip2 - ${gameModeTitleMap[gameType]} ${getCurrentDate()}
 🌲 ${ecoScore?.value.toLocaleString() ?? 0}
 👤 ${popScore?.value.toLocaleString() ?? 0}
 🧮 ${finalScore.toLocaleString()}`;
