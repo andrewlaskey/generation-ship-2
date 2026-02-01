@@ -1,6 +1,8 @@
+import { last } from 'radash';
 import { GameStorage } from '../types/GameStorage';
 import { EndGameResult, GameResults } from './AutoPlayer';
 import { GameState } from './GameManager';
+import { differenceInCalendarDays } from 'date-fns';
 
 export type WinLossRecord = {
   wins: number;
@@ -23,6 +25,33 @@ export class UserScoreHistory {
     return key;
   }
 
+  getStreak(): number {
+    return this.storage.get<number>(this.storageKey('streak')) ?? 0;
+  }
+
+  getLastPlayedDate(): string | null {
+    return this.storage.get(this.storageKey('lastPlayedDate')) ?? null;
+  }
+
+  calculateNewStreak(): number {
+    const lastPlayedDateStr = this.getLastPlayedDate();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    if (!lastPlayedDateStr) {
+      return 1; // First time playing
+    }
+
+    const daysSinceLastPlayed = differenceInCalendarDays(todayStr, lastPlayedDateStr);
+
+    if (daysSinceLastPlayed > 1) {
+      return 1; // Streak broken
+    } else if (daysSinceLastPlayed === 1) {
+      return this.getStreak() + 1; // Continue streak
+    }
+
+    return this.getStreak(); // Same day, streak unchanged
+  }
+
   getFinalScoreHistory(): number[] {
     return this.storage.get(this.storageKey('scores')) ?? [];
   }
@@ -34,6 +63,18 @@ export class UserScoreHistory {
   saveGameResult(result: GameResults): void {
     this.saveScoreResult(result.score);
     this.updateWinLossRecord(result.result);
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastPlayedDateStr = this.getLastPlayedDate();
+
+    // Don't update streak if already played today
+    if (lastPlayedDateStr === todayStr) {
+      return;
+    }
+
+    const newStreak = this.calculateNewStreak();
+    this.storage.set(this.storageKey('lastPlayedDate'), todayStr);
+    this.storage.set(this.storageKey('streak'), newStreak);
   }
 
   private saveScoreResult(score: number): void {

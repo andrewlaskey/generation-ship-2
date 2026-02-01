@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "build:itch": "tsc && DEPLOY_TARGET=itch vite build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test:watch": "vitest",
+    "test": "vitest run",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\""
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "d3": "^7.9.0",
+    "date-fns": "^4.1.0",
     "gsap": "^3.12.7",
     "radash": "^12.1.0",
     "react": "^19.1.0",

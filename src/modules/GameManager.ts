@@ -7,6 +7,7 @@ import { TileBlock } from './TileBlock';
 import { ScoreObject } from './ScoreObject';
 import { ConsoleLogLevel } from '../types/ConsoleLogLevels';
 import { TileRuleConfig } from './TileRules';
+import { UserScoreHistory } from './UserScoreHistory';
 
 export type GameManagerOptions = {
   size: number;
@@ -18,6 +19,7 @@ export type GameManagerOptions = {
   freeplay?: boolean;
   logging?: boolean;
   ruleConfigs?: Map<string, TileRuleConfig>;
+  userScoreHistory?: UserScoreHistory;
 };
 
 export enum GameState {
@@ -45,6 +47,7 @@ export class GameManager {
   gameStartTime: number = Date.now();
   gameEndTime: number = Date.now();
   tileRuleConfigs: Map<string, TileRuleConfig>;
+  userScoreHistory?: UserScoreHistory;
 
   // private timeScoreFactor: number = 10;
 
@@ -74,6 +77,7 @@ export class GameManager {
       waste: new ScoreObject('waste', 0),
     };
     this.state = GameState.Ready;
+    this.userScoreHistory = this.options.userScoreHistory;
   }
 
   configGame(options: Partial<GameManagerOptions>) {
@@ -382,8 +386,17 @@ export class GameManager {
 
     scoreElements.set(
       'Old growth tree bonus',
-      oldestTree > 20 ? oldestTree * oldestTreeBonusMultiplier : 0
+      // Slightly less than the daily mini age maximum of 20
+      oldestTree > 18 ? oldestTree * oldestTreeBonusMultiplier : 0
     );
+
+    if (this.userScoreHistory) {
+      const streak = this.userScoreHistory.calculateNewStreak();
+      const streakBonus = streak > 1 ? 500 : 0;
+      const streakLengthBonus = streak * 10;
+
+      scoreElements.set('Streak bonus', streakBonus + streakLengthBonus);
+    }
 
     return scoreElements;
   }

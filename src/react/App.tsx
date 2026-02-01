@@ -32,7 +32,10 @@ function App() {
         console.log('Updated game manager with rules:', config.size);
       } else {
         // Create a new game manager with the loaded rules
-        const newGameManager = new GameManager({ ruleConfigs: config });
+        const newGameManager = new GameManager({
+          ruleConfigs: config,
+          userScoreHistory: userScoreHistory,
+        });
         setGameManager(newGameManager);
         console.log('Created new game manager with rules:', config.size);
       }
@@ -42,15 +45,19 @@ function App() {
   const switchView = (viewName: ViewTypes, newGame: boolean) => {
     setCurrentView(viewName);
 
-    if (newGame && gameManager) {
-      gameManager.resetGame();
-      gameManager.startGame();
-    }
-
     if (viewName !== 'daily') {
       userScoreHistory = new UserScoreHistory(localStorage, viewName);
     } else {
       userScoreHistory = new UserScoreHistory(localStorage);
+    }
+
+    if (gameManager) {
+      gameManager.userScoreHistory = userScoreHistory;
+    }
+
+    if (newGame && gameManager) {
+      gameManager.resetGame();
+      gameManager.startGame();
     }
   };
 
