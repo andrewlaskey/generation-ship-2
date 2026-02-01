@@ -1,4 +1,3 @@
-import { last } from 'radash';
 import { GameStorage } from '../types/GameStorage';
 import { EndGameResult, GameResults } from './AutoPlayer';
 import { GameState } from './GameManager';
